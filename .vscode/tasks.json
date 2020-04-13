@@ -1,0 +1,27 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "main.c",
+                "drone.c",
+                "vec2.c",
+                "-lm",
+                "-o./build/vocabs2",
+                "-std=c11",
+                "-w",
+                "-Wextra",
+                "-Wfatal-errors",
+                "-Wall",
+                "-g"
+            ],
+            "group": "build"
+            
+        }
+    ]
+}

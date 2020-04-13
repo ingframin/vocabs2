@@ -1,0 +1,1 @@
+default: main.o vec2.o drone.o
