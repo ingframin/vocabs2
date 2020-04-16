@@ -120,7 +120,7 @@ void DR_goto(Drone* d, vec2 waypoint){
 
 bool DR_collision(Drone* d1, Drone* d2){
 	Obstacle o = compute_obstacle(d1,d2);
-	vec2 dif = v2_sub(d1,d2);
+	vec2 dif = v2_sub(&d1->speed,&d2->speed);
 	vec2 ds = v2_add(&dif,&d1->position);
 	barycoords bc = barycentric(o.position,o.T1,o.T2,ds);
 	if(bc.alpha>0 && bc.beta >0 && bc.gamma>0){
