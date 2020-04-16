@@ -8,7 +8,7 @@
 #include "drone.h"
 #include "video.h"
 
-Drone d;
+Drone* d;
 
 
 int main(int argc, char* argv[]){
@@ -21,12 +21,12 @@ int main(int argc, char* argv[]){
   vec2 p4 = {600.0,500.0};
   vec2 p5 = {200.0,600.0};
   vec2 p6 = {300.0,500.0};
-  DR_push_waypoint(&d, p6);
-  DR_push_waypoint(&d, p5);
-  DR_push_waypoint(&d, p4);
-  DR_push_waypoint(&d, p3);
-  DR_push_waypoint(&d, p2);
-  DR_push_waypoint(&d, p1);
+  DR_push_waypoint(d, p6);
+  DR_push_waypoint(d, p5);
+  DR_push_waypoint(d, p4);
+  DR_push_waypoint(d, p3);
+  DR_push_waypoint(d, p2);
+  DR_push_waypoint(d, p1);
   bool running = true;
   
   SDL_Event evt;
@@ -37,9 +37,9 @@ int main(int argc, char* argv[]){
         running = false;
       }
     }
-    DR_move(&d,1e-1);
+    DR_move(d,1e-1);
     clear(disp);
-    drawDrone(disp,&d);
+    drawDrone(disp,d);
     render(disp);
     
   }

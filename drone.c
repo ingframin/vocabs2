@@ -66,18 +66,18 @@ barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P){
 
 }
     
-Drone DR_newDrone(double x, double y,double vx,double vy, double size){
-	Drone d;
-	d.id = ids;
+Drone* DR_newDrone(double x, double y,double vx,double vy, double size){
+	Drone* d = malloc(sizeof(Drone));
+	d->id = ids;
 	ids++;
-	d.position.x = x;
-	d.position.y = y;
-	d.speed.x = vx;
-	d.speed.y = vy;
-	d.waypoints = malloc(2*sizeof(vec2));
-	d.wp_len = 2;
-	d.curr_wp = 0;
-	d.size = size;
+	d->position.x = x;
+	d->position.y = y;
+	d->speed.x = vx;
+	d->speed.y = vy;
+	d->waypoints = malloc(2*sizeof(vec2));
+	d->wp_len = 2;
+	d->curr_wp = 0;
+	d->size = size;
 	return d;
 }
 
@@ -86,7 +86,7 @@ void DR_move(Drone* d, double dt){
 		return;
 	}
 	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < d->size){
-		printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
+		//printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
 	}
 	
@@ -160,4 +160,5 @@ void DR_pop_waypoint(Drone* d){
 
 void DR_freeDrone(Drone*d){
 	free(d->waypoints);
+	free(d);
 }
