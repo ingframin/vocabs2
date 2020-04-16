@@ -7,16 +7,19 @@ Drone d;
 
 int main(int argc, char* argv[]){
 
-  d.position.x = 100;
-  d.position.y = 100;
-  d.speed.x = 10;
-  d.speed.y = 0;
-  vec2 waypoint;
-  waypoint.x = 500;
-  waypoint.y = -200;
-  printf("%.6f;%.6f\n",d.speed.x,d.speed.y);
-  DR_goto(&d,waypoint);
-  printf("%.6f;%.6f\n",d.speed.x,d.speed.y);
+  d = DR_newDrone(10.0,10.0,5.0,0.0,2);
+  vec2 p1 = {20.0,30.0};
+  vec2 p2 = {50.0,20.0};
+  vec2 p3 = {20.0,50.0};
+  DR_push_waypoint(&d, p3);
+  DR_push_waypoint(&d, p2);
+  DR_push_waypoint(&d, p1);
+  for(int i=0;i<100;i++){
+    DR_move(&d,i/10.0);
+    printf("%.4f\n",v2_distance(&d.position,&d.waypoints[d.curr_wp]));
+    printf("wp: %.2f;%.2f\n",d.waypoints[d.curr_wp].x,d.waypoints[d.curr_wp].y);
+    
+  }
   return 0;
 
 }
