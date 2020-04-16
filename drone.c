@@ -6,8 +6,9 @@
 #define M_PI (3.14159265358979323846)
 #endif
 #include "vec2.h"
-
+#define MAX_ANGLE 0.01
 static uint32_t ids =0;
+
 
 const Obstacle compute_obstacle(Drone *d1, Drone* d2)
 {
@@ -85,13 +86,14 @@ void DR_move(Drone* d, double dt){
 		return;
 	}
 	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < d->size){
+		printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
 	}
 	
 	DR_goto(d,d->waypoints[d->curr_wp]);
 	vec2 dP = v2_prodK(&d->speed,dt);
 	d->position = v2_add(&d->position,&dP);
-
+	
 }
 
 void DR_goto(Drone* d, vec2 waypoint){
@@ -112,6 +114,9 @@ void DR_goto(Drone* d, vec2 waypoint){
   }
 
   double angle = -acos(C);
+  if(angle > MAX_ANGLE){
+	  angle = MAX_ANGLE;
+  }
   //steer
   
   d->speed = v2_rotate(&d->speed,angle);
