@@ -27,7 +27,7 @@ typedef struct {
   vec2 speed;
   vec2* waypoints;
   unsigned int wp_len;
-  unsigned int curr_wp;
+  int curr_wp;
   double size;  
 } Drone;
 

@@ -81,9 +81,13 @@ Drone DR_newDrone(double x, double y,double vx,double vy, double size){
 }
 
 void DR_move(Drone* d, double dt){
-	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < 2*d->size){
+	if(d->curr_wp < 0){
+		return;
+	}
+	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < d->size){
 		DR_pop_waypoint(d);
 	}
+	
 	DR_goto(d,d->waypoints[d->curr_wp]);
 	vec2 dP = v2_prodK(&d->speed,dt);
 	d->position = v2_add(&d->position,&dP);
