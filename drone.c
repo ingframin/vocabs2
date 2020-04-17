@@ -10,7 +10,7 @@
 static uint32_t ids =0;
 
 
-const Obstacle compute_obstacle(Drone *d1, Drone* d2)
+Obstacle compute_obstacle(Drone *d1, Drone* d2)
 {
 	// Minkowski addition
 	double r = d1->size + d2->size;
@@ -82,9 +82,7 @@ Drone* DR_newDrone(double x, double y,double vx,double vy, double size){
 }
 
 void DR_move(Drone* d, double dt){
-	if(d->curr_wp < 0){
-		return;
-	}
+	
 	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < d->size){
 		//printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
@@ -155,7 +153,8 @@ void DR_push_waypoint(Drone* d, vec2 wp){
 	d->waypoints[d->curr_wp] = wp;
 }
 void DR_pop_waypoint(Drone* d){
-	d->curr_wp -= 1;
+	d->curr_wp =(d->curr_wp > 0)? d->curr_wp-1:0;
+		
 }
 
 void DR_freeDrone(Drone*d){
