@@ -21,10 +21,12 @@ void CH_broadcast(Channel* c, Message m){
     }
 }
 
-Message CH_receive(Channel* c, double Ploss){
+Message CH_receive(Channel* c, double Ploss, unsigned int index){
     double n = (1.0*rand()) / RAND_MAX;
-    if(n < Ploss){
-        return c->messages[c->count];
+    if(n < Ploss && index < c->count){
+        return c->messages[index];
     }
-
+    Message m;
+    m.size = -1;//Negative size for a bad message
+    return m;
 }
