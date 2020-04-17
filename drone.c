@@ -14,7 +14,7 @@ const Obstacle compute_obstacle(Drone *d1, Drone* d2)
 {
 	// Minkowski addition
 	double r = d1->size + d2->size;
-	vec2 center;
+	vec2 center = d2->position;
 	//Computing tangent lines to circle passing through the point self.position
 	double dx = center.x - d2->position.x;
 	double a = dx * dx - r * r;

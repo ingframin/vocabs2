@@ -21,7 +21,9 @@ typedef struct{
 
 Channel* CH_newChannel(unsigned int length);
 void CH_freeChannel(Channel* c);
+//puts a message into the channel
 void CH_broadcast(Channel* c,Message m);
+//returns the message indexed by index. 
 Message CH_receive(Channel* c, double Ploss, unsigned int index);
 
 #endif

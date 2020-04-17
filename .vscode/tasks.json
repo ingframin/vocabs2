@@ -12,6 +12,7 @@
                 "drone.c",
                 "vec2.c",
                 "video.c",
+                "channel.c",
                 "-lm",
                 "-lSDL2main",
                 "-lSDL2",
