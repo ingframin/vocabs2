@@ -27,6 +27,32 @@
             ],
             "group": "build"
             
+        },
+        {
+            "label": "build win",
+            "type": "shell",
+            "command":"gcc",
+            "args": [
+                "main.c",
+                "drone.c",
+                "vec2.c",
+                "video.c",
+                "channel.c",
+                "-o./build/vocabs2.exe",
+                "-Wall",
+                "-std=c11",
+                "-L./lib",
+                "-lm",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-lSDL2_image",
+ //               "-I./SDL2",
+                "-Wall",
+                "-Wextra",
+                "-Wfatal-errors",
+                "-g"
+            ]
         }
     ]
 }
