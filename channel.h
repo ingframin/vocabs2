@@ -9,9 +9,18 @@ typedef struct{
     uint32_t id;
     vec2 pos;
     vec2 speed;
+    double size;
 }Message;
 
+typedef struct{
+    Message* messages;
+    unsigned int len;
+    unsigned int count;
+}Channel;
 
-//How to manage this in such a way that it can be parallelized?
+Channel* CH_newChannel(unsigned int length);
+void CH_freeChannel(Channel* c);
+void CH_broadcast(Channel* c,Message m);
+Message CH_receive(Channel* c, double Ploss);
 
 #endif

@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
-
+#include<time.h>
 #include<SDL2/SDL.h>
 
 
@@ -9,9 +9,11 @@
 #include "video.h"
 
 Drone* d;
-
+time_t t;
 
 int main(int argc, char* argv[]){
+  t = time(NULL);
+  srand(t);
   Display* disp = initVideo(800,800);
   d = DR_newDrone(100.0,100.0,20.0,0.0,20);
   
