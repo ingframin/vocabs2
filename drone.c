@@ -46,7 +46,7 @@ Obstacle compute_obstacle(Drone *d1, Drone* d2)
 
 	//Construct obstacle
 	Obstacle o;
-	o.position = d2->position;
+	o.position = d1->position;
 	o.radius = r;
 	o.T1.x = xt1;
   	o.T1.y = yt1;
@@ -58,11 +58,12 @@ Obstacle compute_obstacle(Drone *d1, Drone* d2)
 
 barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P){
   	barycoords bc;
-  	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
+	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
 				((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
 	bc.beta = ((A.y - C.y) * P.x + (C.x - A.x) * P.y + A.x * C.y - C.x * A.y) /
 			   ((A.y - C.y) * B.x + (C.x - A.x) * B.y + A.x * C.y - C.x * A.y);
 	bc.alpha = 1 - bc.beta - bc.gamma;
+
   	return bc;
 
 }
@@ -124,9 +125,13 @@ void DR_goto(Drone* d, vec2 waypoint){
 
 bool DR_collision(Drone* d1, Drone* d2){
 	Obstacle o = compute_obstacle(d1,d2);
+	//printf("%.3f;%.3f\n",o.position.x,o.position.y);
 	vec2 dif = v2_sub(&d1->speed,&d2->speed);
+	
 	vec2 ds = v2_add(&dif,&d1->position);
+	printf("%.3f;%.3f\n",ds.x,ds.y);
 	barycoords bc = barycentric(o.position,o.T1,o.T2,ds);
+	printf("%.3f;%.3f;%.3f\n",bc.alpha,bc.beta,bc.gamma);
 	if(bc.alpha>0 && bc.beta >0 && bc.gamma>0){
 		return true;
 	}
@@ -136,6 +141,7 @@ bool DR_collision(Drone* d1, Drone* d2){
 }
 void DR_avoid(Drone* d, Drone* d2){
 	if(DR_collision(d,d2)){
+		printf("collision");
 		vec2 escape = v2_rotate(&d->speed,M_PI/2);
 		escape = v2_norm(&escape);
 		escape = v2_prodK(&escape,2*(d->size+d2->size));

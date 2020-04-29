@@ -12,8 +12,7 @@
                 "video.c",
                 "channel.c",
                 "-I./SDL2",
-                "-L./lib",
-                "-lmingw32",
+                //"-L./lib",
                 "-lm",
                 "-lSDL2main",
                 "-lSDL2",
@@ -52,7 +51,8 @@
                 "-Wextra",
                 "-Wfatal-errors",
                 "-g"
-            ]
+            ],
+            "group": "build"
         },
         {
             "type": "shell",

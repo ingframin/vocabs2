@@ -37,6 +37,7 @@ int main(int argc, char* argv[]){
         running = false;
       }
     }
+    DR_avoid(d2,d1);
     DR_move(d1,1e-1);
     DR_move(d2,1e-1);
     clear(disp);
