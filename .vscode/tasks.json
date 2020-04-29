@@ -23,7 +23,8 @@
                 "-Wextra",
                 "-Wfatal-errors",
                 "-Wall",
-                "-g"
+                "-g",
+                "-pg"
             ],
             "group": "build"
         },
