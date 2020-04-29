@@ -15,20 +15,20 @@ Obstacle compute_obstacle(Drone *d1, Drone* d2)
 {
 	// Minkowski addition
 	double r = d1->size + d2->size;
-	vec2 center = d2->position;
+	
 	//Computing tangent lines to circle passing through the point self.position
-	double dx = center.x - d2->position.x;
+	double dx = d1->position.x - d2->position.x;
 	double a = dx * dx - r * r;
-	double b = 2 * dx * (center.y - d2->position.y);
-	double c = (d2->position.y - center.y) * (d2->position.y - center.y) - r * r;
+	double b = 2 * dx * (d1->position.y - d2->position.y);
+	double c = (d2->position.y - d1->position.y) * (d2->position.y - d1->position.y) - r * r;
 	double Delta = b * b - 4 * a * c;
 
 	//Angular coefficient
 	double m1 = (-b + sqrt(Delta)) / (2 * a);
 	double m2 = (-b - sqrt(Delta)) / (2 * a);
 	//Intersection with y axis
-	double q1 = center.y - m1 * center.x;
-	double q2 = center.y - m2 * center.x;
+	double q1 = d1->position.y - m1 * d1->position.x;
+	double q2 = d1->position.y - m2 * d1->position.x;
 
 	//(xt1,yt1) - first tangent point.
 	double a1 = 1 + m1 * m1;
@@ -46,13 +46,13 @@ Obstacle compute_obstacle(Drone *d1, Drone* d2)
 
 	//Construct obstacle
 	Obstacle o;
-	o.position = d1->position;
+	o.position = d2->position;
 	o.radius = r;
 	o.T1.x = xt1;
   	o.T1.y = yt1;
 	o.T2.x = xt2;
   	o.T2.y = yt2;
-
+	// printf("T1.x= %.3f,T1.y= %.3f\n",o.T1.x,o.T1.y);
 	return o;
 }
 
@@ -111,13 +111,18 @@ void DR_goto(Drone* d, vec2 waypoint){
   	
   	double angle=0;
   	
-	if(C > 0.99999){
+	if(C > 0.9999){
+		angle = 0;
 		
-		return;
+	}
+	else if(C<-0.9999){
+		angle = M_PI;
+	}
+	else{
+		angle = -acos(C);
 	}
 	
-	angle = -acos(C);
-  
+		
   	d->speed = v2_rotate(&d->speed,angle);
 
 
@@ -127,11 +132,11 @@ bool DR_collision(Drone* d1, Drone* d2){
 	Obstacle o = compute_obstacle(d1,d2);
 	//printf("%.3f;%.3f\n",o.position.x,o.position.y);
 	vec2 dif = v2_sub(&d1->speed,&d2->speed);
-	
+	// printf("%.3f;%.3f\n",d1->speed.x,d1->speed.y);
 	vec2 ds = v2_add(&dif,&d1->position);
-	printf("%.3f;%.3f\n",ds.x,ds.y);
-	barycoords bc = barycentric(o.position,o.T1,o.T2,ds);
-	printf("%.3f;%.3f;%.3f\n",bc.alpha,bc.beta,bc.gamma);
+	// printf("%.3f;%.3f\n",ds.x,ds.y);
+	barycoords bc = barycentric(d1->position,o.T2,o.T1,ds);
+	// printf("%.3f;%.3f;%.3f\n",bc.alpha,bc.beta,bc.gamma);
 	if(bc.alpha>0 && bc.beta >0 && bc.gamma>0){
 		return true;
 	}
@@ -141,12 +146,20 @@ bool DR_collision(Drone* d1, Drone* d2){
 }
 void DR_avoid(Drone* d, Drone* d2){
 	if(DR_collision(d,d2)){
-		printf("collision");
-		vec2 escape = v2_rotate(&d->speed,M_PI/2);
-		escape = v2_norm(&escape);
-		escape = v2_prodK(&escape,2*(d->size+d2->size));
-		escape = v2_add(&escape,&d->position);
-		DR_push_waypoint(d,escape);
+		// printf("collision");
+		vec2 dir = v2_norm(&d->speed);
+		double theta = atan2(dir.y, dir.x);
+		vec2 p2rel = v2_sub(&d2->position,&d->position);
+		double thetaP2 = atan2(p2rel.y, p2rel.x);
+		if (fabs(thetaP2) > fabs(theta)){
+			vec2 escape = v2_rotate(&d->speed,-M_PI/2);
+			escape = v2_norm(&escape);
+			escape = v2_prodK(&escape,4*(d->size+d2->size));
+			escape = v2_add(&escape,&d->position);
+			DR_push_waypoint(d,escape);
+		}
+                   
+		
 		
 	}
 }
