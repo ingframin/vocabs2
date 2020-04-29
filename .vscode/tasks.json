@@ -1,6 +1,4 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
@@ -13,6 +11,9 @@
                 "vec2.c",
                 "video.c",
                 "channel.c",
+                "-I./SDL2",
+                "-L./lib",
+                "-lmingw32",
                 "-lm",
                 "-lSDL2main",
                 "-lSDL2",
@@ -26,7 +27,46 @@
                 "-g"
             ],
             "group": "build"
-            
+        },
+        {
+            "label": "build win",
+            "type": "shell",
+            "command": "gcc",
+            "args": [
+                "main.c",
+                "drone.c",
+                "vec2.c",
+                "video.c",
+                "channel.c",
+                "-I./lib",
+                "-o./build/vocabs2.exe",
+                "-Wall",
+                "-std=c11",
+                "-L./lib",
+                "-lm",
+                "-lmingw32",
+                "-lSDL2main",
+                "-lSDL2",
+                "-lSDL2_image",
+                "-Wall",
+                "-Wextra",
+                "-Wfatal-errors",
+                "-g"
+            ]
+        },
+        {
+            "type": "shell",
+            "label": "gcc.exe build active file",
+            "command": "C:\\mingw-w64\\mingw64\\bin\\gcc.exe",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "C:\\mingw-w64\\mingw64\\bin"
+            }
         }
     ]
 }
