@@ -7,6 +7,7 @@
 #endif
 #include "vec2.h"
 #define MAX_ANGLE 0.01
+#define ABS(x) (x<0)?-1.0*x:x
 static uint32_t ids =0;
 
 
@@ -88,9 +89,12 @@ void DR_move(Drone* d, double dt){
 	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < d->size){
 		//printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
+		
 	}
 	
 	DR_goto(d,d->waypoints[d->curr_wp]);
+	
+	
 	vec2 dP = v2_prodK(&d->speed,dt);
 	d->position = v2_add(&d->position,&dP);
 	
@@ -98,28 +102,25 @@ void DR_move(Drone* d, double dt){
 
 void DR_goto(Drone* d, vec2 waypoint){
   
-  vec2 dir = v2_norm(&d->speed);
+  	vec2 dir = v2_norm(&d->speed);
   
-  vec2 dirp = v2_sub(&waypoint, &d->position);
+  	vec2 dirp = v2_sub(&waypoint, &d->position);
   
-  dirp = v2_norm(&dirp);
+  	dirp = v2_norm(&dirp);
   
-  double C = v2_dot(&dir,&dirp);
+  	double C = v2_dot(&dir,&dirp);
+  	
+  	double angle=0;
+  	
+	if(C > 0.99999){
+		
+		return;
+	}
+	
+	angle = -acos(C);
   
-  if(C > 1.0){
-    C=1.0;
-  }
-  else if(C < -1.0){
-    C=-1.0;
-  }
+  	d->speed = v2_rotate(&d->speed,angle);
 
-  double angle = -acos(C);
-  if(angle > MAX_ANGLE){
-	  angle = MAX_ANGLE;
-  }
-  //steer
-  
-  d->speed = v2_rotate(&d->speed,angle);
 
 }
 

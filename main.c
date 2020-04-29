@@ -8,27 +8,25 @@
 #include "drone.h"
 #include "video.h"
 
-Drone* d;
+Drone* d1;
+Drone* d2;
 time_t t;
 
 int main(int argc, char* argv[]){
   t = time(NULL);
   srand(t);
   Display* disp = initVideo(800,800);
-  d = DR_newDrone(100.0,100.0,20.0,0.0,20);
+  d1 = DR_newDrone(0.0,0.0,20.0,0.0,20);
+  d2 = DR_newDrone(800.0,0.0,20.0,0.0,20);
   
-  vec2 p1 = {80.0,600.0};
-  vec2 p2 = {500.0,500.0};
-  vec2 p3 = {200.0,500.0};
-  vec2 p4 = {600.0,500.0};
-  vec2 p5 = {200.0,600.0};
-  vec2 p6 = {300.0,500.0};
-  DR_push_waypoint(d, p6);
-  DR_push_waypoint(d, p5);
-  DR_push_waypoint(d, p4);
-  DR_push_waypoint(d, p3);
-  DR_push_waypoint(d, p2);
-  DR_push_waypoint(d, p1);
+  vec2 p1 = {400.0,400.0};
+  vec2 p2 = {800.0,800.0};
+  vec2 p3 = {000.0,800.0};
+  DR_push_waypoint(d1, p1);
+  DR_push_waypoint(d2, p1);
+  DR_push_waypoint(d1, p2);
+  DR_push_waypoint(d2, p3);
+
   bool running = true;
   
   SDL_Event evt;
@@ -39,9 +37,11 @@ int main(int argc, char* argv[]){
         running = false;
       }
     }
-    DR_move(d,1e-1);
+    DR_move(d1,1e-1);
+    DR_move(d2,1e-1);
     clear(disp);
-    drawDrone(disp,d);
+    drawDrone(disp,d1);
+    drawDrone(disp,d2);
     render(disp);
     
   }

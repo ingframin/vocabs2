@@ -8,6 +8,7 @@ inline double v2_mod(vec2* v){
 }
 
 inline vec2 v2_rotate(vec2* v,double angle){
+  
    vec2 ret; 
    ret.x = v->x * cos(angle) - v->y * sin(angle);
    ret.y = v->x * sin(angle) + v->y * cos(angle);

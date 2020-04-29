@@ -25,4 +25,5 @@ vec2 v2_addK(vec2*,double k);
 vec2 v2_prodK(vec2*, double k);
 //distance between 2 vectors
 double v2_distance(vec2*,vec2*);
+
 #endif
