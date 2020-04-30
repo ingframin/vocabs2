@@ -1,5 +1,5 @@
 #include "drone.h"
-#include<stdlib.h>
+#include <stdlib.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #ifndef M_PI
@@ -7,15 +7,14 @@
 #endif
 #include "vec2.h"
 #define MAX_ANGLE 0.01
-#define ABS(x) (x<0)?-1.0*x:x
-static uint32_t ids =0;
+#define ABS(x) (x < 0) ? -1.0 * x : x
+static uint32_t ids = 0;
 
-
-Obstacle compute_obstacle(Drone *d1, Drone* d2)
+Obstacle compute_obstacle(Drone *d1, Drone *d2)
 {
 	// Minkowski addition
 	double r = d1->size + d2->size;
-	
+
 	//Computing tangent lines to circle passing through the point self.position
 	double dx = d1->position.x - d2->position.x;
 	double a = dx * dx - r * r;
@@ -49,135 +48,139 @@ Obstacle compute_obstacle(Drone *d1, Drone* d2)
 	o.position = d2->position;
 	o.radius = r;
 	o.T1.x = xt1;
-  	o.T1.y = yt1;
+	o.T1.y = yt1;
 	o.T2.x = xt2;
-  	o.T2.y = yt2;
+	o.T2.y = yt2;
 	// printf("T1.x= %.3f,T1.y= %.3f\n",o.T1.x,o.T1.y);
 	return o;
 }
 
-barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P){
-  	barycoords bc;
+barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
+{
+	barycoords bc;
 	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
-				((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
+			   ((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
 	bc.beta = ((A.y - C.y) * P.x + (C.x - A.x) * P.y + A.x * C.y - C.x * A.y) /
-			   ((A.y - C.y) * B.x + (C.x - A.x) * B.y + A.x * C.y - C.x * A.y);
+			  ((A.y - C.y) * B.x + (C.x - A.x) * B.y + A.x * C.y - C.x * A.y);
 	bc.alpha = 1 - bc.beta - bc.gamma;
 
-  	return bc;
-
+	return bc;
 }
-    
-Drone* DR_newDrone(double x, double y,double vx,double vy, double size){
-	Drone* d = malloc(sizeof(Drone));
+
+Drone *DR_newDrone(double x, double y, double vx, double vy, double size)
+{
+	Drone *d = malloc(sizeof(Drone));
 	d->id = ids;
 	ids++;
 	d->position.x = x;
 	d->position.y = y;
 	d->speed.x = vx;
 	d->speed.y = vy;
-	d->waypoints = malloc(2*sizeof(vec2));
+	d->waypoints = malloc(2 * sizeof(vec2));
 	d->wp_len = 2;
 	d->curr_wp = 0;
 	d->size = size;
 	return d;
 }
 
-void DR_move(Drone* d, double dt){
-	
-	if(v2_distance(&d->position,&d->waypoints[d->curr_wp]) < d->size){
+void DR_move(Drone *d, double dt)
+{
+
+	if (v2_distance(d->position, d->waypoints[d->curr_wp]) < d->size)
+	{
 		//printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
-		
 	}
-	
-	DR_goto(d,d->waypoints[d->curr_wp]);
-	
-	
-	vec2 dP = v2_prodK(&d->speed,dt);
-	d->position = v2_add(&d->position,&dP);
-	
+
+	DR_goto(d, d->waypoints[d->curr_wp]);
+
+	vec2 dP = v2_prodK(d->speed, dt);
+	d->position = v2_add(d->position, dP);
 }
 
-void DR_goto(Drone* d, vec2 waypoint){
-  
-  	vec2 dir = v2_norm(&d->speed);
-  
-  	vec2 dirp = v2_sub(&waypoint, &d->position);
-  
-  	dirp = v2_norm(&dirp);
-  
-  	double C = v2_dot(&dir,&dirp);
-  	
-  	double angle=0;
-  	
-	if(C > 0.9999){
+void DR_goto(Drone *d, vec2 waypoint)
+{
+
+	vec2 dir = v2_norm(d->speed);
+
+	vec2 dirp = v2_sub(waypoint, d->position);
+
+	dirp = v2_norm(dirp);
+
+	double C = v2_dot(dir, dirp);
+
+	double angle = 0;
+
+	if (C > 0.9999)
+	{
 		angle = 0;
-		
 	}
-	else if(C<-0.9999){
+	else if (C < -0.9999)
+	{
 		angle = M_PI;
 	}
-	else{
+	else
+	{
 		angle = -acos(C);
 	}
-	
-		
-  	d->speed = v2_rotate(&d->speed,angle);
 
-
+	d->speed = v2_rotate(d->speed, angle);
 }
 
-bool DR_collision(Drone* d1, Drone* d2){
-	Obstacle o = compute_obstacle(d1,d2);
+bool DR_collision(Drone *d1, Drone *d2)
+{
+	Obstacle o = compute_obstacle(d1, d2);
 	//printf("%.3f;%.3f\n",o.position.x,o.position.y);
-	vec2 dif = v2_sub(&d1->speed,&d2->speed);
+	vec2 dif = v2_sub(d1->speed, d2->speed);
 	// printf("%.3f;%.3f\n",d1->speed.x,d1->speed.y);
-	vec2 ds = v2_add(&dif,&d1->position);
+	vec2 ds = v2_add(dif, d1->position);
 	// printf("%.3f;%.3f\n",ds.x,ds.y);
-	barycoords bc = barycentric(d1->position,o.T2,o.T1,ds);
+	barycoords bc = barycentric(d1->position, o.T2, o.T1, ds);
 	// printf("%.3f;%.3f;%.3f\n",bc.alpha,bc.beta,bc.gamma);
-	if(bc.alpha>0 && bc.beta >0 && bc.gamma>0){
+	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
+	{
 		return true;
 	}
 
-    return false;
-
+	return false;
 }
-void DR_avoid(Drone* d, Drone* d2){
-	if(DR_collision(d,d2)){
+void DR_avoid(Drone *d, Drone *d2)
+{
+	if (DR_collision(d, d2))
+	{
 		// printf("collision");
-		vec2 dir = v2_norm(&d->speed);
+		vec2 dir = v2_norm(d->speed);
 		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_sub(&d2->position,&d->position);
+		vec2 p2rel = v2_sub(d2->position, d->position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
-		if (fabs(thetaP2) > fabs(theta)){
-			vec2 escape = v2_rotate(&d->speed,-M_PI/2);
-			escape = v2_norm(&escape);
-			escape = v2_prodK(&escape,4*(d->size+d2->size));
-			escape = v2_add(&escape,&d->position);
-			DR_push_waypoint(d,escape);
+		if (fabs(thetaP2) > fabs(theta))
+		{
+			vec2 escape = v2_rotate(d->speed, -M_PI / 2);
+			escape = v2_norm(escape);
+			escape = v2_prodK(escape, 4 * (d->size + d2->size));
+			escape = v2_add(escape, d->position);
+			DR_push_waypoint(d, escape);
 		}
-                   
-		
-		
 	}
 }
-void DR_push_waypoint(Drone* d, vec2 wp){
-	
-	if(d->curr_wp==(d->wp_len-1)){
-		d->wp_len = (d->wp_len+(d->wp_len>>1));
-		d->waypoints = realloc(d->waypoints,(d->wp_len+(d->wp_len>>1))*sizeof(vec2));	 
+void DR_push_waypoint(Drone *d, vec2 wp)
+{
+
+	if (d->curr_wp == (d->wp_len - 1))
+	{
+		d->wp_len = (d->wp_len + (d->wp_len >> 1));
+		d->waypoints = realloc(d->waypoints, (d->wp_len + (d->wp_len >> 1)) * sizeof(vec2));
 	}
 	d->curr_wp += 1;
 	d->waypoints[d->curr_wp] = wp;
 }
-void DR_pop_waypoint(Drone* d){
-	d->curr_wp =(d->curr_wp > 0)? d->curr_wp-1:0;
-		
+void DR_pop_waypoint(Drone *d)
+{
+	d->curr_wp = (d->curr_wp > 0) ? d->curr_wp - 1 : 0;
 }
 
-void DR_freeDrone(Drone*d){
+void DR_freeDrone(Drone *d)
+{
 	free(d->waypoints);
 	free(d);
 }

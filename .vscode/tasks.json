@@ -24,7 +24,9 @@
                 "-Wfatal-errors",
                 "-Wall",
                 "-g",
-                "-pg"
+                "-pg",
+                "-O3",
+                "-finline-functions"
             ],
             "group": "build"
         },
@@ -38,7 +40,7 @@
                 "vec2.c",
                 "video.c",
                 "channel.c",
-                "-I./lib",
+                "-I./SDL2",
                 "-o./build/vocabs2.exe",
                 "-Wall",
                 "-std=c11",
@@ -51,7 +53,9 @@
                 "-Wall",
                 "-Wextra",
                 "-Wfatal-errors",
-                "-g"
+                "-g",
+                "-O3",
+                "-finline-functions"
             ],
             "group": "build"
         },
