@@ -76,6 +76,7 @@ int main(int argc, char *argv[])
           // }
           if (timer >= 1 / rate)
           {
+            // Change to wi-fi or ads-b functions
             int p = rand() % 100;
 
             if (p < 50)
