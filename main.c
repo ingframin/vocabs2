@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
       for (uint64_t it = 0; it < iterations; it++)
       {
 
-        Drone d1 = DR_newDrone(0.0, 0.0, 20.0, 0.0, 20);
-        Drone d2 = DR_newDrone(1000.0, 0.0, 20.0, 0.0, 20);
+        Drone d1 = DR_newDrone(0.0, 0.0, 20.0, 0.0, 1);
+        Drone d2 = DR_newDrone(1000.0, 0.0, 20.0, 0.0, 1);
         DR_push_waypoint(&d1, p2);
         DR_push_waypoint(&d2, p3);
         DR_push_waypoint(&d1, p1);
@@ -152,10 +152,21 @@ int main(int argc, char *argv[])
   }   //openmp
 
   FILE *results = fopen("results.txt", "a");
-  for (int i = 0; i < len_rates; i++)
+  switch (prob)
   {
-    printf("%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
-    fprintf(results, "%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
+  case 'E':
+    fprintf(results, "Wi-Fi beacons\n");
+    break;
+  case 'C':
+    fprintf(results, "ADS-B\n");
+    break;
+  default:
+    fprintf(results, "No loss\n");
+  }
+  for (uint64_t k = 0; k < len_rates; k++)
+  {
+    printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
+    fprintf(results, "%.3f\t%.10f\n", rates[k], collisions[k] / iterations);
   }
   fclose(results);
 
