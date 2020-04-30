@@ -16,29 +16,50 @@ double dt = 1E-3; //seconds
 double rates[] = {
     1E-3,
     1E-2,
+    5E-2,
     1E-1,
+    5E-1,
     0.5,
     1.0,
     2.0,
+    4.0,
+    8.0,
     10.0,
+    16.0,
     20.0}; //msg/s
 
 uint64_t len_rates = sizeof(rates) / sizeof(double);
-double collisions[8];
 
 double rate = 1.0;
-
+char prob = 'A';
 int main(int argc, char *argv[])
 {
+  if (argc > 1)
+  {
+    prob = argv[1][0];
+  }
+  switch (prob)
+  {
+  case 'E':
+    printf("Wi-Fi beacons\n");
+    break;
+  case 'C':
+    printf("ADS-B\n");
+    break;
+  default:
+    printf("No loss\n");
+  }
+
+  double collisions[len_rates];
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
   // Display *disp = initVideo(800, 800);
   //speed is in m/s
 
-  vec2 p1 = {400.0, 400.0};
-  vec2 p2 = {800.0, 800.0};
-  vec2 p3 = {000.0, 800.0};
+  vec2 p1 = {500.0, 500.0};
+  vec2 p2 = {1000.0, 1000.0};
+  vec2 p3 = {000.0, 1000.0};
 
   printf("Rate:\tPcrash:\n");
 #pragma omp parallel
@@ -53,7 +74,7 @@ int main(int argc, char *argv[])
       {
 
         Drone d1 = DR_newDrone(0.0, 0.0, 20.0, 0.0, 20);
-        Drone d2 = DR_newDrone(800.0, 0.0, 20.0, 0.0, 20);
+        Drone d2 = DR_newDrone(1000.0, 0.0, 20.0, 0.0, 20);
         DR_push_waypoint(&d1, p2);
         DR_push_waypoint(&d2, p3);
         DR_push_waypoint(&d1, p1);
@@ -77,9 +98,22 @@ int main(int argc, char *argv[])
           if (timer >= 1 / rate)
           {
             // Change to wi-fi or ads-b functions
-            int p = rand() % 100;
+            int p = rand() % 1000;
+            double lim;
+            switch (prob)
+            {
+            case 'E':
 
-            if (p < 50)
+              lim = 1000 * esat(v2_distance(d1.position, d2.position));
+              break;
+            case 'C':
+              lim = 1000 * consiglio(v2_distance(d1.position, d2.position));
+              break;
+            default:
+              lim = 1000.0;
+            }
+
+            if (p < lim)
             {
 
               DR_avoid(&d2, &d1);

@@ -52,5 +52,8 @@ void DR_avoid(Drone *d, Drone *d2);
 void DR_push_waypoint(Drone *d, vec2 wp);
 //pop removes the top waypoints (but it does not shrink the waypoint array)
 void DR_pop_waypoint(Drone *d);
+//Compute receive probability
+double consiglio(double dist);
+double esat(double dist);
 
 #endif
