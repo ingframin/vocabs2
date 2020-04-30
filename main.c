@@ -16,10 +16,11 @@ double dt = 1E-3; //seconds
 double rates[] = {
     1E-3,
     1E-2,
+    2.5E-2,
     5E-2,
     1E-1,
+    2.5E-1,
     5E-1,
-    0.5,
     1.0,
     2.0,
     4.0,
@@ -149,10 +150,13 @@ int main(int argc, char *argv[])
 
     } //rates
   }   //openmp
+  FILE *results = fopen("results.txt", "a");
   for (int i = 0; i < 8; i++)
   {
     printf("%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
+    fprintf(results, "%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
   }
+  fclose(results);
   // quitVideo(disp);
   return 0;
 }
