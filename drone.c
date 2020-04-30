@@ -1,5 +1,6 @@
 #include "drone.h"
 #include <stdlib.h>
+#include <stdio.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #ifndef M_PI
@@ -7,7 +8,7 @@
 #endif
 #include "vec2.h"
 #define MAX_ANGLE 0.01
-#define ABS(x) (x < 0) ? -1.0 * x : x
+
 static uint32_t ids = 0;
 
 Obstacle compute_obstacle(Drone *d1, Drone *d2)
@@ -67,19 +68,21 @@ barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
 	return bc;
 }
 
-Drone *DR_newDrone(double x, double y, double vx, double vy, double size)
+Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 {
-	Drone *d = malloc(sizeof(Drone));
-	d->id = ids;
+	Drone d;
+	d.id = ids;
 	ids++;
-	d->position.x = x;
-	d->position.y = y;
-	d->speed.x = vx;
-	d->speed.y = vy;
-	d->waypoints = malloc(2 * sizeof(vec2));
-	d->wp_len = 2;
-	d->curr_wp = 0;
-	d->size = size;
+	d.position.x = x;
+	d.position.y = y;
+	d.speed.x = vx;
+	d.speed.y = vy;
+	d.waypoints = malloc(2 * sizeof(vec2));
+	d.wp_len = 2;
+	d.curr_wp = 0;
+	d.waypoints[0].x = x;
+	d.waypoints[0].y = y;
+	d.size = size;
 	return d;
 }
 
@@ -88,7 +91,7 @@ void DR_move(Drone *d, double dt)
 
 	if (v2_distance(d->position, d->waypoints[d->curr_wp]) < d->size)
 	{
-		//printf("Reached: %.3f,%.3f",d->waypoints[d->curr_wp].x,d->waypoints[d->curr_wp].y);
+		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->curr_wp].x, d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
 	}
 
@@ -130,13 +133,13 @@ void DR_goto(Drone *d, vec2 waypoint)
 bool DR_collision(Drone *d1, Drone *d2)
 {
 	Obstacle o = compute_obstacle(d1, d2);
-	//printf("%.3f;%.3f\n",o.position.x,o.position.y);
+
 	vec2 dif = v2_sub(d1->speed, d2->speed);
-	// printf("%.3f;%.3f\n",d1->speed.x,d1->speed.y);
+
 	vec2 ds = v2_add(dif, d1->position);
-	// printf("%.3f;%.3f\n",ds.x,ds.y);
+
 	barycoords bc = barycentric(d1->position, o.T2, o.T1, ds);
-	// printf("%.3f;%.3f;%.3f\n",bc.alpha,bc.beta,bc.gamma);
+
 	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
 	{
 		return true;
@@ -148,7 +151,7 @@ void DR_avoid(Drone *d, Drone *d2)
 {
 	if (DR_collision(d, d2))
 	{
-		// printf("collision");
+
 		vec2 dir = v2_norm(d->speed);
 		double theta = atan2(dir.y, dir.x);
 		vec2 p2rel = v2_sub(d2->position, d->position);

@@ -10,9 +10,7 @@
                 "drone.c",
                 "vec2.c",
                 "video.c",
-                "channel.c",
                 "-I./SDL2",
-                //"-L./lib",
                 "-lm",
                 "-lSDL2main",
                 "-lSDL2",
@@ -26,7 +24,8 @@
                 "-g",
                 "-pg",
                 "-O3",
-                "-finline-functions"
+                "-finline-functions",
+                "-fopenmp"
             ],
             "group": "build"
         },
@@ -39,7 +38,6 @@
                 "drone.c",
                 "vec2.c",
                 "video.c",
-                "channel.c",
                 "-I./SDL2",
                 "-o./build/vocabs2.exe",
                 "-Wall",
@@ -55,7 +53,8 @@
                 "-Wfatal-errors",
                 "-g",
                 "-O3",
-                "-finline-functions"
+                "-finline-functions",
+                "-fopenmp"
             ],
             "group": "build"
         },
