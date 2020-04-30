@@ -11,6 +11,32 @@
 
 static uint32_t ids = 0;
 
+double generateGaussian(double mean, double stdDev)
+{
+	static double spare;
+	static bool hasSpare = false;
+
+	if (hasSpare)
+	{
+		hasSpare = false;
+		return spare * stdDev + mean;
+	}
+	else
+	{
+		double u, v, s;
+		do
+		{
+			u = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
+			v = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
+			s = u * u + v * v;
+		} while (s >= 1.0 || s == 0.0);
+		s = sqrt(-2.0 * log(s) / s);
+		spare = v * s;
+		hasSpare = true;
+		return mean + stdDev * u * s;
+	}
+}
+
 Obstacle compute_obstacle(Drone *d1, Drone *d2)
 {
 	// Minkowski addition
@@ -149,6 +175,13 @@ bool DR_collision(Drone *d1, Drone *d2)
 }
 void DR_avoid(Drone *d, Drone *d2)
 {
+	Drone dx = *d2;
+	vec2 pos_error;
+	pos_error.x = generateGaussian(0, 5);
+	pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
+
+	dx.position = v2_add(dx.position, pos_error);
+
 	if (DR_collision(d, d2))
 	{
 
