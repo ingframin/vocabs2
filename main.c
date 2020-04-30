@@ -150,13 +150,17 @@ int main(int argc, char *argv[])
 
     } //rates
   }   //openmp
-  FILE *results = fopen("results.txt", "a");
-  for (int i = 0; i < 8; i++)
+#pragma omp critical
   {
-    printf("%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
-    fprintf(results, "%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
+    FILE *results = fopen("results.txt", "a");
+    for (int i = 0; i < 8; i++)
+    {
+      printf("%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
+      fprintf(results, "%.3f\t%.6f\n", rates[i], collisions[i] / iterations);
+    }
+    fclose(results);
   }
-  fclose(results);
+
   // quitVideo(disp);
   return 0;
 }
