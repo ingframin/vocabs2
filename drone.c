@@ -130,13 +130,14 @@ void DR_move(Drone *d, double dt)
 void DR_goto(Drone *d, vec2 waypoint)
 {
 
-	vec2 dir = v2_norm(d->speed);
+	//vec2 dir = v2_norm(d->speed);
 
 	vec2 dirp = v2_sub(waypoint, d->position);
 
-	dirp = v2_norm(dirp);
+	//dirp = v2_norm(dirp);
 
-	double C = v2_dot(dir, dirp);
+	//double C = v2_dot(dir, dirp);
+	double C = v2_dot(d->speed, dirp)/(v2_mod(d->speed),v2_mod(dirp));
 
 	double angle = 0;
 
@@ -184,7 +185,7 @@ void DR_avoid(Drone *d, Drone *d2)
 
 	if (DR_collision(d, d2))
 	{
-
+		//change to x product
 		vec2 dir = v2_norm(d->speed);
 		double theta = atan2(dir.y, dir.x);
 		vec2 p2rel = v2_sub(d2->position, d->position);

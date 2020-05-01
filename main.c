@@ -9,25 +9,26 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 10000;
+uint64_t iterations = 1000;
 
 double dt = 1E-3; //seconds
 
 double rates[] = {
     1E-3,
     1E-2,
-    2.5E-2,
-    5E-2,
+    //2.5E-2,
+    //5E-2,
     1E-1,
-    2.5E-1,
-    5E-1,
+    //2.5E-1,
+    //5E-1,
     1.0,
     2.0,
-    4.0,
-    8.0,
-    10.0,
-    16.0,
-    20.0}; //msg/s
+    4.0//,
+    //8.0,
+    //10.0,
+    //16.0,
+    //20.0
+    }; //msg/s
 
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 

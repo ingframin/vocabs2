@@ -54,7 +54,8 @@
                 "-g",
                 "-O3",
                 "-finline-functions",
-                "-fopenmp"
+                "-fopenmp",
+                "-pg"
             ],
             "group": "build"
         },
