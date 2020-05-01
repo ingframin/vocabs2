@@ -12,11 +12,16 @@ vec2 v2_rotate(vec2 v, double angle)
 {
   
   double m = hypot(v.x,v.y);
+  vec2 vn;
+  vn.x = v.x/m;
+  vn.y = v.y/m;
   vec2 ret;
-  ret.x = v.x * cos(angle) - v.y * sin(angle);
-  ret.y = v.x * sin(angle) + v.y * cos(angle);
-  double retm = hypot(ret.x,ret.y);
-  ret = v2_prodK(ret, m/retm);
+  double C = cos(angle);
+  double S = sin(angle);
+  
+  ret.x = vn.x * C  - vn.y * S;
+  ret.y = vn.x * S + vn.y * C;
+  ret = v2_prodK(ret, m);
 
   return ret;
 }
