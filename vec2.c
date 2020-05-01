@@ -19,9 +19,8 @@ vec2 v2_rotate(vec2 v, double angle)
   double C = cos(angle);
   double S = sin(angle);
   
-  ret.x = vn.x * C  - vn.y * S;
-  ret.y = vn.x * S + vn.y * C;
-  ret = v2_prodK(ret, m);
+  ret.x = m*(vn.x * C  - vn.y * S);
+  ret.y = m*(vn.x * S + vn.y * C);
 
   return ret;
 }
