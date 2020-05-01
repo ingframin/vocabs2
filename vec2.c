@@ -5,13 +5,13 @@
 
 double v2_mod(vec2 v)
 {
-  return hypot(v.x,v.y);
+  return sqrt(v.x*v.x+v.y*v.y);
 }
 
 vec2 v2_rotate(vec2 v, double angle)
 {
   
-  double m = hypot(v.x,v.y);
+  double m = v2_mod(v);
   vec2 vn;
   vn.x = v.x/m;
   vn.y = v.y/m;
@@ -19,7 +19,7 @@ vec2 v2_rotate(vec2 v, double angle)
   double C = cos(angle);
   double S = sin(angle);
   
-  ret.x = m*(vn.x * C  - vn.y * S);
+  ret.x = m*(vn.x * C - vn.y * S);
   ret.y = m*(vn.x * S + vn.y * C);
 
   return ret;
@@ -28,7 +28,7 @@ vec2 v2_rotate(vec2 v, double angle)
 vec2 v2_norm(vec2 v)
 {
   vec2 n;
-  double m = hypot(v.x,v.y);
+  double m = v2_mod(v);
   n.x = v.x / m;
   n.y = v.y / m;
   return n;
@@ -74,5 +74,5 @@ vec2 v2_prodK(vec2 v, double k)
 double v2_distance(vec2 v1, vec2 v2)
 {
   vec2 res = v2_sub(v1, v2);
-  return hypot(res.x,res.y);
+  return v2_mod(res);
 }
