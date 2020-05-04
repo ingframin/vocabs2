@@ -16,11 +16,11 @@ double error = -1.0;
 
 double rates[] = {
     1E-2,
-    //2.5E-2,
-    //5E-2,
+    2.5E-2,
+    5E-2,
     1E-1,
-    //2.5E-1,
-    //5E-1,
+    2.5E-1,
+    5E-1,
     1.0,
     2.0,
     4.0,
@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
   {
     error = atof(argv[2]);
   }
+  printf("Error: %.3f", error);
   switch (prob)
   {
   case 'E':
