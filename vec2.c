@@ -5,17 +5,22 @@
 
 double v2_mod(vec2 v)
 {
-  return sqrt(v.x * v.x + v.y * v.y);
+  return sqrt(v.x*v.x+v.y*v.y);
 }
 
 vec2 v2_rotate(vec2 v, double angle)
 {
+  
   double m = v2_mod(v);
+  vec2 vn;
+  vn.x = v.x/m;
+  vn.y = v.y/m;
   vec2 ret;
-  ret.x = v.x * cos(angle) - v.y * sin(angle);
-  ret.y = v.x * sin(angle) + v.y * cos(angle);
-  vec2 tmp = v2_norm(ret);
-  ret = v2_prodK(tmp, m);
+  double C = cos(angle);
+  double S = sin(angle);
+  
+  ret.x = m*(vn.x * C - vn.y * S);
+  ret.y = m*(vn.x * S + vn.y * C);
 
   return ret;
 }

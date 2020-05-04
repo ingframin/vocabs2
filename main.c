@@ -8,7 +8,7 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 10000;
+uint64_t iterations = 1000;
 
 double dt = 1E-3; //seconds
 
@@ -16,11 +16,11 @@ double error = -1.0;
 
 double rates[] = {
     1E-2,
-    2.5E-2,
-    5E-2,
+    //2.5E-2,
+    //5E-2,
     1E-1,
-    2.5E-1,
-    5E-1,
+    //2.5E-1,
+    //5E-1,
     1.0,
     2.0,
     4.0,
