@@ -22,7 +22,7 @@
                 "-Wfatal-errors",
                 "-Wall",
                 "-g",
-                "-pg",
+                //"-pg",
                 "-O3",
                 "-finline-functions",
                 "-fopenmp"
@@ -55,23 +55,9 @@
                 "-O3",
                 "-finline-functions",
                 "-fopenmp",
-                "-pg"
+                // "-pg"
             ],
             "group": "build"
-        },
-        {
-            "type": "shell",
-            "label": "gcc.exe build active file",
-            "command": "C:\\mingw-w64\\mingw64\\bin\\gcc.exe",
-            "args": [
-                "-g",
-                "${file}",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
-            ],
-            "options": {
-                "cwd": "C:\\mingw-w64\\mingw64\\bin"
-            }
         }
     ]
 }

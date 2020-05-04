@@ -8,7 +8,7 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 100000;
+uint64_t iterations = 10000;
 
 double dt = 1E-3; //seconds
 
