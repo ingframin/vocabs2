@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-//#include <SDL.h>
 #include "vec2.h"
 #include "drone.h"
-#include "video.h"
+//#include "video.h"
 #include <omp.h>
 omp_lock_t writelock;
 
@@ -13,8 +12,9 @@ uint64_t iterations = 10000;
 
 double dt = 1E-3; //seconds
 
+double error = -1.0;
+
 double rates[] = {
-    1E-3,
     1E-2,
     2.5E-2,
     5E-2,
@@ -25,9 +25,7 @@ double rates[] = {
     2.0,
     4.0,
     8.0,
-    10.0,
-    16.0,
-    20.0}; //msg/s
+    16.0}; //msg/s
 
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 
@@ -35,9 +33,13 @@ double rate = 1.0;
 char prob = 'A';
 int main(int argc, char *argv[])
 {
-  if (argc > 1)
+  if (argc == 2)
   {
     prob = argv[1][0];
+  }
+  if (argc == 3)
+  {
+    error = atof(argv[2]);
   }
   switch (prob)
   {
@@ -55,7 +57,7 @@ int main(int argc, char *argv[])
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
-  // Display *disp = initVideo(800, 800);
+
   //speed is in m/s
 
   vec2 p1 = {500.0, 500.0};
@@ -85,17 +87,10 @@ int main(int argc, char *argv[])
 
         bool running = true;
         double timer = 0;
-        // SDL_Event evt;
+
         while (running)
         {
-          // SDL_PumpEvents();
-          // while (SDL_PollEvent(&evt))
-          // {
-          //   if (evt.type == SDL_QUIT)
-          //   {
-          //     running = false;
-          //   }
-          // }
+
           if (timer >= 1 / rate)
           {
             // Change to wi-fi or ads-b functions
@@ -117,8 +112,8 @@ int main(int argc, char *argv[])
             if (p < lim)
             {
 
-              DR_avoid(&d2, &d1);
-              DR_avoid(&d1, &d2);
+              DR_avoid(&d2, &d1, error);
+              DR_avoid(&d1, &d2, error);
             }
             timer = 0;
           }
@@ -140,10 +135,7 @@ int main(int argc, char *argv[])
             omp_unset_lock(&writelock);
             running = false;
           }
-          // clear(disp);
-          // drawDrone(disp, d1);
-          // drawDrone(disp, d2);
-          // render(disp);
+
           timer += dt;
         }
       } //iterations
@@ -152,6 +144,7 @@ int main(int argc, char *argv[])
   }   //openmp
 
   FILE *results = fopen("results.txt", "a");
+  fprintf(results, "Error: %.3f", error);
   switch (prob)
   {
   case 'E':
@@ -163,6 +156,7 @@ int main(int argc, char *argv[])
   default:
     fprintf(results, "No loss\n");
   }
+
   for (uint64_t k = 0; k < len_rates; k++)
   {
     printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
@@ -170,6 +164,5 @@ int main(int argc, char *argv[])
   }
   fclose(results);
 
-  // quitVideo(disp);
   return 0;
 }

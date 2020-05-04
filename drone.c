@@ -173,27 +173,30 @@ bool DR_collision(Drone *d1, Drone *d2)
 
 	return false;
 }
-void DR_avoid(Drone *d, Drone *d2)
+void DR_avoid(Drone *d, Drone *d2, double error)
 {
 	Drone dx = *d2;
-	vec2 pos_error;
-	pos_error.x = generateGaussian(0, 5);
-	pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
+	if (error > 0)
+	{
+		vec2 pos_error;
+		pos_error.x = generateGaussian(0, 5);
+		pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
 
-	dx.position = v2_add(dx.position, pos_error);
+		dx.position = v2_add(dx.position, pos_error);
+	}
 
-	if (DR_collision(d, d2))
+	if (DR_collision(d, &dx))
 	{
 
 		vec2 dir = v2_norm(d->speed);
 		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_sub(d2->position, d->position);
+		vec2 p2rel = v2_sub(dx.position, d->position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
 			vec2 escape = v2_rotate(d->speed, -M_PI / 2);
 			escape = v2_norm(escape);
-			escape = v2_prodK(escape, 4 * (d->size + d2->size));
+			escape = v2_prodK(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);
 			DR_push_waypoint(d, escape);
 		}
