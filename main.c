@@ -32,24 +32,21 @@ uint64_t len_rates = sizeof(rates) / sizeof(double);
 
 double rate = 1.0;
 char prob = 'A';
-
 int main(int argc, char *argv[])
 {
-  if (argc > 1)
+  if (argc == 2)
   {
     prob = argv[1][0];
   }
-  if (argc > 2)
+  if (argc == 3)
   {
     error = atof(argv[2]);
   }
-
-  printf("Error: %.3f", error);
-
+  printf("Error: %.3f\n", error);
   switch (prob)
   {
   case 'E':
-    printf("Wi-Fi\n");
+    printf("Wi-Fi beacons\n");
     break;
   case 'C':
     printf("ADS-B\n");
@@ -77,6 +74,7 @@ int main(int argc, char *argv[])
     {
 
       collisions[i] = 0;
+
 #pragma omp for
       for (uint64_t it = 0; it < iterations; it++)
       {
@@ -149,11 +147,11 @@ int main(int argc, char *argv[])
   }   //openmp
 
   FILE *results = fopen("results.txt", "a");
-
+  fprintf(results, "Error: %.3f\n", error);
   switch (prob)
   {
   case 'E':
-    fprintf(results, "Wi-Fi\n");
+    fprintf(results, "Wi-Fi beacons\n");
     break;
   case 'C':
     fprintf(results, "ADS-B\n");
@@ -162,7 +160,6 @@ int main(int argc, char *argv[])
     fprintf(results, "No loss\n");
   }
 
-  fprintf(results, "Error: %.3f", error);
   for (uint64_t k = 0; k < len_rates; k++)
   {
     printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
