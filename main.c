@@ -8,7 +8,7 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 10000;
+uint64_t iterations = 50000;
 
 double dt = 1E-3; //seconds
 
@@ -24,13 +24,15 @@ double rates[] = {
     1.0,
     2.0,
     4.0,
-    8.0,
-    16.0}; //msg/s
+    8.0
+    //16.0
+}; //msg/s
 
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 
 double rate = 1.0;
 char prob = 'A';
+
 int main(int argc, char *argv[])
 {
   if (argc == 2)
@@ -41,11 +43,13 @@ int main(int argc, char *argv[])
   {
     error = atof(argv[2]);
   }
+
   printf("Error: %.3f", error);
+
   switch (prob)
   {
   case 'E':
-    printf("Wi-Fi beacons\n");
+    printf("Wi-Fi\n");
     break;
   case 'C':
     printf("ADS-B\n");
@@ -145,11 +149,11 @@ int main(int argc, char *argv[])
   }   //openmp
 
   FILE *results = fopen("results.txt", "a");
-  fprintf(results, "Error: %.3f", error);
+
   switch (prob)
   {
   case 'E':
-    fprintf(results, "Wi-Fi beacons\n");
+    fprintf(results, "Wi-Fi\n");
     break;
   case 'C':
     fprintf(results, "ADS-B\n");
@@ -158,6 +162,7 @@ int main(int argc, char *argv[])
     fprintf(results, "No loss\n");
   }
 
+  fprintf(results, "Error: %.3f", error);
   for (uint64_t k = 0; k < len_rates; k++)
   {
     printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
