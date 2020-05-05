@@ -35,11 +35,11 @@ char prob = 'A';
 
 int main(int argc, char *argv[])
 {
-  if (argc == 2)
+  if (argc > 1)
   {
     prob = argv[1][0];
   }
-  if (argc == 3)
+  if (argc > 2)
   {
     error = atof(argv[2]);
   }
