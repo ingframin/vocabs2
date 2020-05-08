@@ -25,8 +25,7 @@ double rates[] = {
     2.0,
     4.0,
     8.0,
-    16.0
-}; //msg/s
+    16.0}; //msg/s
 
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 
@@ -117,8 +116,8 @@ int main(int argc, char *argv[])
 
               //DR_avoid(&d2, &d1, error);
               //DR_avoid(&d1, &d2, error);
-              DR_stopAndWait(&d1,&d2,error,20);
-              DR_stopAndWait(&d2,&d1,error,20);
+              DR_stopAndWait(&d1, &d2, error, 20);
+              DR_stopAndWait(&d2, &d1, error, 20);
             }
             timer = 0;
           }
@@ -143,6 +142,8 @@ int main(int argc, char *argv[])
 
           timer += dt;
         }
+        free(d1.waypoints);
+        free(d2.waypoints);
       } //iterations
 
     } //rates
