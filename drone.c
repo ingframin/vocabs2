@@ -173,6 +173,7 @@ bool DR_collision(Drone *d1, Drone *d2)
 
 	return false;
 }
+
 void DR_avoid(Drone *d, Drone *d2, double error)
 {
 	Drone dx = *d2;
@@ -202,6 +203,42 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 		}
 	}
 }
+
+void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
+{
+	Drone dx = *d2;
+	if (error > 0)
+	{
+		vec2 pos_error;
+		pos_error.x = generateGaussian(0, 5);
+		pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
+
+		dx.position = v2_add(dx.position, pos_error);
+	}
+
+	if(DR_collision(d, &dx))
+	{
+
+		vec2 dir = v2_norm(d->speed);
+		double theta = atan2(dir.y, dir.x);
+		vec2 p2rel = v2_sub(dx.position, d->position);
+		double thetaP2 = atan2(p2rel.y, p2rel.x);
+		if (fabs(thetaP2) > fabs(theta))
+		{
+			
+			d->speed.x = 0;
+			d->speed.y = 0;
+		}
+		
+		
+	}
+	else
+	{
+		d->speed.x = speed;
+		d->speed.y = 0;
+	}
+}
+
 void DR_push_waypoint(Drone *d, vec2 wp)
 {
 

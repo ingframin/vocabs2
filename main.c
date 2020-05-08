@@ -8,7 +8,7 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 50000;
+uint64_t iterations = 10000;
 
 double dt = 1E-3; //seconds
 
@@ -24,14 +24,15 @@ double rates[] = {
     1.0,
     2.0,
     4.0,
-    8.0
-    //16.0
+    8.0,
+    16.0
 }; //msg/s
 
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 
 double rate = 1.0;
 char prob = 'A';
+
 int main(int argc, char *argv[])
 {
   if (argc == 2)
@@ -102,7 +103,6 @@ int main(int argc, char *argv[])
             switch (prob)
             {
             case 'E':
-
               lim = 1000 * esat(v2_distance(d1.position, d2.position));
               break;
             case 'C':
@@ -115,8 +115,10 @@ int main(int argc, char *argv[])
             if (p < lim)
             {
 
-              DR_avoid(&d2, &d1, error);
-              DR_avoid(&d1, &d2, error);
+              //DR_avoid(&d2, &d1, error);
+              //DR_avoid(&d1, &d2, error);
+              DR_stopAndWait(&d1,&d2,error,20);
+              DR_stopAndWait(&d2,&d1,error,20);
             }
             timer = 0;
           }
