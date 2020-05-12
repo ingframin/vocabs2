@@ -15,15 +15,15 @@ double dt = 1E-3; //seconds
 double error = -1.0;
 
 double rates[] = {
-    1E-2,
-    2.5E-2,
-    5E-2,
+    //1E-2,
+    //2.5E-2,
+    //5E-2,
     1E-1,
-    2.5E-1,
-    5E-1,
+    //2.5E-1,
+    //5E-1,
     1.0,
     2.0,
-    4.0,
+    //4.0,
     8.0,
     16.0}; //msg/s
 
@@ -34,11 +34,11 @@ char prob = 'A';
 
 int main(int argc, char *argv[])
 {
-  if (argc == 2)
+  if (argc > 1)
   {
     prob = argv[1][0];
   }
-  if (argc == 3)
+  if (argc > 2)
   {
     error = atof(argv[2]);
   }
