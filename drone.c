@@ -103,6 +103,7 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	d.position.y = y;
 	d.speed.x = vx;
 	d.speed.y = vy;
+	d._speed_mod = v2_mod(d.speed);
 	d.waypoints = malloc(2 * sizeof(vec2));
 	d.wp_len = 2;
 	d.curr_wp = 0;
@@ -140,20 +141,17 @@ void DR_goto(Drone *d, vec2 waypoint)
 
 	double angle = 0;
 
-	if (C > 0.9999)
+	if (C < -0.9999)
 	{
-		angle = 0;
+		//angle = M_PI;
+		d->speed.x = -d->speed.x;
+		d->speed.y = -d->speed.y;
 	}
-	else if (C < -0.9999)
-	{
-		angle = M_PI;
-	}
-	else
+	else if (C >= -0.9999 && C < 0.9999)
 	{
 		angle = -acos(C);
+		d->speed = v2_rotate(d->speed, angle);
 	}
-
-	d->speed = v2_rotate(d->speed, angle);
 }
 
 bool DR_collision(Drone *d1, Drone *d2)
@@ -204,7 +202,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 	}
 }
 
-void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
+void DR_stopAndWait(Drone *d, Drone *d2, double error)
 {
 	Drone dx = *d2;
 	if (error > 0)
@@ -232,7 +230,7 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
 	}
 	else
 	{
-		d->speed.x = speed;
+		d->speed.x = d->_speed_mod;
 		d->speed.y = 0;
 	}
 }

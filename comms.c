@@ -1,7 +1,25 @@
 #include "comms.h"
+#include <stdlib.h>
 
-static uint64_t mid_counter = 0;
+bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys)
+{ // Change to wi-fi or ads-b functions
+    int p = rand() % 1000;
+    double lim;
+    switch (sys)
+    {
+    case WI_FI:
+        lim = 1000 * esat(v2_distance(d1, d2));
+        break;
+    case ADS_B:
+        lim = 1000 * consiglio(v2_distance(d1, d2));
+        break;
+    default:
+        lim = 1000.0;
+    }
 
+    //If broadcast return true
+    return p < lim;
+}
 double consiglio(double dist)
 {
     double p1 = -7.44e-8;

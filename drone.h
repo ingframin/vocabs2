@@ -25,9 +25,10 @@ typedef struct
 
 typedef struct
 {
-  uint32_t id;   //Unique ID
-  vec2 position; // current position
-  vec2 speed;    //current speed
+  uint32_t id;       //Unique ID
+  vec2 position;     // current position
+  vec2 speed;        //current speed
+  double _speed_mod; //speed module
   /*I might consider making the flight plan a separate object*/
   vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
   unsigned int wp_len;  //max flight plan length
@@ -48,11 +49,12 @@ bool DR_collision(Drone *d1, Drone *d2);
 //Compute avoidance maneuver and add escape waypoint
 void DR_avoid(Drone *d, Drone *d2, double error);
 //Instead of computing an avoidance maneuver waits until no collision is imminent
-void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed);
+void DR_stopAndWait(Drone *d, Drone *d2, double error);
 //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
 //Increase the waypoint array size if needed
 void DR_push_waypoint(Drone *d, vec2 wp);
 //pop removes the top waypoints (but it does not shrink the waypoint array)
 void DR_pop_waypoint(Drone *d);
+//Communication part
 
 #endif

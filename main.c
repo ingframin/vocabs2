@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 #include "vec2.h"
 #include "drone.h"
 #include "comms.h"
@@ -32,7 +33,7 @@ uint64_t len_rates = sizeof(rates) / sizeof(double);
 
 double rate = 1.0;
 char prob = 'A';
-
+RFsystem sys;
 int main(int argc, char *argv[])
 {
   if (argc > 1)
@@ -48,11 +49,14 @@ int main(int argc, char *argv[])
   {
   case 'E':
     printf("Wi-Fi beacons\n");
+    sys = WI_FI;
     break;
   case 'C':
     printf("ADS-B\n");
+    sys = ADS_B;
     break;
   default:
+    sys = NO_LOSS;
     printf("No loss\n");
   }
 
@@ -97,28 +101,14 @@ int main(int argc, char *argv[])
 
           if (timer >= 1 / rate)
           {
-            // Change to wi-fi or ads-b functions
-            int p = rand() % 1000;
-            double lim;
-            switch (prob)
-            {
-            case 'E':
-              lim = 1000 * esat(v2_distance(d1.position, d2.position));
-              break;
-            case 'C':
-              lim = 1000 * consiglio(v2_distance(d1.position, d2.position));
-              break;
-            default:
-              lim = 1000.0;
-            }
 
-            if (p < lim)
+            if (COM_broadcast(d1.position, d2.position, sys))
             {
 
               //DR_avoid(&d2, &d1, error);
               //DR_avoid(&d1, &d2, error);
-              DR_stopAndWait(&d1, &d2, error, 20);
-              DR_stopAndWait(&d2, &d1, error, 20);
+              DR_stopAndWait(&d1, &d2, error);
+              DR_stopAndWait(&d2, &d1, error);
             }
             timer = 0;
           }
