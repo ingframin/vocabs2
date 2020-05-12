@@ -3,6 +3,7 @@
 #include <time.h>
 #include "vec2.h"
 #include "drone.h"
+#include "comms.h"
 //#include "video.h"
 #include <omp.h>
 omp_lock_t writelock;
@@ -79,12 +80,12 @@ int main(int argc, char *argv[])
       for (uint64_t it = 0; it < iterations; it++)
       {
 
-        Drone d1 = DR_newDrone(0.0, 0.0, 20.0, 0.0, 1);
-        Drone d2 = DR_newDrone(1000.0, 0.0, 20.0, 0.0, 1);
-        DR_push_waypoint(&d1, p2);
-        DR_push_waypoint(&d2, p3);
-        DR_push_waypoint(&d1, p1);
-        DR_push_waypoint(&d2, p1);
+        Drone d1(0.0, 0.0, 20.0, 0.0, 1);
+        Drone d2(1000.0, 0.0, 20.0, 0.0, 1);
+        d1.pushWaypoint(p2);
+        d2.pushWaypoint(p3);
+        d1.pushWaypoint(p1);
+        d2.pushWaypoint(p1);
 
         rate = rates[i];
 
@@ -122,13 +123,13 @@ int main(int argc, char *argv[])
             timer = 0;
           }
 
-          DR_move(&d1, dt);
-          DR_move(&d2, dt);
-          if (d1.waypoints[d1.curr_wp].x == 0 && d1.waypoints[d1.curr_wp].y == 0)
+          d1.move(dt);
+          d2.move(dt);
+          if (d1.waypoints.back().x == 0 && d1.waypoints.back().y == 0)
           {
             running = false;
           }
-          if (d2.waypoints[d2.curr_wp].x == 0 && d2.waypoints[d2.curr_wp].y == 0)
+          if (d2.waypoints.back().x == 0 && d2.waypoints.back().y == 0)
           {
             running = false;
           }
@@ -142,8 +143,7 @@ int main(int argc, char *argv[])
 
           timer += dt;
         }
-        free(d1.waypoints);
-        free(d2.waypoints);
+
       } //iterations
 
     } //rates
