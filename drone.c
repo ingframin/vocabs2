@@ -1,7 +1,6 @@
 #include "drone.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <vector>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #ifndef M_PI
@@ -95,41 +94,45 @@ barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
 	return bc;
 }
 
-Drone::Drone(double x, double y, double vx, double vy, double size)
+Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 {
-	id = ids;
+	Drone d;
+	d.id = ids;
 	ids++;
-	position.x = x;
-	position.y = y;
-	speed.x = vx;
-	speed.y = vy;
-	vec2 curp{x, y};
-
-	waypoints.push_back(curp);
-
-	this->size = size;
+	d.position.x = x;
+	d.position.y = y;
+	d.speed.x = vx;
+	d.speed.y = vy;
+	d.waypoints = malloc(2 * sizeof(vec2));
+	d.wp_len = 2;
+	d.curr_wp = 0;
+	d.waypoints[0].x = x;
+	d.waypoints[0].y = y;
+	d.size = size;
+	return d;
 }
 
-void Drone::move(double dt)
+void DR_move(Drone *d, double dt)
 {
 
-	if (v2_distance(position, waypoints.back()) < size)
+	if (v2_distance(d->position, d->waypoints[d->curr_wp]) < d->size)
 	{
-		popWaypoint();
+		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->curr_wp].x, d->waypoints[d->curr_wp].y);
+		DR_pop_waypoint(d);
 	}
 
-	towards();
+	DR_goto(d, d->waypoints[d->curr_wp]);
 
-	vec2 dP = v2_prodK(speed, dt);
-	position = v2_add(position, dP);
+	vec2 dP = v2_prodK(d->speed, dt);
+	d->position = v2_add(d->position, dP);
 }
 
-void Drone::towards()
+void DR_goto(Drone *d, vec2 waypoint)
 {
 
-	vec2 dir = v2_norm(speed);
+	vec2 dir = v2_norm(d->speed);
 
-	vec2 dirp = v2_sub(waypoints.back(), position);
+	vec2 dirp = v2_sub(waypoint, d->position);
 
 	dirp = v2_norm(dirp);
 
@@ -150,7 +153,7 @@ void Drone::towards()
 		angle = -acos(C);
 	}
 
-	speed = v2_rotate(speed, angle);
+	d->speed = v2_rotate(d->speed, angle);
 }
 
 bool DR_collision(Drone *d1, Drone *d2)
@@ -196,7 +199,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 			escape = v2_norm(escape);
 			escape = v2_prodK(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);
-			d->pushWaypoint(escape);
+			DR_push_waypoint(d, escape);
 		}
 	}
 }
@@ -234,15 +237,24 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
 	}
 }
 
-void Drone::pushWaypoint(vec2 wp)
+void DR_push_waypoint(Drone *d, vec2 wp)
 {
 
-	waypoints.push_back(wp);
-}
-void Drone::popWaypoint()
-{
-	if (waypoints.size() > 0)
+	if (d->curr_wp == (d->wp_len - 1))
 	{
-		waypoints.pop_back();
+		d->wp_len = (d->wp_len + (d->wp_len >> 1));
+		d->waypoints = realloc(d->waypoints, (d->wp_len + (d->wp_len >> 1)) * sizeof(vec2));
 	}
+	d->curr_wp += 1;
+	d->waypoints[d->curr_wp] = wp;
+}
+void DR_pop_waypoint(Drone *d)
+{
+	d->curr_wp = (d->curr_wp > 0) ? d->curr_wp - 1 : 0;
+}
+
+void DR_freeDrone(Drone *d)
+{
+	free(d->waypoints);
+	free(d);
 }
