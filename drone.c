@@ -37,42 +37,42 @@ double generateGaussian(double mean, double stdDev)
 	}
 }
 
-Obstacle compute_obstacle(Drone *d1, Drone *d2)
+Obstacle compute_obstacle(vec2 p1, vec2 p2, double size1, double size2)
 {
 	// Minkowski addition
-	double r = d1->size + d2->size;
+	double r = size1 + size2;
 
 	//Computing tangent lines to circle passing through the point self.position
-	double dx = d1->position.x - d2->position.x;
+	double dx = p1.x - p2.x;
 	double a = dx * dx - r * r;
-	double b = 2 * dx * (d1->position.y - d2->position.y);
-	double c = (d2->position.y - d1->position.y) * (d2->position.y - d1->position.y) - r * r;
+	double b = 2 * dx * (p1.y - p2.y);
+	double c = (p2.y - p1.y) * (p2.y - p1.y) - r * r;
 	double Delta = b * b - 4 * a * c;
 
 	//Angular coefficient
 	double m1 = (-b + sqrt(Delta)) / (2 * a);
 	double m2 = (-b - sqrt(Delta)) / (2 * a);
 	//Intersection with y axis
-	double q1 = d1->position.y - m1 * d1->position.x;
-	double q2 = d1->position.y - m2 * d1->position.x;
+	double q1 = p1.y - m1 * p1.x;
+	double q2 = p1.y - m2 * p1.x;
 
 	//(xt1,yt1) - first tangent point.
 	double a1 = 1 + m1 * m1;
-	double b1 = 2 * m1 * q1 - 2 * d2->position.x - m1 * 2 * d2->position.y;
+	double b1 = 2 * m1 * q1 - 2 * p2.x - m1 * 2 * p2.y;
 
 	double xt1 = (-b1) / (2 * a1);
 	double yt1 = m1 * xt1 + q1;
 
 	//(xt2,yt2) - Second tangent point
 	double a2 = 1 + m2 * m2;
-	double b2 = 2 * m2 * q2 - 2 * d2->position.x - m2 * 2 * d2->position.y;
+	double b2 = 2 * m2 * q2 - 2 * p2.x - m2 * 2 * p2.y;
 
 	double xt2 = (-b2) / (2 * a2);
 	double yt2 = m2 * xt2 + q2;
 
 	//Construct obstacle
 	Obstacle o;
-	o.position = d2->position;
+	o.position = p2;
 	o.radius = r;
 	o.T1.x = xt1;
 	o.T1.y = yt1;
@@ -103,6 +103,7 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	d.position.y = y;
 	d.speed.x = vx;
 	d.speed.y = vy;
+	d._speed_mod = v2_mod(d.speed);
 	d.waypoints = malloc(2 * sizeof(vec2));
 	d.wp_len = 2;
 	d.curr_wp = 0;
@@ -140,25 +141,22 @@ void DR_goto(Drone *d, vec2 waypoint)
 
 	double angle = 0;
 
-	if (C > 0.9999)
+	if (C < -0.9999)
 	{
-		angle = 0;
+		//angle = M_PI;
+		d->speed.x = -d->speed.x;
+		d->speed.y = -d->speed.y;
 	}
-	else if (C < -0.9999)
-	{
-		angle = M_PI;
-	}
-	else
+	else if (C >= -0.9999 && C < 0.9999)
 	{
 		angle = -acos(C);
+		d->speed = v2_rotate(d->speed, angle);
 	}
-
-	d->speed = v2_rotate(d->speed, angle);
 }
 
 bool DR_collision(Drone *d1, Drone *d2)
 {
-	Obstacle o = compute_obstacle(d1, d2);
+	Obstacle o = compute_obstacle(d1->position, d2->position,d1->size,d2->size);
 
 	vec2 dif = v2_sub(d1->speed, d2->speed);
 
@@ -204,7 +202,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 	}
 }
 
-void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
+void DR_stopAndWait(Drone *d, Drone *d2, double error)
 {
 	Drone dx = *d2;
 	if (error > 0)
@@ -216,7 +214,7 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
 		dx.position = v2_add(dx.position, pos_error);
 	}
 
-	if(DR_collision(d, &dx))
+	if (DR_collision(d, &dx))
 	{
 
 		vec2 dir = v2_norm(d->speed);
@@ -225,16 +223,14 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error, double speed)
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			
+
 			d->speed.x = 0;
 			d->speed.y = 0;
 		}
-		
-		
 	}
 	else
 	{
-		d->speed.x = speed;
+		d->speed.x = d->_speed_mod;
 		d->speed.y = 0;
 	}
 }
@@ -259,29 +255,4 @@ void DR_freeDrone(Drone *d)
 {
 	free(d->waypoints);
 	free(d);
-}
-
-double consiglio(double dist)
-{
-	double p1 = -7.44e-8;
-	double p2 = -9.286e-5;
-	double p3 = 0.9101;
-	return p1 * (dist * dist) + p2 * dist + p3;
-}
-
-double esat(double dist)
-{
-	double r;
-	if (dist < 50)
-	{
-		r = 1.0;
-	}
-	double p1 = -2.1e-09;
-	double p2 = 5.034e-06;
-	double p3 = -0.003541;
-	double p4 = 1.138;
-
-	r = p1 * dist * dist * dist + p2 * dist * dist + p3 * dist + p4;
-
-	return r;
 }
