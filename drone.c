@@ -37,42 +37,42 @@ double generateGaussian(double mean, double stdDev)
 	}
 }
 
-Obstacle compute_obstacle(vec2 p1, vec2 p2, double size1, double size2)
+Obstacle compute_obstacle(Drone *d1, Drone *d2)
 {
 	// Minkowski addition
-	double r = size1 + size2;
+	double r = d1->size + d2->size;
 
 	//Computing tangent lines to circle passing through the point self.position
-	double dx = p1.x - p2.x;
+	double dx = d1->position.x - d2->position.x;
 	double a = dx * dx - r * r;
-	double b = 2 * dx * (p1.y - p2.y);
-	double c = (p2.y - p1.y) * (p2.y - p1.y) - r * r;
+	double b = 2 * dx * (d1->position.y - d2->position.y);
+	double c = (d2->position.y - d1->position.y) * (d2->position.y - d1->position.y) - r * r;
 	double Delta = b * b - 4 * a * c;
 
 	//Angular coefficient
 	double m1 = (-b + sqrt(Delta)) / (2 * a);
 	double m2 = (-b - sqrt(Delta)) / (2 * a);
 	//Intersection with y axis
-	double q1 = p1.y - m1 * p1.x;
-	double q2 = p1.y - m2 * p1.x;
+	double q1 = d1->position.y - m1 * d1->position.x;
+	double q2 = d1->position.y - m2 * d1->position.x;
 
 	//(xt1,yt1) - first tangent point.
 	double a1 = 1 + m1 * m1;
-	double b1 = 2 * m1 * q1 - 2 * p2.x - m1 * 2 * p2.y;
+	double b1 = 2 * m1 * q1 - 2 * d2->position.x - m1 * 2 * d2->position.y;
 
 	double xt1 = (-b1) / (2 * a1);
 	double yt1 = m1 * xt1 + q1;
 
 	//(xt2,yt2) - Second tangent point
 	double a2 = 1 + m2 * m2;
-	double b2 = 2 * m2 * q2 - 2 * p2.x - m2 * 2 * p2.y;
+	double b2 = 2 * m2 * q2 - 2 * d2->position.x - m2 * 2 * d2->position.y;
 
 	double xt2 = (-b2) / (2 * a2);
 	double yt2 = m2 * xt2 + q2;
 
 	//Construct obstacle
 	Obstacle o;
-	o.position = p2;
+	o.position = d2->position;
 	o.radius = r;
 	o.T1.x = xt1;
 	o.T1.y = yt1;
@@ -156,7 +156,7 @@ void DR_goto(Drone *d, vec2 waypoint)
 
 bool DR_collision(Drone *d1, Drone *d2)
 {
-	Obstacle o = compute_obstacle(d1->position, d2->position,d1->size,d2->size);
+	Obstacle o = compute_obstacle(d1, d2);
 
 	vec2 dif = v2_sub(d1->speed, d2->speed);
 
