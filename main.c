@@ -17,15 +17,15 @@ double dt = 1E-3; //seconds
 double error = -1.0;
 
 double rates[] = {
-    //1E-2,
-    //2.5E-2,
-    //5E-2,
+    1E-2,
+    2.5E-2,
+    5E-2,
     1E-1,
-    //2.5E-1,
-    //5E-1,
+    2.5E-1,
+    5E-1,
     1.0,
     2.0,
-    //4.0,
+    4.0,
     8.0,
     16.0}; //msg/s
 
@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
             if (COM_broadcast(d1.position, d2.position, sys))
             {
 
-              //DR_avoid(&d2, &d1, error);
-              //DR_avoid(&d1, &d2, error);
-              DR_stopAndWait(&d1, &d2, error);
-              DR_stopAndWait(&d2, &d1, error);
+              DR_avoid(&d2, &d1, error);
+              DR_avoid(&d1, &d2, error);
+              //DR_stopAndWait(&d1, &d2, error);
+              //DR_stopAndWait(&d2, &d1, error);
             }
             timer = 0;
           }

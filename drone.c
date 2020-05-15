@@ -217,11 +217,7 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error)
 	if (DR_collision(d, &dx))
 	{
 
-		vec2 dir = v2_norm(d->speed);
-		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_sub(dx.position, d->position);
-		double thetaP2 = atan2(p2rel.y, p2rel.x);
-		if (fabs(thetaP2) > fabs(theta))
+		if (dx.id > d->id)
 		{
 
 			d->speed.x = 0;
