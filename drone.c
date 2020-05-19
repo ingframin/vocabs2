@@ -159,7 +159,10 @@ bool DR_collision(Drone *d1, Drone *d2)
 	Obstacle o = compute_obstacle(d1, d2);
 
 	vec2 dif = v2_sub(d1->speed, d2->speed);
-
+	if (v2_mod(dif) > 1.9 * d1->_speed_mod)
+	{
+		return true;
+	}
 	vec2 ds = v2_add(dif, d1->position);
 
 	barycoords bc = barycentric(d1->position, o.T2, o.T1, ds);
@@ -193,7 +196,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_rotate(d->speed, -M_PI / 2);
+			vec2 escape = v2_rotateHalfPI(d->speed, -1);
 			escape = v2_norm(escape);
 			escape = v2_prodK(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);

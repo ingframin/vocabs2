@@ -14,6 +14,8 @@ typedef struct
 double v2_mod(vec2 v);
 //rotate
 vec2 v2_rotate(vec2, double angle);
+//rotate sign * PI/2
+vec2 v2_rotateHalfPI(vec2, int sign);
 //normalize
 vec2 v2_norm(vec2);
 //Add and subtract

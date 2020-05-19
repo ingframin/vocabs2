@@ -5,22 +5,22 @@
 
 double v2_mod(vec2 v)
 {
-  return sqrt(v.x*v.x+v.y*v.y);
+  return sqrt(v.x * v.x + v.y * v.y);
 }
 
 vec2 v2_rotate(vec2 v, double angle)
 {
-  
+
   double m = v2_mod(v);
   vec2 vn;
-  vn.x = v.x/m;
-  vn.y = v.y/m;
+  vn.x = v.x / m;
+  vn.y = v.y / m;
   vec2 ret;
   double C = cos(angle);
   double S = sin(angle);
-  
-  ret.x = m*(vn.x * C - vn.y * S);
-  ret.y = m*(vn.x * S + vn.y * C);
+
+  ret.x = m * (vn.x * C - vn.y * S);
+  ret.y = m * (vn.x * S + vn.y * C);
 
   return ret;
 }
@@ -75,4 +75,12 @@ double v2_distance(vec2 v1, vec2 v2)
 {
   vec2 res = v2_sub(v1, v2);
   return v2_mod(res);
+}
+
+vec2 v2_rotateHalfPI(vec2 v, int sign)
+{
+  vec2 vr;
+  vr.x = -sign * v.y;
+  vr.y = sign * v.x;
+  return vr;
 }

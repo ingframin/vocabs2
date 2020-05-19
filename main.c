@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
   vec2 p1 = {500.0, 500.0};
   vec2 p2 = {1000.0, 1000.0};
   vec2 p3 = {000.0, 1000.0};
+  // vec2 p4 = {0.0, 0.0};
 
   printf("Rate:\tPcrash:\n");
 #pragma omp parallel
@@ -86,10 +87,13 @@ int main(int argc, char *argv[])
 
         Drone d1 = DR_newDrone(0.0, 0.0, 20.0, 0.0, 1);
         Drone d2 = DR_newDrone(1000.0, 0.0, 20.0, 0.0, 1);
+        // Drone d3 = DR_newDrone(500.0, 999.0, 20.0, 0.0, 1);
         DR_push_waypoint(&d1, p2);
         DR_push_waypoint(&d2, p3);
+        // DR_push_waypoint(&d3, p4);
         DR_push_waypoint(&d1, p1);
         DR_push_waypoint(&d2, p1);
+        // DR_push_waypoint(&d3, p1);
 
         rate = rates[i];
 
@@ -107,6 +111,10 @@ int main(int argc, char *argv[])
 
               DR_avoid(&d2, &d1, error);
               DR_avoid(&d1, &d2, error);
+              // DR_avoid(&d3, &d1, error);
+              // DR_avoid(&d1, &d3, error);
+              // DR_avoid(&d2, &d3, error);
+              // DR_avoid(&d3, &d2, error);
               //DR_stopAndWait(&d1, &d2, error);
               //DR_stopAndWait(&d2, &d1, error);
             }
@@ -115,6 +123,7 @@ int main(int argc, char *argv[])
 
           DR_move(&d1, dt);
           DR_move(&d2, dt);
+          // DR_move(&d3, dt);
           if (d1.waypoints[d1.curr_wp].x == 0 && d1.waypoints[d1.curr_wp].y == 0)
           {
             running = false;
@@ -123,7 +132,13 @@ int main(int argc, char *argv[])
           {
             running = false;
           }
-          if (v2_distance(d1.position, d2.position) < (d1.size + d2.size))
+          // if (d3.waypoints[d3.curr_wp].x == 0 && d3.waypoints[d3.curr_wp].y == 0)
+          // {
+          //   running = false;
+          // }
+          if (v2_distance(d1.position, d2.position) < (d1.size + d2.size)) // ||
+              //v2_distance(d1.position, d3.position) < (d1.size + d3.size)))// ||
+              //v2_distance(d3.position, d2.position) < (d3.size + d2.size))
           {
             omp_set_lock(&writelock);
             collisions[i] += 1;

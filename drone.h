@@ -50,6 +50,8 @@ bool DR_collision(Drone *d1, Drone *d2);
 void DR_avoid(Drone *d, Drone *d2, double error);
 //Instead of computing an avoidance maneuver waits until no collision is imminent
 void DR_stopAndWait(Drone *d, Drone *d2, double error);
+//Compute avoidance for a list of drones
+void DR_avoidMany(Drone *d, Drone *drones, uint32_t ndrones, double error);
 //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
 //Increase the waypoint array size if needed
 void DR_push_waypoint(Drone *d, vec2 wp);
