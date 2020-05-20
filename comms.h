@@ -14,5 +14,5 @@ typedef enum
 double
 consiglio(double dist);
 double esat(double dist);
-bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf);
+bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf, double loss);
 #endif

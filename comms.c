@@ -1,20 +1,20 @@
 #include "comms.h"
 #include <stdlib.h>
 
-bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys)
+bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
 { // Change to wi-fi or ads-b functions
     int p = rand() % 1000;
     double lim;
     switch (sys)
     {
     case WI_FI:
-        lim = 1000 * esat(v2_distance(d1, d2));
+        lim = loss * esat(v2_distance(d1, d2));
         break;
     case ADS_B:
-        lim = 1000 * consiglio(v2_distance(d1, d2));
+        lim = loss * consiglio(v2_distance(d1, d2));
         break;
     default:
-        lim = 1000.0;
+        lim = loss;
     }
 
     //If broadcast return true
