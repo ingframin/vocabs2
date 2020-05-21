@@ -130,14 +130,14 @@ int main(int argc, char *argv[])
             if (COM_broadcast(d1.position, d2.position, sys, l))
             {
 
-              DR_avoid(&d2, &d1, error);
-              DR_avoid(&d1, &d2, error);
+              // DR_avoid(&d2, &d1, error);
+              // DR_avoid(&d1, &d2, error);
               // DR_avoid(&d3, &d1, error);
               // DR_avoid(&d1, &d3, error);
               // DR_avoid(&d2, &d3, error);
               // DR_avoid(&d3, &d2, error);
-              //DR_stopAndWait(&d1, &d2, error);
-              //DR_stopAndWait(&d2, &d1, error);
+              DR_stopAndWait(&d1, &d2, error);
+              DR_stopAndWait(&d2, &d1, error);
             }
             timer = 0;
           }
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
 
   } //openmp
 
-  FILE *results = fopen("results.txt", "a");
+  FILE *results = fopen("results_speed_loss_sw.txt", "a");
   fprintf(results, "Error: %.3f\n", error);
   fprintf(results, "Loss: %.3f\n", l);
   fprintf(results, "Speed: %.3f\n", speeds[si]);
