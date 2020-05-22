@@ -17,17 +17,21 @@ double dt = 1E-3; //seconds
 double error = -1.0;
 
 double rates[] = {
-    1E-2,
-    2.5E-2,
-    5E-2,
-    1E-1,
-    2.5E-1,
-    5E-1,
-    1.0,
-    2.0,
-    4.0,
-    8.0,
-    16.0}; //msg/s
+    // 1E-2,
+    // 2.5E-2,
+    // 5E-2,
+    // 1E-1,
+    // 2.5E-1,
+    // 5E-1,
+    // 1.0,
+    // 2.0,
+    // 4.0,
+    5.0,
+    6.0,
+    7.0
+    // 8.0,
+    // 16.0
+    }; //msg/s
 
 double speeds[] = {
     1.0,
@@ -38,7 +42,12 @@ double speeds[] = {
     25.0,
     30.0,
     35.0,
-    40.0}; //m/s
+    40.0//,
+    // 45.0,
+    // 50.0,
+    // 55.0,
+    // 60.0
+    }; //m/s
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
 double rate = 1.0;
@@ -130,14 +139,14 @@ int main(int argc, char *argv[])
             if (COM_broadcast(d1.position, d2.position, sys, l))
             {
 
-              // DR_avoid(&d2, &d1, error);
-              // DR_avoid(&d1, &d2, error);
+              DR_avoid(&d2, &d1, error);
+              DR_avoid(&d1, &d2, error);
               // DR_avoid(&d3, &d1, error);
               // DR_avoid(&d1, &d3, error);
               // DR_avoid(&d2, &d3, error);
               // DR_avoid(&d3, &d2, error);
-              DR_stopAndWait(&d1, &d2, error);
-              DR_stopAndWait(&d2, &d1, error);
+              // DR_stopAndWait(&d1, &d2, error);
+              // DR_stopAndWait(&d2, &d1, error);
             }
             timer = 0;
           }
@@ -176,7 +185,7 @@ int main(int argc, char *argv[])
 
   } //openmp
 
-  FILE *results = fopen("results_speed_loss_sw.txt", "a");
+  FILE *results = fopen("results_speed_loss_sw_567.txt", "a");
   fprintf(results, "Error: %.3f\n", error);
   fprintf(results, "Loss: %.3f\n", l);
   fprintf(results, "Speed: %.3f\n", speeds[si]);
