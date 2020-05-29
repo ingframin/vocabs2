@@ -30,21 +30,15 @@ double rates[] = {
     6.0,
     7.0,
     8.0,
+    9.0,
+    10.0,
+    11.0,
+    12.0,
+    13.0,
+    14.0,
     16.0}; //msg/s
 
-double speeds[] = {
-    5.0,
-    10.0,
-    15.0,
-    20.0,
-    25.0,
-    30.0,
-    35.0,
-    40.0,
-    45.0,
-    50.0,
-    55.0,
-    60.0}; //m/s
+double speed = 20.0;
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
 double rate = 1.0;
@@ -67,7 +61,7 @@ int main(int argc, char *argv[])
   }
   if (argc > 4)
   {
-    si = atoi(argv[4]);
+    speed = atof(argv[4]);
   }
   printf("Error: %.3f\n", error);
   switch (prob)
@@ -85,7 +79,7 @@ int main(int argc, char *argv[])
     printf("No loss\n");
   }
   printf("Loss: %.3f\n", l);
-  printf("Speed: %.3f\n", speeds[si]);
+  printf("Speed: %.3f\n", speed);
   double collisions[len_rates];
   omp_init_lock(&writelock);
   t = time(NULL);
@@ -112,8 +106,8 @@ int main(int argc, char *argv[])
       for (uint64_t it = 0; it < iterations; it++)
       {
 
-        Drone d1 = DR_newDrone(0.0, 0.0, speeds[si], 0.0, 1);
-        Drone d2 = DR_newDrone(1000.0, 0.0, speeds[si], 0.0, 1);
+        Drone d1 = DR_newDrone(0.0, 0.0, speed, 0.0, 1);
+        Drone d2 = DR_newDrone(1000.0, 0.0, speed, 0.0, 1);
         // Drone d3 = DR_newDrone(500.0, 999.0, 20.0, 0.0, 1);
         DR_push_waypoint(&d1, p2);
         DR_push_waypoint(&d2, p3);
@@ -185,7 +179,7 @@ int main(int argc, char *argv[])
   FILE *results = fopen("results_speed_loss_avoid.txt", "a");
   fprintf(results, "Error: %.3f\n", error);
   fprintf(results, "Loss: %.3f\n", l);
-  fprintf(results, "Speed: %.3f\n", speeds[si]);
+  fprintf(results, "Speed: %.3f\n", speed);
   switch (prob)
   {
   case 'E':
