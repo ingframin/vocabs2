@@ -30,24 +30,21 @@ double rates[] = {
     6.0,
     7.0,
     8.0,
-    16.0
-    }; //msg/s
+    16.0}; //msg/s
 
 double speeds[] = {
-    // 1.0,
-    // 5.0,
-    // 10.0,
-    // 15.0,
-    // 20.0,
-    // 25.0,
-    // 30.0,
-    // 35.0,
-    // 40.0//,
-     45.0,
-     50.0,
-     55.0,
-     60.0
-    }; //m/s
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    30.0,
+    35.0,
+    40.0,
+    45.0,
+    50.0,
+    55.0,
+    60.0}; //m/s
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
 double rate = 1.0;
@@ -185,7 +182,7 @@ int main(int argc, char *argv[])
 
   } //openmp
 
-  FILE *results = fopen("results_speed_loss_high_speed.txt", "a");
+  FILE *results = fopen("results_speed_loss_avoid.txt", "a");
   fprintf(results, "Error: %.3f\n", error);
   fprintf(results, "Loss: %.3f\n", l);
   fprintf(results, "Speed: %.3f\n", speeds[si]);
