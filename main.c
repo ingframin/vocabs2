@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
   printf("Loss: %.3f\n", l);
   printf("Speed: %.3f\n", speed);
   double collisions[len_rates];
-  for (int k = 0; k < len_rates; k++)
+  for (uint64_t k = 0; k < len_rates; k++)
   {
     collisions[k] = 0.0;
   }
@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
 
     for (uint64_t i = 0; i < len_rates; i++)
     {
-
 
 #pragma omp for
       for (uint64_t it = 0; it < iterations; it++)
@@ -178,7 +177,7 @@ int main(int argc, char *argv[])
       } //iterations
       if (collisions[i] == 0.0)
       {
-        break
+        break;
       }
     } //rates
 
