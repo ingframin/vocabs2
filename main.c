@@ -25,6 +25,7 @@ double rates[] = {
     5E-1,
     1.0,
     2.0,
+    3.0,
     4.0,
     5.0,
     6.0,
@@ -36,6 +37,7 @@ double rates[] = {
     12.0,
     13.0,
     14.0,
+    15.0,
     16.0}; //msg/s
 
 double speed = 20.0;
@@ -81,6 +83,10 @@ int main(int argc, char *argv[])
   printf("Loss: %.3f\n", l);
   printf("Speed: %.3f\n", speed);
   double collisions[len_rates];
+  for (int k = 0; k < len_rates; k++)
+  {
+    collisions[k] = 0.0;
+  }
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
@@ -100,7 +106,6 @@ int main(int argc, char *argv[])
     for (uint64_t i = 0; i < len_rates; i++)
     {
 
-      collisions[i] = 0;
 
 #pragma omp for
       for (uint64_t it = 0; it < iterations; it++)
@@ -171,7 +176,10 @@ int main(int argc, char *argv[])
         }
 
       } //iterations
-
+      if (collisions[i] == 0.0)
+      {
+        break
+      }
     } //rates
 
   } //openmp
