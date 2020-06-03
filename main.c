@@ -56,7 +56,7 @@ double rates[] = {
     15.0,
     15.5,
     16.0}; //msg/s
-
+int num_threads = 62;
 double speed = 20.0;
 uint64_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   // vec2 p4 = {0.0, 0.0};
 
   printf("Rate:\tPcrash:\n");
-
+  omp_set_num_threads(num_threads);
 #pragma omp parallel
   {
 
