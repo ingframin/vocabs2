@@ -10,7 +10,7 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 10000;
+uint64_t iterations = 100000;
 
 double dt = 1E-3; //seconds
 
@@ -44,11 +44,17 @@ double rates[] = {
     9.0,
     9.5,
     10.0,
+    10.5,
     11.0,
+    11.5,
     12.0,
+    12.5,
     13.0,
+    13.5,
     14.0,
+    14.5,
     15.0,
+    15.5,
     16.0}; //msg/s
 
 double speed = 20.0;
