@@ -75,6 +75,10 @@ int main(int argc, char *argv[])
   if (argc > 4)
   {
     speed = atof(argv[4]);
+    if (speed > 100.0)
+    {
+      dt = 1e-4;
+    }
   }
   printf("Error: %.3f\n", error);
   switch (prob)
@@ -195,7 +199,7 @@ int main(int argc, char *argv[])
 
   } //openmp
 
-  FILE *results = fopen("results_speed_loss_avoid.txt", "a");
+  FILE *results = fopen("results_speed_loss_avoid_1s_ttc.txt", "a");
   fprintf(results, "Error: %.3f\n", error);
   fprintf(results, "Loss: %.3f\n", l);
   fprintf(results, "Speed: %.3f\n", speed);
