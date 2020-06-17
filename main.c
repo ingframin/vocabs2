@@ -10,7 +10,7 @@
 omp_lock_t writelock;
 
 time_t t;
-uint64_t iterations = 20000;
+uint32_t iterations = 20000;
 
 double dt = 1E-3; //seconds
 
@@ -88,7 +88,7 @@ double rates[] = {
     16.0}; //msg/s
 int num_threads = 8;
 double speed = 20.0;
-uint64_t len_rates = sizeof(rates) / sizeof(double);
+uint32_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
 double rate = 1.0;
 char prob = 'A';
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   printf("Loss: %.3f\n", l);
   printf("Speed: %.3f\n", speed);
   double collisions[len_rates];
-  for (uint64_t k = 0; k < len_rates; k++)
+  for (uint32_t k = 0; k < len_rates; k++)
   {
     collisions[k] = 0.0;
   }
@@ -154,12 +154,12 @@ int main(int argc, char *argv[])
 #pragma omp parallel
   {
 
-    for (uint64_t i = 0; i < len_rates; i++)
+    for (uint32_t i = 0; i < len_rates; i++)
     {
       printf("rate: %.2f \n", rates[i]);
 
 #pragma omp for
-      for (uint64_t it = 0; it < iterations; it++)
+      for (uint32_t it = 0; it < iterations; it++)
       {
 
         Drone d1 = DR_newDrone(0.0, 0.0, speed, 0.0, 1);
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
     fprintf(results, "No loss\n");
   }
 
-  for (uint64_t k = 0; k < len_rates; k++)
+  for (uint32_t k = 0; k < len_rates; k++)
   {
     printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
     fprintf(results, "%.3f\t%.10f\n", rates[k], collisions[k] / iterations);
