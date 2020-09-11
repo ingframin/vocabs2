@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
         Drone d2 = DR_newDrone(1000.0, 0.0, speed, 0.0, 1);
         
         DR_push_waypoint(&d1, p2);
-        DR_push_waypoint(&d2, p3);
+        DR_push_waypoint(&d2, p2);
         
         DR_push_waypoint(&d1, p1);
         DR_push_waypoint(&d2, p1);
