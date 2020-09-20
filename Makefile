@@ -1,4 +1,4 @@
-CC = gcc
+CC = gcc-10
 CFLAGS = -I.
 DEPS = drone.h vec2.h video.h channel.h
 
