@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdbool.h>
+#include <vector>
+#include <omp.h>
 #include "vec2.h"
 #include "drone.h"
 #include "comms.h"
-//#include "video.h"
-#include <omp.h>
 omp_lock_t writelock;
 
 time_t t;
@@ -86,6 +85,7 @@ double rates[] = {
     15.5,
     15.75,
     16.0}; //msg/s
+
 int num_threads = 8;
 double speed = 20.0;
 uint32_t len_rates = sizeof(rates) / sizeof(double);
@@ -94,6 +94,7 @@ double rate = 1.0;
 char prob = 'A';
 RFsystem sys;
 double l = 1000.0;
+
 int main(int argc, char *argv[])
 {
   if (argc > 1)
@@ -116,7 +117,9 @@ int main(int argc, char *argv[])
       dt = 1e-4;
     }
   }
+
   printf("Error: %.3f\n", error);
+
   switch (prob)
   {
   case 'E':
@@ -131,13 +134,16 @@ int main(int argc, char *argv[])
     sys = NO_LOSS;
     printf("No loss\n");
   }
+
   printf("Loss: %.3f\n", l);
   printf("Speed: %.3f\n", speed);
+
   double collisions[len_rates];
   for (uint32_t k = 0; k < len_rates; k++)
   {
     collisions[k] = 0.0;
   }
+
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
@@ -150,6 +156,7 @@ int main(int argc, char *argv[])
 
   printf("Rate:\tPcrash:\n");
   omp_set_num_threads(num_threads);
+
 #pragma omp parallel
   {
 
@@ -195,11 +202,11 @@ int main(int argc, char *argv[])
           DR_move(&d1, dt);
           DR_move(&d2, dt);
           
-          if (d1.waypoints[d1.curr_wp].x == 0 && d1.waypoints[d1.curr_wp].y == 0)
+          if (d1.waypoints.back().x == 0 && d1.waypoints.back().y == 0)
           {
             running = false;
           }
-          if (d2.waypoints[d2.curr_wp].x == 0 && d2.waypoints[d2.curr_wp].y == 0)
+          if (d2.waypoints.back().x == 0 && d2.waypoints.back().y == 0)
           {
             running = false;
           }

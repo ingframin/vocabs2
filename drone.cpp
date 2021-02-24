@@ -1,4 +1,5 @@
 #include "drone.h"
+#include <vector>
 #include <stdlib.h>
 #include <stdio.h>
 #define _USE_MATH_DEFINES
@@ -104,9 +105,8 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	d.speed.x = vx;
 	d.speed.y = vy;
 	d._speed_mod = v2_mod(d.speed);
-	d.waypoints = (vec2*)malloc(2 * sizeof(vec2));
-	d.wp_len = 2;
-	d.curr_wp = 0;
+	
+	d.waypoints.push_back({0,0});
 	d.waypoints[0].x = x;
 	d.waypoints[0].y = y;
 	d.size = size;
@@ -116,13 +116,12 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 void DR_move(Drone *d, double dt)
 {
 
-	if (v2_distance(d->position, d->waypoints[d->curr_wp]) < d->size)
+	if (v2_distance(d->position, d->waypoints.back()) < d->size)
 	{
-		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->curr_wp].x, d->waypoints[d->curr_wp].y);
 		DR_pop_waypoint(d);
 	}
 
-	DR_goto(d, d->waypoints[d->curr_wp]);
+	DR_goto(d, d->waypoints.back());
 
 	vec2 dP = v2_prodK(d->speed, dt);
 	d->position = v2_add(d->position, dP);
@@ -143,7 +142,6 @@ void DR_goto(Drone *d, vec2 waypoint)
 
 	if (C < -0.9999)
 	{
-		//angle = M_PI;
 		d->speed.x = -d->speed.x;
 		d->speed.y = -d->speed.y;
 	}
@@ -235,23 +233,16 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error)
 }
 
 void DR_push_waypoint(Drone *d, vec2 wp)
-{
-
-	if (d->curr_wp == (d->wp_len - 1))
-	{
-		d->wp_len = (d->wp_len + (d->wp_len >> 1));
-		d->waypoints = (vec2*)realloc(d->waypoints, (d->wp_len + (d->wp_len >> 1)) * sizeof(vec2));
-	}
-	d->curr_wp += 1;
-	d->waypoints[d->curr_wp] = wp;
+{	
+	d->waypoints.push_back(wp);
 }
+
 void DR_pop_waypoint(Drone *d)
 {
-	d->curr_wp = (d->curr_wp > 0) ? d->curr_wp - 1 : 0;
+	d->waypoints.pop_back();
 }
 
 void DR_freeDrone(Drone *d)
 {
-	free(d->waypoints);
 	free(d);
 }

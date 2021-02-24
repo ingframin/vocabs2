@@ -25,7 +25,7 @@
             ],
             "group": "build"
         },
-       
+
         {
             "label": "build clang",
             "type": "shell",

@@ -3,6 +3,7 @@
 #include "vec2.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <vector>
 
 //Struct to keep barycentric coordinates
 typedef struct
@@ -30,9 +31,7 @@ typedef struct
   vec2 speed;        //current speed
   double _speed_mod; //speed module
   /*I might consider making the flight plan a separate object*/
-  vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  unsigned int wp_len;  //max flight plan length
-  unsigned int curr_wp; //Index of the current waypoint
+  std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
   double size;          //Physical size of the drone
 } Drone;
 
