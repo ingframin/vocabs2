@@ -104,7 +104,7 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	d.speed.x = vx;
 	d.speed.y = vy;
 	d._speed_mod = v2_mod(d.speed);
-	d.waypoints = malloc(2 * sizeof(vec2));
+	d.waypoints = (vec2*)malloc(2 * sizeof(vec2));
 	d.wp_len = 2;
 	d.curr_wp = 0;
 	d.waypoints[0].x = x;
@@ -240,7 +240,7 @@ void DR_push_waypoint(Drone *d, vec2 wp)
 	if (d->curr_wp == (d->wp_len - 1))
 	{
 		d->wp_len = (d->wp_len + (d->wp_len >> 1));
-		d->waypoints = realloc(d->waypoints, (d->wp_len + (d->wp_len >> 1)) * sizeof(vec2));
+		d->waypoints = (vec2*)realloc(d->waypoints, (d->wp_len + (d->wp_len >> 1)) * sizeof(vec2));
 	}
 	d->curr_wp += 1;
 	d->waypoints[d->curr_wp] = wp;
