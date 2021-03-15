@@ -168,14 +168,14 @@ int main(int argc, char *argv[])
       for (uint32_t it = 0; it < iterations; it++)
       {
 
-        Drone d1 = DR_newDrone(0.0, 0.0, speed, 0.0, 1);
-        Drone d2 = DR_newDrone(1000.0, 0.0, speed, 0.0, 1);
+        Drone d1 {0.0, 0.0, speed, 0.0, 1};
+        Drone d2 {1000.0, 0.0, speed, 0.0, 1};
         
-        DR_push_waypoint(&d1, p2);
-        DR_push_waypoint(&d2, p2);
+        d1.pushWaypoint(p2);
+        d2.pushWaypoint(p2);
         
-        DR_push_waypoint(&d1, p1);
-        DR_push_waypoint(&d2, p1);
+        d1.pushWaypoint(p1);
+        d2.pushWaypoint(p1);
         
 
         rate = rates[i];
@@ -192,15 +192,15 @@ int main(int argc, char *argv[])
             if (COM_broadcast(d1.position, d2.position, sys, l))
             {
 
-              DR_avoid(&d2, &d1, error);
-              DR_avoid(&d1, &d2, error);
+              d2.avoid(d1, error);
+              d1.avoid(d2, error);
               
             }
             timer = 0;
           }
 
-          DR_move(d1, dt);
-          DR_move(d2, dt);
+          d1.move(dt);
+          d2.move(dt);
           
           if (d1.waypoints.back().x == 0 && d1.waypoints.back().y == 0)
           {

@@ -35,29 +35,30 @@ struct Drone
   double size;          //Physical size of the drone
   Drone(double x, double y, double vx, double vy, double size);
   Drone(){};
+
+  //move the drone by speed x time delta
+  void move(double dt);
+
+  //Steer towards next waypoint
+  void steer(vec2 waypoint);
+
+  //Are the drones on a collision route?
+  bool collision(Drone& d2);
+  
+  //Compute avoidance maneuver and add escape waypoint
+  void avoid(Drone& d2, double error);
+  
+  //Instead of computing an avoidance maneuver waits until no collision is imminent
+  void stopAndWait(Drone& d2, double error);
+
+  //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
+  //Increase the waypoint array size if needed
+  void pushWaypoint(vec2 wp);
+  //pop removes the top waypoints (but it does not shrink the waypoint array)
+  void popWaypoint();
+
 };
 
-//Initialize a new drone.
-Drone DR_newDrone(double x, double y, double vx, double vy, double size);
-//Free memory used by a drone
-void DR_freeDrone(Drone *d);
-//move the drone by speed x time delta
-void DR_move(Drone& d, double dt);
-//Steer towards next waypoint (It doesn't move the drone!!)
-void DR_goto(Drone& d, vec2 waypoint);
-//Are the drones on a collision route?
-bool DR_collision(Drone *d1, Drone *d2);
-//Compute avoidance maneuver and add escape waypoint
-void DR_avoid(Drone *d, Drone *d2, double error);
-//Instead of computing an avoidance maneuver waits until no collision is imminent
-void DR_stopAndWait(Drone *d, Drone *d2, double error);
-//Compute avoidance for a list of drones
-void DR_avoidMany(Drone *d, Drone *drones, uint32_t ndrones, double error);
-//Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
-//Increase the waypoint array size if needed
-void DR_push_waypoint(Drone *d, vec2 wp);
-//pop removes the top waypoints (but it does not shrink the waypoint array)
-void DR_pop_waypoint(Drone& d);
-//Communication part
+
 
 #endif
