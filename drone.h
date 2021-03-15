@@ -6,14 +6,14 @@
 #include <vector>
 
 //Struct to keep barycentric coordinates
-typedef struct
+struct Barycoords
 {
   double alpha;
   double beta;
   double gamma;
-} barycoords;
+};
 
-typedef struct
+struct Obstacle
 {
   //radius
   double radius;
@@ -22,9 +22,9 @@ typedef struct
   //tangent points
   vec2 T1;
   vec2 T2;
-} Obstacle;
+};
 
-typedef struct
+struct Drone
 {
   uint32_t id;       //Unique ID
   vec2 position;     // current position
@@ -33,16 +33,18 @@ typedef struct
   /*I might consider making the flight plan a separate object*/
   std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
   double size;          //Physical size of the drone
-} Drone;
+  Drone(double x, double y, double vx, double vy, double size);
+  Drone(){};
+};
 
 //Initialize a new drone.
 Drone DR_newDrone(double x, double y, double vx, double vy, double size);
 //Free memory used by a drone
 void DR_freeDrone(Drone *d);
 //move the drone by speed x time delta
-void DR_move(Drone *d, double dt);
+void DR_move(Drone& d, double dt);
 //Steer towards next waypoint (It doesn't move the drone!!)
-void DR_goto(Drone *d, vec2 waypoint);
+void DR_goto(Drone& d, vec2 waypoint);
 //Are the drones on a collision route?
 bool DR_collision(Drone *d1, Drone *d2);
 //Compute avoidance maneuver and add escape waypoint
@@ -55,7 +57,7 @@ void DR_avoidMany(Drone *d, Drone *drones, uint32_t ndrones, double error);
 //Increase the waypoint array size if needed
 void DR_push_waypoint(Drone *d, vec2 wp);
 //pop removes the top waypoints (but it does not shrink the waypoint array)
-void DR_pop_waypoint(Drone *d);
+void DR_pop_waypoint(Drone& d);
 //Communication part
 
 #endif

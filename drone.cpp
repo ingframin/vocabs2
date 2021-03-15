@@ -83,9 +83,9 @@ Obstacle compute_obstacle(Drone *d1, Drone *d2)
 	return o;
 }
 
-barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
+Barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
 {
-	barycoords bc;
+	Barycoords bc;
 	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
 			   ((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
 	bc.beta = ((A.y - C.y) * P.x + (C.x - A.x) * P.y + A.x * C.y - C.x * A.y) /
@@ -93,6 +93,22 @@ barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
 	bc.alpha = 1 - bc.beta - bc.gamma;
 
 	return bc;
+}
+
+Drone::Drone(double x, double y, double vx, double vy, double size){
+	id = ids;
+	ids++;
+	position.x = x;
+	position.y = y;
+	speed.x = vx;
+	speed.y = vy;
+	_speed_mod = v2_mod(speed);
+	
+	waypoints.push_back({0,0});
+	waypoints[0].x = x;
+	waypoints[0].y = y;
+	size = size;
+
 }
 
 Drone DR_newDrone(double x, double y, double vx, double vy, double size)
@@ -113,26 +129,26 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	return d;
 }
 
-void DR_move(Drone *d, double dt)
+void DR_move(Drone& d, double dt)
 {
 
-	if (v2_distance(d->position, d->waypoints.back()) < d->size)
+	if (v2_distance(d.position, d.waypoints.back()) < d.size)
 	{
 		DR_pop_waypoint(d);
 	}
 
-	DR_goto(d, d->waypoints.back());
+	DR_goto(d, d.waypoints.back());
 
-	vec2 dP = v2_prodK(d->speed, dt);
-	d->position = v2_add(d->position, dP);
+	vec2 dP = v2_prodK(d.speed, dt);
+	d.position = v2_add(d.position, dP);
 }
 
-void DR_goto(Drone *d, vec2 waypoint)
+void DR_goto(Drone& d, vec2 waypoint)
 {
 
-	vec2 dir = v2_norm(d->speed);
+	vec2 dir = v2_norm(d.speed);
 
-	vec2 dirp = v2_sub(waypoint, d->position);
+	vec2 dirp = v2_sub(waypoint, d.position);
 
 	dirp = v2_norm(dirp);
 
@@ -142,13 +158,13 @@ void DR_goto(Drone *d, vec2 waypoint)
 
 	if (C < -0.9999)
 	{
-		d->speed.x = -d->speed.x;
-		d->speed.y = -d->speed.y;
+		d.speed.x = -d.speed.x;
+		d.speed.y = -d.speed.y;
 	}
 	else if (C >= -0.9999 && C < 0.9999)
 	{
 		angle = -acos(C);
-		d->speed = v2_rotate(d->speed, angle);
+		d.speed = v2_rotate(d.speed, angle);
 	}
 }
 
@@ -163,7 +179,7 @@ bool DR_collision(Drone *d1, Drone *d2)
 	}
 	vec2 ds = v2_add(dif, d1->position);
 
-	barycoords bc = barycentric(d1->position, o.T2, o.T1, ds);
+	Barycoords bc = barycentric(d1->position, o.T2, o.T1, ds);
 
 	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
 	{
@@ -237,9 +253,9 @@ void DR_push_waypoint(Drone *d, vec2 wp)
 	d->waypoints.push_back(wp);
 }
 
-void DR_pop_waypoint(Drone *d)
+void DR_pop_waypoint(Drone& d)
 {
-	d->waypoints.pop_back();
+	d.waypoints.pop_back();
 }
 
 void DR_freeDrone(Drone *d)

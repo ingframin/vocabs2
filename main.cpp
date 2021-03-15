@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
             timer = 0;
           }
 
-          DR_move(&d1, dt);
-          DR_move(&d2, dt);
+          DR_move(d1, dt);
+          DR_move(d2, dt);
           
           if (d1.waypoints.back().x == 0 && d1.waypoints.back().y == 0)
           {

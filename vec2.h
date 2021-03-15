@@ -1,7 +1,5 @@
 #ifndef VEC2_H
 #define VEC2_H
-//round floats and doubles to int
-#define DROUND(x) (int)(x + 0.5)
 
 typedef struct
 {
