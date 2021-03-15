@@ -107,7 +107,7 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	waypoints.push_back({0,0});
 	waypoints[0].x = x;
 	waypoints[0].y = y;
-	size = size;
+	this->size = size;
 
 }
 
