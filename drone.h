@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <vector>
+#include <numbers>
 
 //Struct to keep barycentric coordinates
 struct Barycoords
@@ -40,7 +41,7 @@ struct Drone
   void move(double dt);
 
   //Steer towards next waypoint
-  void steer(vec2 waypoint);
+  void steer(vec2& waypoint);
 
   //Are the drones on a collision route?
   bool collision(Drone& d2);

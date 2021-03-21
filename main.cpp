@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
             running = false;
           }
           
-          if (v2_distance(d1.position, d2.position) < (d1.size + d2.size)) 
+          if (d1.position.distance(d2.position) < (d1.size + d2.size)) 
           {
             omp_set_lock(&writelock);
             collisions[i] += 1;

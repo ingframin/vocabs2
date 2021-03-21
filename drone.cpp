@@ -1,12 +1,6 @@
 #include "drone.h"
 #include <vector>
-#include <stdlib.h>
-#include <stdio.h>
-#define _USE_MATH_DEFINES
-#include <math.h>
-#ifndef M_PI
-#define M_PI (3.14159265358979323846)
-#endif
+#include <cmath>
 #include "vec2.h"
 #define MAX_ANGLE 0.01
 
@@ -79,7 +73,7 @@ Obstacle compute_obstacle(Drone& d1, Drone& d2)
 	o.T1.y = yt1;
 	o.T2.x = xt2;
 	o.T2.y = yt2;
-	// printf("T1.x= %.3f,T1.y= %.3f\n",o.T1.x,o.T1.y);
+	
 	return o;
 }
 
@@ -102,7 +96,7 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	position.y = y;
 	speed.x = vx;
 	speed.y = vy;
-	_speed_mod = v2_mod(speed);
+	_speed_mod = speed.mod();
 	
 	waypoints.push_back({0,0});
 	waypoints[0].x = x;
@@ -113,30 +107,30 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 
 
 void Drone::move(double dt){
-	if (v2_distance(position, waypoints.back()) < size)
+	if (position.distance(waypoints.back()) < size)
 	{
 		popWaypoint();
 	}
 
 	steer(waypoints.back());
 
-	vec2 dP = v2_prodK(speed, dt);
-	position = v2_add(position, dP);
+	vec2 dP = speed.prodK(dt);
+	position = position.add(dP);
 	
 }
 
 
 
-void Drone::steer(vec2 waypoint)
+void Drone::steer(vec2& waypoint)
 {
 
-	vec2 dir = v2_norm(speed);
+	vec2 dir = speed.norm();
 
-	vec2 dirp = v2_sub(waypoint, position);
+	vec2 dirp = waypoint.sub(position);
 
-	dirp = v2_norm(dirp);
+	dirp = dirp.norm();
 
-	double C = v2_dot(dir, dirp);
+	double C = dir.dot(dirp);
 
 	double angle = 0;
 
@@ -148,7 +142,7 @@ void Drone::steer(vec2 waypoint)
 	else if (C >= -0.9999 && C < 0.9999)
 	{
 		angle = -acos(C);
-		speed = v2_rotate(speed, angle);
+		speed = speed.rotate(angle);
 	}
 }
 
@@ -156,12 +150,12 @@ bool Drone::collision(Drone& d2)
 {
 	Obstacle o = compute_obstacle(*this, d2);
 
-	vec2 dif = v2_sub(speed, d2.speed);
-	if (v2_mod(dif) > 1.9 * _speed_mod)
+	vec2 dif = speed.sub(d2.speed);
+	if (dif.mod() > 1.9 * _speed_mod)
 	{
 		return true;
 	}
-	vec2 ds = v2_add(dif, position);
+	vec2 ds = dif.add(position);
 
 	Barycoords bc = barycentric(position, o.T2, o.T1, ds);
 
@@ -180,24 +174,24 @@ void Drone::avoid(Drone& d2, double error)
 	{
 		vec2 pos_error;
 		pos_error.x = generateGaussian(0, 5);
-		pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
+		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
 
-		dx.position = v2_add(dx.position, pos_error);
+		dx.position = dx.position.add(pos_error);
 	}
 
 	if (collision(dx))
 	{
 
-		vec2 dir = v2_norm(speed);
+		vec2 dir = speed.norm();
 		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_sub(dx.position, position);
+		vec2 p2rel = dx.position.sub(position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_rotateHalfPI(speed, -1);
-			escape = v2_norm(escape);
-			escape = v2_prodK(escape, 4 * (size + dx.size));
-			escape = v2_add(escape, position);
+			vec2 escape = speed.rotateHalfPI(-1);
+			escape = escape.norm();
+			escape = escape.prodK(4 * (size + dx.size));
+			escape = escape.add(position);
 			pushWaypoint(escape);
 		}
 	}
@@ -210,9 +204,9 @@ void Drone::stopAndWait(Drone& d2, double error)
 	{
 		vec2 pos_error;
 		pos_error.x = generateGaussian(0, error);
-		pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
+		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
 
-		dx.position = v2_add(dx.position, pos_error);
+		dx.position = dx.position.add(pos_error);
 	}
 
 	if (collision(dx))

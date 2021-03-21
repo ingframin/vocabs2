@@ -8,10 +8,10 @@ bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
     switch (sys)
     {
     case WI_FI:
-        lim = loss * esat(v2_distance(d1, d2));
+        lim = loss * esat(d1.distance(d2));
         break;
     case ADS_B:
-        lim = loss * consiglio(v2_distance(d1, d2));
+        lim = loss * consiglio(d1.distance(d2));
         break;
     default:
         lim = loss;

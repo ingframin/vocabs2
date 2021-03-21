@@ -1,20 +1,19 @@
 #include "vec2.h"
-#define _USE_MATH_DEFINES
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <numbers>
 
-double v2_mod(vec2 v)
+double vec2::mod()
 {
-  return sqrt(v.x * v.x + v.y * v.y);
+  return sqrt(x * x + y * y);
 }
 
-vec2 v2_rotate(vec2 v, double angle)
+vec2 vec2::rotate(double angle)
 {
 
-  double m = v2_mod(v);
+  double m = mod();
   vec2 vn;
-  vn.x = v.x / m;
-  vn.y = v.y / m;
+  vn.x = x / m;
+  vn.y = y / m;
   vec2 ret;
   double C = cos(angle);
   double S = sin(angle);
@@ -25,62 +24,62 @@ vec2 v2_rotate(vec2 v, double angle)
   return ret;
 }
 
-vec2 v2_norm(vec2 v)
+vec2 vec2::norm()
 {
   vec2 n;
-  double m = v2_mod(v);
-  n.x = v.x / m;
-  n.y = v.y / m;
+  double m = mod();
+  n.x = x / m;
+  n.y = y / m;
   return n;
 }
 
-vec2 v2_add(vec2 v1, vec2 v2)
+vec2 vec2::add(vec2& v2)
 {
   vec2 res;
-  res.x = v1.x + v2.x;
-  res.y = v1.y + v2.y;
+  res.x = x + v2.x;
+  res.y = y + v2.y;
   return res;
 }
 
-vec2 v2_sub(vec2 v1, vec2 v2)
+vec2 vec2::sub(vec2& v2)
 {
   vec2 res;
-  res.x = v1.x - v2.x;
-  res.y = v1.y - v2.y;
+  res.x = x - v2.x;
+  res.y = y - v2.y;
   return res;
 }
 
-double v2_dot(vec2 v1, vec2 v2)
+double vec2::dot(vec2& v2)
 {
-  return v1.x * v2.x + v1.y * v2.y;
+  return x * v2.x + y * v2.y;
 }
 
-vec2 v2_addK(vec2 v, double k)
+vec2 vec2::addK(double k)
 {
   vec2 res;
-  res.x = v.x + k;
-  res.y = v.y + k;
+  res.x = x + k;
+  res.y = y + k;
   return res;
 }
 
-vec2 v2_prodK(vec2 v, double k)
+vec2 vec2::prodK(double k)
 {
   vec2 res;
-  res.x = v.x * k;
-  res.y = v.y * k;
+  res.x = x * k;
+  res.y = y * k;
   return res;
 }
 
-double v2_distance(vec2 v1, vec2 v2)
+double vec2::distance(vec2& v2)
 {
-  vec2 res = v2_sub(v1, v2);
-  return v2_mod(res);
+  vec2 res = sub(v2);
+  return res.mod();
 }
 
-vec2 v2_rotateHalfPI(vec2 v, int sign)
+vec2 vec2::rotateHalfPI(int sign)
 {
   vec2 vr;
-  vr.x = -sign * v.y;
-  vr.y = sign * v.x;
+  vr.x = -sign * y;
+  vr.y = sign * x;
   return vr;
 }
