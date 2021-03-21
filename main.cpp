@@ -232,7 +232,8 @@ int main(int argc, char *argv[])
 
   } //openmp
 
-  FILE *results = fopen("results_speed_loss_avoid_1s_ttc.txt", "a");
+  FILE *results;
+  fopen_s(&results,"results_speed_loss_avoid_1s_ttc.txt", "a");
   fprintf(results, "Error: %.3f\n", error);
   fprintf(results, "Loss: %.3f\n", l);
   fprintf(results, "Speed: %.3f\n", speed);
