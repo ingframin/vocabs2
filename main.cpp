@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 
   vec2 p1 = {500.0, 500.0};
   vec2 p2 = {1000.0, 1000.0};
-  
+  vec2 p3 = {1000.0, 0.0};
 
   printf("Rate:\tPcrash:\n");
   omp_set_num_threads(num_threads);
@@ -122,6 +122,9 @@ int main(int argc, char *argv[])
         Drone d1 {0.0, 0.0, speed, 0.0, 1};
         Drone d2 {1000.0, 0.0, speed, 0.0, 1};
         
+        d1.pushWaypoint(p3);
+        d2.pushWaypoint(p3);
+
         d1.pushWaypoint(p2);
         d2.pushWaypoint(p2);
         
