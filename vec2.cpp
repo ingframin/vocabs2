@@ -33,7 +33,7 @@ vec2 vec2::norm()
   return n;
 }
 
-vec2 vec2::add(vec2& v2)
+vec2 vec2::add(vec2 v2)
 {
   vec2 res;
   res.x = x + v2.x;
@@ -41,7 +41,7 @@ vec2 vec2::add(vec2& v2)
   return res;
 }
 
-vec2 vec2::sub(vec2& v2)
+vec2 vec2::sub(vec2 v2)
 {
   vec2 res;
   res.x = x - v2.x;
@@ -49,7 +49,7 @@ vec2 vec2::sub(vec2& v2)
   return res;
 }
 
-double vec2::dot(vec2& v2)
+double vec2::dot(vec2 v2)
 {
   return x * v2.x + y * v2.y;
 }
@@ -70,7 +70,7 @@ vec2 vec2::prodK(double k)
   return res;
 }
 
-double vec2::distance(vec2& v2)
+double vec2::distance(vec2 v2)
 {
   vec2 res = sub(v2);
   return res.mod();

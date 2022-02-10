@@ -33,7 +33,7 @@ double esat(double dist)
     double r;
     if (dist < 50)
     {
-        r = 1.0;
+        return 1.0;
     }
     double p1 = -2.1e-09;
     double p2 = 5.034e-06;

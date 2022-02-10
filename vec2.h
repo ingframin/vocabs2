@@ -14,16 +14,16 @@ struct vec2
   //normalize
   vec2 norm();
   //Add and subtract
-  vec2 add(vec2& v2);
-  vec2 sub(vec2& v2);
+  vec2 add(vec2 v2);
+  vec2 sub(vec2 v2);
   //dot product
-  double dot(vec2& v2);
+  double dot(vec2 v2);
   //add constant to both elements
   vec2 addK(double k);
   //multiply both elements by k
   vec2 prodK(double k);
   //distance between 2 vectors
-  double distance(vec2& v2);
+  double distance(vec2 v2);
 };
 
 

@@ -25,15 +25,9 @@ struct Obstacle
   vec2 T2;
 };
 
-struct Drone
+class Drone
 {
-  uint32_t id;       //Unique ID
-  vec2 position;     // current position
-  vec2 speed;        //current speed
-  double _speed_mod; //speed module
-  /*I might consider making the flight plan a separate object*/
-  std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  double size;          //Physical size of the drone
+public:
   Drone(double x, double y, double vx, double vy, double size);
   Drone(){};
 
@@ -41,7 +35,7 @@ struct Drone
   void move(double dt);
 
   //Steer towards next waypoint
-  void steer(vec2& waypoint);
+  void steer(vec2 waypoint);
 
   //Are the drones on a collision route?
   bool collision(Drone& d2);
@@ -57,6 +51,21 @@ struct Drone
   void pushWaypoint(vec2 wp);
   //pop removes the top waypoints (but it does not shrink the waypoint array)
   void popWaypoint();
+  vec2 currentWayPoint(){
+    return waypoints.back();
+  }
+  vec2 currentPosition(){return position;}
+  vec2 currentVelocity(){return velocity;}
+  double radius(){return size;}
+
+private:
+  uint32_t id;       //Unique ID
+  vec2 position;     // current position
+  vec2 velocity;        //current speed
+  double _speed_mod; //speed module
+  /*I might consider making the flight plan a separate object*/
+  std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
+  double size;          //Physical size of the drone
 
 };
 

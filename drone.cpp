@@ -35,39 +35,39 @@ double generateGaussian(double mean, double stdDev)
 Obstacle compute_obstacle(Drone& d1, Drone& d2)
 {
 	// Minkowski addition
-	double r = d1.size + d2.size;
+	double r = d1.radius() + d2.radius();
 
 	//Computing tangent lines to circle passing through the point self.position
-	double dx = d1.position.x - d2.position.x;
+	double dx = d1.currentPosition().x - d2.currentPosition().x;
 	double a = dx * dx - r * r;
-	double b = 2 * dx * (d1.position.y - d2.position.y);
-	double c = (d2.position.y - d1.position.y) * (d2.position.y - d1.position.y) - r * r;
+	double b = 2 * dx * (d1.currentPosition().y - d2.currentPosition().y);
+	double c = (d2.currentPosition().y - d1.currentPosition().y) * (d2.currentPosition().y - d1.currentPosition().y) - r * r;
 	double Delta = b * b - 4 * a * c;
 
 	//Angular coefficient
 	double m1 = (-b + sqrt(Delta)) / (2 * a);
 	double m2 = (-b - sqrt(Delta)) / (2 * a);
 	//Intersection with y axis
-	double q1 = d1.position.y - m1 * d1.position.x;
-	double q2 = d1.position.y - m2 * d1.position.x;
+	double q1 = d1.currentPosition().y - m1 * d1.currentPosition().x;
+	double q2 = d1.currentPosition().y - m2 * d1.currentPosition().x;
 
 	//(xt1,yt1) - first tangent point.
 	double a1 = 1 + m1 * m1;
-	double b1 = 2 * m1 * q1 - 2 * d2.position.x - m1 * 2 * d2.position.y;
+	double b1 = 2 * m1 * q1 - 2 * d2.currentPosition().x - m1 * 2 * d2.currentPosition().y;
 
 	double xt1 = (-b1) / (2 * a1);
 	double yt1 = m1 * xt1 + q1;
 
 	//(xt2,yt2) - Second tangent point
 	double a2 = 1 + m2 * m2;
-	double b2 = 2 * m2 * q2 - 2 * d2.position.x - m2 * 2 * d2.position.y;
+	double b2 = 2 * m2 * q2 - 2 * d2.currentPosition().x - m2 * 2 * d2.currentPosition().y;
 
 	double xt2 = (-b2) / (2 * a2);
 	double yt2 = m2 * xt2 + q2;
 
 	//Construct obstacle
 	Obstacle o;
-	o.position = d2.position;
+	o.position = d2.currentPosition();
 	o.radius = r;
 	o.T1.x = xt1;
 	o.T1.y = yt1;
@@ -94,9 +94,9 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	ids++;
 	position.x = x;
 	position.y = y;
-	speed.x = vx;
-	speed.y = vy;
-	_speed_mod = speed.mod();
+	velocity.x = vx;
+	velocity.y = vy;
+	_speed_mod = velocity.mod();
 	
 	waypoints.push_back({0,0});
 	waypoints[0].x = x;
@@ -114,17 +114,17 @@ void Drone::move(double dt){
 
 	steer(waypoints.back());
 
-	vec2 dP = speed.prodK(dt);
+	vec2 dP = velocity.prodK(dt);
 	position = position.add(dP);
 	
 }
 
 
 
-void Drone::steer(vec2& waypoint)
+void Drone::steer(vec2 waypoint)
 {
 
-	vec2 dir = speed.norm();
+	vec2 dir = velocity.norm();
 
 	vec2 dirp = waypoint.sub(position);
 
@@ -136,13 +136,13 @@ void Drone::steer(vec2& waypoint)
 
 	if (C < -0.9999)
 	{
-		speed.x = -speed.x;
-		speed.y = -speed.y;
+		velocity.x = -velocity.x;
+		velocity.y = -velocity.y;
 	}
 	else if (C >= -0.9999 && C < 0.9999)
 	{
 		angle = -acos(C);
-		speed = speed.rotate(angle);
+		velocity = velocity.rotate(angle);
 	}
 }
 
@@ -150,7 +150,7 @@ bool Drone::collision(Drone& d2)
 {
 	Obstacle o = compute_obstacle(*this, d2);
 
-	vec2 dif = speed.sub(d2.speed);
+	vec2 dif = velocity.sub(d2.velocity);
 	if (dif.mod() > 1.9 * _speed_mod)
 	{
 		return true;
@@ -182,13 +182,13 @@ void Drone::avoid(Drone& d2, double error)
 	if (collision(dx))
 	{
 
-		vec2 dir = speed.norm();
+		vec2 dir = velocity.norm();
 		double theta = atan2(dir.y, dir.x);
 		vec2 p2rel = dx.position.sub(position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = speed.rotateHalfPI(-1);
+			vec2 escape = velocity.rotateHalfPI(-1);
 			escape = escape.norm();
 			escape = escape.prodK(4 * (size + dx.size));
 			escape = escape.add(position);
@@ -215,14 +215,14 @@ void Drone::stopAndWait(Drone& d2, double error)
 		if (dx.id > id)
 		{
 
-			speed.x = 0;
-			speed.y = 0;
+			velocity.x = 0;
+			velocity.y = 0;
 		}
 	}
 	else
 	{
-		speed.x = _speed_mod;
-		speed.y = 0;
+		velocity.x = _speed_mod;
+		velocity.y = 0;
 	}
 }
 

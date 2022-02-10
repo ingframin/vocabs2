@@ -6,6 +6,8 @@
 #include "vec2.h"
 #include "drone.h"
 #include "comms.h"
+#include "in_out.h"
+
 omp_lock_t writelock;
 
 time_t t;
@@ -15,7 +17,7 @@ double dt = 1E-3; //seconds
 
 double error = -1.0;
 
-double rates[] = {
+std::vector<double> rates = {
     1E-2,
     5E-2,
     1E-1,
@@ -39,7 +41,7 @@ double rates[] = {
 
 int num_threads = 8;
 double speed = 20.0;
-uint32_t len_rates = sizeof(rates) / sizeof(double);
+
 int si = 0;
 double rate = 1.0;
 char prob = 'A';
@@ -89,12 +91,11 @@ int main(int argc, char *argv[])
   printf("Loss: %.3f\n", l);
   printf("Speed: %.3f\n", speed);
 
-  double collisions[len_rates];
-  for (uint32_t k = 0; k < len_rates; k++)
-  {
-    collisions[k] = 0.0;
+  std::vector<long> collisions(rates.size());
+  for(uint64_t i =0;i<rates.size();i++){
+    collisions[i] = 0;
   }
-
+  
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
 #pragma omp parallel
   {
 
-    for (uint32_t i = 0; i < len_rates; i++)
+    for (uint32_t i = 0; i < rates.size(); i++)
     {
       printf("rate: %.2f \n", rates[i]);
 
@@ -143,7 +144,7 @@ int main(int argc, char *argv[])
           if (timer >= 1 / rate)
           {
 
-            if (COM_broadcast(d1.position, d2.position, sys, l))
+            if (COM_broadcast(d1.currentPosition(), d2.currentPosition(), sys, l))
             {
 
               d2.avoid(d1, error);
@@ -156,16 +157,16 @@ int main(int argc, char *argv[])
           d1.move(dt);
           d2.move(dt);
           
-          if (d1.waypoints.back().x == 0 && d1.waypoints.back().y == 0)
+          if (d1.currentWayPoint().x == 0 && d1.currentWayPoint().y == 0)
           {
             running = false;
           }
-          if (d2.waypoints.back().x == 0 && d2.waypoints.back().y == 0)
+          if (d2.currentWayPoint().x == 0 && d2.currentWayPoint().y == 0)
           {
             running = false;
           }
           
-          if (d1.position.distance(d2.position) < (d1.size + d2.size)) 
+          if (d1.currentPosition().distance(d2.currentPosition()) < (d1.radius() + d2.radius())) 
           {
             omp_set_lock(&writelock);
             collisions[i] += 1;
@@ -177,7 +178,7 @@ int main(int argc, char *argv[])
         }
 
       } //iterations
-      if (collisions[i] == 0.0)
+      if (collisions[i] == 0)
       {
         printf("%.3f\n", rates[i]);
         break;
@@ -185,30 +186,7 @@ int main(int argc, char *argv[])
     } //rates
 
   } //openmp
-
-  FILE *results;
-  fopen_s(&results,"results_speed_loss_avoid_1s_ttc.txt", "a");
-  fprintf(results, "Error: %.3f\n", error);
-  fprintf(results, "Loss: %.3f\n", l);
-  fprintf(results, "Speed: %.3f\n", speed);
-  switch (prob)
-  {
-  case 'E':
-    fprintf(results, "Wi-Fi beacons\n");
-    break;
-  case 'C':
-    fprintf(results, "ADS-B\n");
-    break;
-  default:
-    fprintf(results, "No loss\n");
-  }
-
-  for (uint32_t k = 0; k < len_rates; k++)
-  {
-    printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
-    fprintf(results, "%.3f\t%.10f\n", rates[k], collisions[k] / iterations);
-  }
-  fclose(results);
+  saveResults("results_speed_loss_avoid_1s_ttc.txt", prob, rates, collisions, error, speed, iterations, l);
 
   return 0;
 }
