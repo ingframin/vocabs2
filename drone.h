@@ -1,8 +1,7 @@
 #ifndef DRONE_H
 #define DRONE_H
 #include "vec2.h"
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
 #include <vector>
 #include <random>
 #include <memory>

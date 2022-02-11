@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 #include <vector>
+#include <iostream>
+#include <string>
+#include <sstream>
 #include <omp.h>
 #include "vec2.h"
 #include "drone.h"
@@ -71,25 +71,25 @@ int main(int argc, char *argv[])
     }
   }
 
-  printf("Error: %.3f\n", error);
+  std::cout<<"Error: "<<error<<std::endl;
 
   switch (prob)
   {
   case 'E':
-    printf("Wi-Fi beacons\n");
+    std::cout<<"Wi-Fi beacons"<<std::endl;
     sys = WI_FI;
     break;
   case 'C':
-    printf("ADS-B\n");
+    std::cout<<"ADS-B\n"<<std::endl;
     sys = ADS_B;
     break;
   default:
     sys = NO_LOSS;
-    printf("No loss\n");
+    std::cout<<"No loss\n"<<std::endl;
   }
 
-  printf("Loss: %.3f\n", l);
-  printf("Speed: %.3f\n", speed);
+  std::cout<<"Loss: "<<l<<std::endl;
+  std::cout<<"Speed: "<<speed<<std::endl;
 
   std::vector<long> collisions(rates.size());
   for(uint64_t i =0;i<rates.size();i++){
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
   vec2 p2 = {1000.0, 1000.0};
   vec2 p3 = {1000.0, 0.0};
 
-  printf("Rate:\tPcrash:\n");
+  std::cout<<"Rate:\tPcrash:"<<std::endl;
   omp_set_num_threads(num_threads);
 
 #pragma omp parallel
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 
     for (uint32_t i = 0; i < rates.size(); i++)
     {
-      printf("rate: %.2f \n", rates[i]);
+      std::cout<<"rate: "<<rates[i]<<std::endl;
 
 #pragma omp for
       for (uint32_t it = 0; it < iterations; it++)
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
       } //iterations
       if (collisions[i] == 0)
       {
-        printf("%.3f\n", rates[i]);
+        std::cout<<rates[i]<<std::endl;
         break;
       }
     } //rates
