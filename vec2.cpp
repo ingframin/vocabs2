@@ -1,7 +1,9 @@
 #include "vec2.h"
+#define _USE_MATH_DEFINES
 #include <cmath>
-#include <numbers>
-
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 double vec2::mod()
 {
   return sqrt(x * x + y * y);
