@@ -1,8 +1,7 @@
 #ifndef COMMS_H
 #define COMMS_H
-#include <stdint.h>
-
 #include "vec2.h"
+
 
 typedef enum
 {

@@ -97,11 +97,8 @@ int main(int argc, char *argv[])
   }
   
   omp_init_lock(&writelock);
-  t = time(NULL);
-  srand(t);
-
+  
   //speed is in m/s
-
   vec2 p1 = {500.0, 500.0};
   vec2 p2 = {1000.0, 1000.0};
   vec2 p3 = {1000.0, 0.0};
@@ -120,8 +117,8 @@ int main(int argc, char *argv[])
       for (uint32_t it = 0; it < iterations; it++)
       {
 
-        Drone d1 {0.0, 0.0, speed, 0.0, 1};
-        Drone d2 {1000.0, 0.0, speed, 0.0, 1};
+        Drone d1 {0.0, 0.0, speed, 0.0, 1, error};
+        Drone d2 {1000.0, 0.0, speed, 0.0, 1, error};
         
         d1.pushWaypoint(p3);
         d2.pushWaypoint(p3);
@@ -147,8 +144,8 @@ int main(int argc, char *argv[])
             if (COM_broadcast(d1.currentPosition(), d2.currentPosition(), sys, l))
             {
 
-              d2.avoid(d1, error);
-              d1.avoid(d2, error);
+              d2.avoid(d1);
+              d1.avoid(d2);
               
             }
             timer = 0;

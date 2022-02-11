@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <vector>
 #include <numbers>
+#include <random>
+#include <memory>
 
 //Struct to keep barycentric coordinates
 struct Barycoords
@@ -28,9 +30,9 @@ struct Obstacle
 class Drone
 {
 public:
-  Drone(double x, double y, double vx, double vy, double size);
-  Drone(){};
-
+  Drone(double x, double y, double vx, double vy, double size, double error);
+  Drone();
+  Drone(const Drone& d);
   //move the drone by speed x time delta
   void move(double dt);
 
@@ -41,10 +43,10 @@ public:
   bool collision(Drone& d2);
   
   //Compute avoidance maneuver and add escape waypoint
-  void avoid(Drone& d2, double error);
+  void avoid(Drone& d2);
   
   //Instead of computing an avoidance maneuver waits until no collision is imminent
-  void stopAndWait(Drone& d2, double error);
+  void stopAndWait(Drone& d2);
 
   //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
   //Increase the waypoint array size if needed
@@ -66,7 +68,9 @@ private:
   /*I might consider making the flight plan a separate object*/
   std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
   double size;          //Physical size of the drone
-
+  std::unique_ptr<std::random_device> rng;
+  std::normal_distribution<double> gaussian;
+  double error;
 };
 
 

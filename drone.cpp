@@ -6,32 +6,6 @@
 
 static uint32_t ids = 0;
 
-double generateGaussian(double mean, double stdDev)
-{
-	static double spare;
-	static bool hasSpare = false;
-
-	if (hasSpare)
-	{
-		hasSpare = false;
-		return spare * stdDev + mean;
-	}
-	else
-	{
-		double u, v, s;
-		do
-		{
-			u = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
-			v = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
-			s = u * u + v * v;
-		} while (s >= 1.0 || s == 0.0);
-		s = sqrt(-2.0 * log(s) / s);
-		spare = v * s;
-		hasSpare = true;
-		return mean + stdDev * u * s;
-	}
-}
-
 Obstacle compute_obstacle(Drone& d1, Drone& d2)
 {
 	// Minkowski addition
@@ -89,7 +63,7 @@ Barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
 	return bc;
 }
 
-Drone::Drone(double x, double y, double vx, double vy, double size){
+Drone::Drone(double x, double y, double vx, double vy, double size, double error){
 	id = ids;
 	ids++;
 	position.x = x;
@@ -97,14 +71,42 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	velocity.x = vx;
 	velocity.y = vy;
 	_speed_mod = velocity.mod();
-	
+	this->error = error;
 	waypoints.push_back({0,0});
-	waypoints[0].x = x;
-	waypoints[0].y = y;
 	this->size = size;
-
+	gaussian = std::normal_distribution<double>(0.0,error);
+	rng = std::make_unique<std::random_device>();
 }
 
+Drone::Drone(){
+	id = ids;
+	ids++;
+	position.x = 0;
+	position.y = 0;
+	velocity.x = 10;
+	velocity.y = 10;
+	_speed_mod = sqrt(200.0);
+	error = 1.0;
+	waypoints.push_back({0,0});
+	size = 1;
+	gaussian = std::normal_distribution<double>(0.0,error);
+	rng = std::make_unique<std::random_device>();
+}
+
+Drone::Drone(const Drone& d){
+	id = ids;
+	ids++;
+	position.x = d.position.x;
+	position.y = d.position.y;
+	velocity.x = d.velocity.x;
+	velocity.y = d.velocity.y;
+	_speed_mod = d._speed_mod;
+	error = d.error;
+	waypoints = d.waypoints;
+	size = d.size;
+	gaussian = std::normal_distribution<double>(0.0,d.error);
+	rng = std::make_unique<std::random_device>();
+}
 
 void Drone::move(double dt){
 	if (position.distance(waypoints.back()) < size)
@@ -167,13 +169,13 @@ bool Drone::collision(Drone& d2)
 	return false;
 }
 
-void Drone::avoid(Drone& d2, double error)
+void Drone::avoid(Drone& d2)
 {
 	Drone dx = d2;
 	if (error > 0)
 	{
 		vec2 pos_error;
-		pos_error.x = generateGaussian(0, 5);
+		pos_error.x = gaussian(*rng);
 		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
 
 		dx.position = dx.position.add(pos_error);
@@ -197,13 +199,13 @@ void Drone::avoid(Drone& d2, double error)
 	}
 }
 
-void Drone::stopAndWait(Drone& d2, double error)
+void Drone::stopAndWait(Drone& d2)
 {
 	Drone dx = d2;
 	if (error > 0)
 	{
 		vec2 pos_error;
-		pos_error.x = generateGaussian(0, error);
+		pos_error.x = gaussian(*rng);
 		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
 
 		dx.position = dx.position.add(pos_error);

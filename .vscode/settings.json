@@ -57,6 +57,8 @@
         "xlocmon": "cpp",
         "xloctime": "cpp",
         "xtree": "cpp",
-        "iomanip": "cpp"
+        "iomanip": "cpp",
+        "random": "cpp",
+        "sstream": "cpp"
     }
 }

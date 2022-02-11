@@ -1,9 +1,11 @@
 #include "comms.h"
-#include <stdlib.h>
+#include "rand_numbers.h"
+ 
 
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
 { // Change to wi-fi or ads-b functions
-    int p = rand() % 1000;
+    static RandomNum rng {1000.0};
+    auto p = rng.getDouble();
     double lim;
     switch (sys)
     {
@@ -20,6 +22,7 @@ bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
     //If broadcast return true
     return p < lim;
 }
+
 double consiglio(double dist)
 {
     double p1 = -7.44e-8;
