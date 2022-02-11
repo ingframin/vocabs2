@@ -1,6 +1,10 @@
 #include "drone.h"
 #include <vector>
+#define _USE_MATH_DEFINES
 #include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 #include "vec2.h"
 #define MAX_ANGLE 0.01
 
@@ -176,7 +180,7 @@ void Drone::avoid(Drone& d2)
 	{
 		vec2 pos_error;
 		pos_error.x = gaussian(*rng);
-		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
+		pos_error = pos_error.rotate(2 * M_PI * (*rng)() /rng->max() );
 
 		dx.position = dx.position.add(pos_error);
 	}
@@ -206,7 +210,7 @@ void Drone::stopAndWait(Drone& d2)
 	{
 		vec2 pos_error;
 		pos_error.x = gaussian(*rng);
-		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
+		pos_error = pos_error.rotate(2 * M_PI * (*rng)() /rng->max());
 
 		dx.position = dx.position.add(pos_error);
 	}
