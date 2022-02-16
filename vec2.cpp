@@ -93,9 +93,7 @@ vec2 vec2::rotateHalfPI(int sign)
 vec2 vec2::rotate(vec2 v){
   vec2 dir = norm();
 
-	vec2 dirp = sub(v);
-
-	dirp = dirp.norm();
+	vec2 dirp = sub(v).norm();
 
 	double C = dir.dot(dirp);
 
