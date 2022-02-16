@@ -1,6 +1,11 @@
 #include "drone.h"
 #include <vector>
+#define USE_MATH_DEFINES
 #include <cmath>
+#ifndef M_PI
+#define M_PI   3.14159265358979323846264338327950288
+#endif
+
 #include "vec2.h"
 #include "obstacles.h"
 
@@ -41,8 +46,7 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	position.y = y;
 	velocity.x = vx;
 	velocity.y = vy;
-	_speed_mod = velocity.mod();
-	
+		
 	waypoints.push_back({0,0});
 	waypoints[0].x = x;
 	waypoints[0].y = y;
@@ -119,7 +123,7 @@ void Drone::avoid(Drone& d2, double error)
 	{
 		vec2 pos_error;
 		pos_error.x = generateGaussian(0, 5);
-		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
+		pos_error = pos_error.rotate(2 *M_PI * rand() / RAND_MAX);
 
 		dx.position = dx.position.add(pos_error);
 	}
@@ -142,35 +146,6 @@ void Drone::avoid(Drone& d2, double error)
 	}
 }
 
-void Drone::stopAndWait(Drone& d2, double error)
-{
-	Drone dx = d2;
-	_speed_mod = velocity.mod();
-	if (error > 0)
-	{
-		vec2 pos_error;
-		pos_error.x = generateGaussian(0, error);
-		pos_error = pos_error.rotate(2 * std::numbers::pi * rand() / RAND_MAX);
-
-		dx.position = dx.position.add(pos_error);
-	}
-
-	if (collision(dx))
-	{
-
-		if (dx.id > id)
-		{
-
-			velocity.x = 0;
-			velocity.y = 0;
-		}
-	}
-	else
-	{
-		velocity.x = _speed_mod;
-		velocity.y = 0;
-	}
-}
 
 void Drone::pushWaypoint(vec2 wp)
 {	

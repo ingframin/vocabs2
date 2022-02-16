@@ -1,6 +1,5 @@
 #include "comms.h"
-#include "rand_numbers.h"
- 
+
 
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
 { // Change to wi-fi or ads-b functions

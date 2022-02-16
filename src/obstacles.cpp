@@ -4,7 +4,7 @@
 Obstacle compute_obstacle(double d1_size, double d2_size, vec2 d1_position, vec2 d2_position)
 {
 	// Minkowski addition
-	double r = d1_size + d1_size;
+	double r = d1_size + d2_size;
 
 	//Computing tangent lines to circle passing through the point self.position
 	double dx = d1_position.x - d2_position.x;

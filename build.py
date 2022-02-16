@@ -1,10 +1,11 @@
 from subprocess import run
 
-run(["clang++", "main.cpp",
-                "drone.cpp",
-                "vec2.cpp",
-                "comms.cpp",
-                "in_out.cpp",
+run(["clang++", "./src/main.cpp",
+                "./src/drone.cpp",
+                "./src/vec2.cpp",
+                "./src/comms.cpp",
+                "./src/in_out.cpp",
+                "./src/obstacles.cpp",
                 "-o./build/vocabs2",
                 "-Wall",
                 "-march=native",

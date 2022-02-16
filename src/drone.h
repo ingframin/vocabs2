@@ -23,9 +23,6 @@ public:
   
   //Compute avoidance maneuver and add escape waypoint
   void avoid(Drone& d2, double error);
-  
-  //Instead of computing an avoidance maneuver waits until no collision is imminent
-  void stopAndWait(Drone& d2, double error);
 
   //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
   //Increase the waypoint array size if needed
@@ -43,8 +40,7 @@ private:
   uint32_t id;       //Unique ID
   vec2 position;     // current position
   vec2 velocity;        //current speed
-  double _speed_mod; //speed module
-  /*I might consider making the flight plan a separate object*/
+    /*I might consider making the flight plan a separate object*/
   std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
   double size;          //Physical size of the drone
 
