@@ -4,6 +4,7 @@
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
 double vec2::mod()
 {
   return sqrt(x * x + y * y);
@@ -25,6 +26,8 @@ vec2 vec2::rotate(double angle)
 
   return ret;
 }
+
+
 
 vec2 vec2::norm()
 {
@@ -84,4 +87,30 @@ vec2 vec2::rotateHalfPI(int sign)
   vr.x = -sign * y;
   vr.y = sign * x;
   return vr;
+}
+
+vec2 vec2::rotate(vec2 v){
+  vec2 dir = norm();
+
+	vec2 dirp = sub(v);
+
+	dirp = dirp.norm();
+
+	double C = dir.dot(dirp);
+
+	double angle = 0;
+
+	if (C < -0.9999)
+	{
+		return {-x, -y};
+	}
+	else if (C >= -0.9999 && C < 0.9999)
+	{
+		angle = -acos(C);
+		
+	}
+  else{
+    return *this;
+  }
+  return rotate(angle);
 }

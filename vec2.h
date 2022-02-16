@@ -9,6 +9,7 @@ struct vec2
   double mod();
   //rotate
   vec2 rotate(double angle);
+  vec2 rotate(vec2 v);
   //rotate sign * PI/2
   vec2 rotateHalfPI(int sign);
   //normalize
