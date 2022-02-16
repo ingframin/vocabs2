@@ -53,7 +53,15 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	this->size = size;
 
 }
-
+Drone::Drone(const Drone& d2){
+	id = d2.id;
+	position = d2.position;
+	velocity = d2.velocity;
+	for(auto wp : d2.waypoints){
+		waypoints.push_back(wp);
+	}
+	size = d2.size;
+}
 
 void Drone::move(double dt){
 	if (position.distance(waypoints.back()) < size)
@@ -116,9 +124,9 @@ bool Drone::collision(const Drone& d2) const
 	return false;
 }
 
-void Drone::avoid(Drone& d2, double error)
+void Drone::avoid(const Drone& d2, double error)
 {
-	Drone dx = d2;
+	Drone dx {d2};
 	if (error > 0)
 	{
 		vec2 pos_error;

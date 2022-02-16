@@ -11,7 +11,7 @@ class Drone
 {
 public:
   Drone(double x, double y, double vx, double vy, double size);
-
+  Drone(const Drone& d2);
   //move the drone by speed x time delta
   void move(double dt);
 
@@ -22,7 +22,7 @@ public:
   bool collision(const Drone& d2) const;
   
   //Compute avoidance maneuver and add escape waypoint
-  void avoid(Drone& d2, double error);
+  void avoid(const Drone& d2, double error);
 
   //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
   //Increase the waypoint array size if needed
