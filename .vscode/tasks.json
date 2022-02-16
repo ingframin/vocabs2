@@ -14,16 +14,16 @@
                 "-lm",
                 "-o./build/vocabs2.exe",
                 "-w",
-                //"-march=native",
+                "-march=native",
                 "-Wextra",
                 "-Wfatal-errors",
                 "-Wall",
-                "-g",
+                //"-g",
                 //"-pg",
                 "-O3",
                 "-finline-functions",
                 "-fopenmp",
-                //"-std=c++17"
+                "-std=c++20"
             ],
             "group": "build"
         },
