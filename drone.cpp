@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include "vec2.h"
+#include "obstacles.h"
 
 static uint32_t ids = 0;
 
@@ -31,62 +32,7 @@ double generateGaussian(double mean, double stdDev)
 	}
 }
 
-Obstacle compute_obstacle(const Drone& d1, const Drone& d2)
-{
-	// Minkowski addition
-	double r = d1.radius() + d2.radius();
 
-	//Computing tangent lines to circle passing through the point self.position
-	double dx = d1.currentPosition().x - d2.currentPosition().x;
-	double a = dx * dx - r * r;
-	double b = 2 * dx * (d1.currentPosition().y - d2.currentPosition().y);
-	double c = (d2.currentPosition().y - d1.currentPosition().y) * (d2.currentPosition().y - d1.currentPosition().y) - r * r;
-	double Delta = b * b - 4 * a * c;
-
-	//Angular coefficient
-	double m1 = (-b + sqrt(Delta)) / (2 * a);
-	double m2 = (-b - sqrt(Delta)) / (2 * a);
-	//Intersection with y axis
-	double q1 = d1.currentPosition().y - m1 * d1.currentPosition().x;
-	double q2 = d1.currentPosition().y - m2 * d1.currentPosition().x;
-
-	//(xt1,yt1) - first tangent point.
-	double a1 = 1 + m1 * m1;
-	double b1 = 2 * m1 * q1 - 2 * d2.currentPosition().x - m1 * 2 * d2.currentPosition().y;
-
-	double xt1 = (-b1) / (2 * a1);
-	double yt1 = m1 * xt1 + q1;
-
-	//(xt2,yt2) - Second tangent point
-	double a2 = 1 + m2 * m2;
-	double b2 = 2 * m2 * q2 - 2 * d2.currentPosition().x - m2 * 2 * d2.currentPosition().y;
-
-	double xt2 = (-b2) / (2 * a2);
-	double yt2 = m2 * xt2 + q2;
-
-	//Construct obstacle
-	Obstacle o;
-	o.position = d2.currentPosition();
-	o.radius = r;
-	o.T1.x = xt1;
-	o.T1.y = yt1;
-	o.T2.x = xt2;
-	o.T2.y = yt2;
-	
-	return o;
-}
-
-Barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
-{
-	Barycoords bc;
-	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
-			   ((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
-	bc.beta = ((A.y - C.y) * P.x + (C.x - A.x) * P.y + A.x * C.y - C.x * A.y) /
-			  ((A.y - C.y) * B.x + (C.x - A.x) * B.y + A.x * C.y - C.x * A.y);
-	bc.alpha = 1 - bc.beta - bc.gamma;
-
-	return bc;
-}
 
 Drone::Drone(double x, double y, double vx, double vy, double size){
 	id = ids;
@@ -147,7 +93,7 @@ void Drone::steer(vec2 waypoint)
 
 bool Drone::collision(const Drone& d2) const
 {
-	Obstacle o = compute_obstacle(*this, d2);
+	Obstacle o = compute_obstacle(radius(), d2.radius(),currentPosition(),d2.currentPosition());
 
 	vec2 dif = currentVelocity().sub(d2.currentVelocity());
 	if (dif.mod() > 1.9 * currentVelocity().mod())

@@ -1,29 +1,11 @@
 #ifndef DRONE_H
 #define DRONE_H
 #include "vec2.h"
-#include <stdint.h>
-#include <stdbool.h>
+#include <cstdint>
 #include <vector>
 #include <numbers>
 
-//Struct to keep barycentric coordinates
-struct Barycoords
-{
-  double alpha;
-  double beta;
-  double gamma;
-};
 
-struct Obstacle
-{
-  //radius
-  double radius;
-  //center
-  vec2 position;
-  //tangent points
-  vec2 T1;
-  vec2 T2;
-};
 
 class Drone
 {

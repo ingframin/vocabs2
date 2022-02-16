@@ -11,6 +11,7 @@
                 "vec2.cpp",
                 "comms.cpp",
                 "in_out.cpp",
+                "obstacles.cpp",
                 "-lm",
                 "-o./build/vocabs2.exe",
                 "-w",
