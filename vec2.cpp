@@ -5,6 +5,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+
 double vec2::mod()
 {
   return sqrt(x * x + y * y);
@@ -98,19 +99,19 @@ vec2 vec2::rotate(vec2 v){
 
 	double C = dir.dot(dirp);
 
-	double angle = 0;
+	vec2 ret;
 
 	if (C < -0.9999)
 	{
-		return {-x, -y};
+		ret = {-x, -y};
 	}
-	else if (C >= -0.9999 && C < 0.9999)
+  else if (C >= -0.9999 && C < 0.9999)
 	{
-		angle = -acos(C);
+		ret = rotate(-acos(C));
 		
 	}
   else{
-    return *this;
+    ret = *this;
   }
-  return rotate(angle);
+  return ret;
 }
