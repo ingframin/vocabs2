@@ -1,6 +1,6 @@
 #include "drone.h"
 #include <vector>
-#define USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
 #include <cmath>
 #ifndef M_PI
 #define M_PI   3.14159265358979323846264338327950288
@@ -42,25 +42,44 @@ double generateGaussian(double mean, double stdDev)
 Drone::Drone(double x, double y, double vx, double vy, double size){
 	id = ids;
 	ids++;
-	position.x = x;
-	position.y = y;
-	velocity.x = vx;
-	velocity.y = vy;
-		
-	waypoints.push_back({0,0});
-	waypoints[0].x = x;
-	waypoints[0].y = y;
+
+	position = {x,y};
+	velocity = {vx,vy};
+
+	waypoints.push_back(position);	
 	this->size = size;
 
 }
+
 Drone::Drone(const Drone& d2){
 	id = d2.id;
 	position = d2.position;
 	velocity = d2.velocity;
-	for(auto wp : d2.waypoints){
-		waypoints.push_back(wp);
-	}
+	waypoints = std::vector<vec2>(d2.waypoints);
+	
 	size = d2.size;
+}
+
+Drone::Drone(Drone&& d2){
+	auto tmp = std::move(d2);
+	std::swap(id,tmp.id);
+	std::swap(position,tmp.position);
+	velocity = tmp.velocity;
+	waypoints = tmp.waypoints;
+	size = tmp.size;
+
+}
+
+Drone& Drone::operator=(const Drone& d2){
+	Drone d {d2};
+	std::swap(d,*this);
+	return *this;
+}
+
+Drone& Drone::operator=(Drone&& d2){
+	Drone d {d2};
+	std::swap(d,*this);
+	return *this;
 }
 
 void Drone::move(double dt){
@@ -93,8 +112,9 @@ void Drone::steer(vec2 waypoint)
 
 	if (C < -0.9999)
 	{
-		velocity.x = -velocity.x;
-		velocity.y = -velocity.y;
+		vec2 tmp {-velocity.x,-velocity.y};
+		velocity=tmp;
+		
 	}
 	else if (C >= -0.9999 && C < 0.9999)
 	{
@@ -129,8 +149,8 @@ void Drone::avoid(const Drone& d2, double error)
 	Drone dx {d2};
 	if (error > 0)
 	{
-		vec2 pos_error;
-		pos_error.x = generateGaussian(0, 5);
+		vec2 pos_error {generateGaussian(0, 5),0.0};
+		
 		pos_error = pos_error.rotate(2 *M_PI * rand() / RAND_MAX);
 
 		dx.position = dx.position.add(pos_error);
