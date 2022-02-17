@@ -12,10 +12,6 @@ class Drone
 public:
   Drone(double x, double y, double vx, double vy, double size);
   Drone(const Drone& d2);
-  Drone(Drone&& d2);
-
-  Drone& operator=(const Drone& d2);
-  Drone& operator=(Drone&& d2);
   //move the drone by speed x time delta
   void move(double dt);
 
