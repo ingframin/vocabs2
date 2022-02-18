@@ -6,12 +6,12 @@
 #endif
 
 
-double vec2::mod()
+double vec2::mod()const
 {
   return sqrt(x * x + y * y);
 }
 
-vec2 vec2::rotate(double angle)
+vec2 vec2::rotate(double angle)const
 {
 
   double m = mod();
@@ -30,7 +30,7 @@ vec2 vec2::rotate(double angle)
 
 
 
-vec2 vec2::norm()
+vec2 vec2::norm()const
 {
   vec2 n;
   double m = mod();
@@ -39,7 +39,7 @@ vec2 vec2::norm()
   return n;
 }
 
-vec2 vec2::add(vec2 v2)
+vec2 vec2::add(const vec2& v2)const
 {
   vec2 res;
   res.x = x + v2.x;
@@ -47,7 +47,7 @@ vec2 vec2::add(vec2 v2)
   return res;
 }
 
-vec2 vec2::sub(vec2 v2)
+vec2 vec2::sub(const vec2& v2)const
 {
   vec2 res;
   res.x = x - v2.x;
@@ -55,12 +55,12 @@ vec2 vec2::sub(vec2 v2)
   return res;
 }
 
-double vec2::dot(vec2 v2)
+double vec2::dot(const vec2& v2)const
 {
   return x * v2.x + y * v2.y;
 }
 
-vec2 vec2::addK(double k)
+vec2 vec2::addK(double k)const
 {
   vec2 res;
   res.x = x + k;
@@ -68,7 +68,7 @@ vec2 vec2::addK(double k)
   return res;
 }
 
-vec2 vec2::prodK(double k)
+vec2 vec2::prodK(double k)const
 {
   vec2 res;
   res.x = x * k;
@@ -76,13 +76,13 @@ vec2 vec2::prodK(double k)
   return res;
 }
 
-double vec2::distance(vec2 v2)
+double vec2::distance(const vec2& v2)const
 {
   vec2 res = sub(v2);
   return res.mod();
 }
 
-vec2 vec2::rotateHalfPI(int sign)
+vec2 vec2::rotateHalfPI(int sign)const
 {
   vec2 vr;
   vr.x = -sign * y;
@@ -90,7 +90,8 @@ vec2 vec2::rotateHalfPI(int sign)
   return vr;
 }
 
-vec2 vec2::rotate(vec2 v){
+vec2 vec2::rotate(const vec2& v)const
+{
   vec2 dir = norm();
 
 	vec2 dirp = sub(v).norm();

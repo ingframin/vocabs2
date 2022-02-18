@@ -78,7 +78,7 @@ void Drone::move(double dt){
 
 
 
-void Drone::steer(vec2 waypoint)
+void Drone::steer(const vec2& waypoint)
 {
 
 	vec2 dir = velocity.norm();

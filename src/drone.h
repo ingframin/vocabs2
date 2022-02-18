@@ -16,7 +16,7 @@ public:
   void move(double dt);
 
   //Steer towards next waypoint
-  void steer(vec2 waypoint);
+  void steer(const vec2& waypoint);
 
   //Are the drones on a collision route?
   bool collision(const Drone& d2) const;

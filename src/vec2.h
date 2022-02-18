@@ -6,25 +6,25 @@ struct vec2
   double x;
   double y;
   //module
-  double mod();
+  double mod()const;
   //rotate
-  vec2 rotate(double angle);
-  vec2 rotate(vec2 v);
+  vec2 rotate(double angle) const;
+  vec2 rotate(const vec2& v) const;
   //rotate sign * PI/2
-  vec2 rotateHalfPI(int sign);
+  vec2 rotateHalfPI(int sign)const;
   //normalize
-  vec2 norm();
+  vec2 norm() const;
   //Add and subtract
-  vec2 add(vec2 v2);
-  vec2 sub(vec2 v2);
+  vec2 add(const vec2& v2)const;
+  vec2 sub(const vec2& v2)const;
   //dot product
-  double dot(vec2 v2);
+  double dot(const vec2& v2)const;
   //add constant to both elements
-  vec2 addK(double k);
+  vec2 addK(double k)const;
   //multiply both elements by k
-  vec2 prodK(double k);
+  vec2 prodK(double k)const;
   //distance between 2 vectors
-  double distance(vec2 v2);
+  double distance(const vec2& v2)const;
 };
 
 
