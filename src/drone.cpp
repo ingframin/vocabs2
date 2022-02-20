@@ -5,16 +5,18 @@
 #ifndef M_PI
 #define M_PI   3.14159265358979323846264338327950288
 #endif
-
+#include <random>
 #include "vec2.h"
 #include "obstacles.h"
 
 static uint32_t ids = 0;
+static std::random_device rd;
 
 double generateGaussian(double mean, double stdDev)
 {
 	static double spare;
 	static bool hasSpare = false;
+	
 
 	if (hasSpare)
 	{
@@ -26,8 +28,8 @@ double generateGaussian(double mean, double stdDev)
 		double u, v, s;
 		do
 		{
-			u = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
-			v = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
+			u = (rd()/((double)rd.max())) * 2.0 - 1.0;
+			v = (rd()/((double)rd.max())) * 2.0 - 1.0;
 			s = u * u + v * v;
 		} while (s >= 1.0 || s == 0.0);
 		s = sqrt(-2.0 * log(s) / s);
