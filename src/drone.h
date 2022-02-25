@@ -1,8 +1,10 @@
 #ifndef DRONE_H
 #define DRONE_H
 #include "vec2.h"
+#include "obstacles.h"
 #include <cstdint>
 #include <vector>
+#include <map>
 #include <numbers>
 
 
@@ -23,7 +25,8 @@ public:
   
   //Compute avoidance maneuver and add escape waypoint
   void avoid(const Drone& d2, double error);
-
+  void computeObstacle(const Drone& d);
+  
   //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
   //Increase the waypoint array size if needed
   void pushWaypoint(vec2 wp);
@@ -42,6 +45,7 @@ private:
   vec2 velocity;        //current speed
     /*I might consider making the flight plan a separate object*/
   std::vector<vec2> waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
+  std::map<uint32_t,Obstacle> obstacles;
   double size;          //Physical size of the drone
 
 };

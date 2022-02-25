@@ -7,7 +7,7 @@
 #endif
 #include <random>
 #include "vec2.h"
-#include "obstacles.h"
+
 
 static uint32_t ids = 0;
 static std::random_device rd;
@@ -165,4 +165,9 @@ void Drone::pushWaypoint(vec2 wp)
 void Drone::popWaypoint()
 {
 	waypoints.pop_back();
+}
+
+void Drone::computeObstacle(const Drone& d){
+	obstacles.insert_or_assign(d.id,compute_obstacle(size,d.size,position,d.position));
+
 }
