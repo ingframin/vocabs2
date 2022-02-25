@@ -17,7 +17,7 @@ double dt = 1E-3; //seconds
 
 double error = -1.0;
 
-std::vector<double> rates = {
+const std::vector<double> rates = {
     1E-2,
     5E-2,
     1E-1,

@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <iomanip>
 
-void saveResults(const std::string& filename, char prob, std::vector<double>& rates, std::vector<long>& collisions, double error, double speed, double iterations, double loss){
+void saveResults(const std::string& filename, char prob, const std::vector<double>& rates, const std::vector<long>& collisions, double error, double speed, double iterations, double loss){
     std::ofstream results;
     results.open(filename, std::ios_base::app);
     std::stringstream formatted_str; 

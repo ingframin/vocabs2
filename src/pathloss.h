@@ -18,12 +18,13 @@ class PathLoss{
 public:
     virtual double loss_dB(double distance)=0;
     virtual double receivedPower(double distance, double transmitPower)=0;
-    virtual double SNR(double distance, double transmitPower)=0;
+    virtual double SNR(double distance, double transmitPower, double noiseInterferenceLevel)=0;
+
 
 protected:
     double bandwidth
     double centre_freq;
-    double noise_level;
+    
     
 };
 #endif
