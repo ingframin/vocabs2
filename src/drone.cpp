@@ -55,6 +55,7 @@ Drone::Drone(double x, double y, double vx, double vy, double size){
 	this->size = size;
 
 }
+
 Drone::Drone(const Drone& d2){
 	id = d2.id;
 	position = d2.position;
@@ -132,7 +133,7 @@ void Drone::avoid(const Drone& d2, double error)
 	if (error > 0)
 	{
 		vec2 pos_error;
-		pos_error.x = generateGaussian(0, 5);
+		pos_error.x = generateGaussian(0, error);//This should be error!
 		pos_error = pos_error.rotate(2 *M_PI * rand() / RAND_MAX);
 
 		dx.position = dx.position.add(pos_error);
