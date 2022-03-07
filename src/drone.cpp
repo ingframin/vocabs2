@@ -39,6 +39,23 @@ double generateGaussian(double mean, double stdDev)
 	}
 }
 
+inline vec2 generateGaussian2D(double mean, double stdDev)
+{
+	
+	double u, v, s;
+	do
+	{
+		u = (rd()/((double)rd.max())) * 2.0 - 1.0;
+		v = (rd()/((double)rd.max())) * 2.0 - 1.0;
+		s = u * u + v * v;
+	} while (s >= 1.0 || s == 0.0);
+	s = sqrt(-2.0 * log(s) / s);
+	
+	vec2 ret {mean + stdDev * u * s, mean + stdDev * v * s};
+	return ret;
+	
+}
+
 
 
 Drone::Drone(double x, double y, double vx, double vy, double size){
@@ -132,9 +149,9 @@ void Drone::avoid(const Drone& d2, double error)
 	Drone dx {d2};
 	if (error > 0)
 	{
-		vec2 pos_error;
-		pos_error.x = generateGaussian(0, error);//This should be error!
-		pos_error = pos_error.rotate(2 *M_PI * rand() / RAND_MAX);
+		vec2 pos_error = generateGaussian2D(0,error);
+		// pos_error.x = generateGaussian(0, error);//This should be error!
+		// pos_error = pos_error.rotate(2 *M_PI * rand() / RAND_MAX);
 
 		dx.position = dx.position.add(pos_error);
 	}
