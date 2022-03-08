@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     //collect input parameters
     std::vector<std::string> params(argv,argv+argc);
     parseInputParameters(params);
-    readConfigFromFile("config.txt");
+    auto config = readConfigFromFile("config.txt");
     
     return 0;
 }
