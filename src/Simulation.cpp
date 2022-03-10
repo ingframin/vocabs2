@@ -3,7 +3,7 @@
 #include "free_space_path_loss.h"
 #include <algorithm>
 #include <random>
-
+ 
 Simulation::Simulation(const SimConfig& sc){
     
     for(uint64_t h = sc.drone_size; h<sc.height/sc.drone_size; h+=2*sc.drone_size){
