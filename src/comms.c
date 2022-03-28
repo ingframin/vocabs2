@@ -1,18 +1,17 @@
 #include "comms.h"
-
+#include <stdlib.h>
 
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
 { // Change to wi-fi or ads-b functions
-    static RandomNum rng {1000.0};
-    auto p = rng.getDouble();
+    int p = rand() % 1000;
     double lim;
     switch (sys)
     {
     case WI_FI:
-        lim = loss * esat(d1.distance(d2));
+        lim = loss * esat(v2_distance(d1, d2));
         break;
     case ADS_B:
-        lim = loss * consiglio(d1.distance(d2));
+        lim = loss * consiglio(v2_distance(d1, d2));
         break;
     default:
         lim = loss;
@@ -21,7 +20,6 @@ bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
     //If broadcast return true
     return p < lim;
 }
-
 double consiglio(double dist)
 {
     double p1 = -7.44e-8;
@@ -35,7 +33,7 @@ double esat(double dist)
     double r;
     if (dist < 50)
     {
-        return 1.0;
+        r = 1.0;
     }
     double p1 = -2.1e-09;
     double p2 = 5.034e-06;
