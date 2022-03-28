@@ -7,6 +7,7 @@
 #define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
 #include "vec2.h"
+#include "obstacle.h"
 #define MAX_ANGLE 0.01
 
 static uint32_t ids = 0;
@@ -54,62 +55,9 @@ inline vec2 generateGaussian2D(double mean, double stdDev)
 	
 }
 
-Obstacle compute_obstacle(Drone *d1, Drone *d2)
-{
-	// Minkowski addition
-	double r = d1->size + d2->size;
 
-	//Computing tangent lines to circle passing through the point self.position
-	double dx = d1->position.x - d2->position.x;
-	double a = dx * dx - r * r;
-	double b = 2 * dx * (d1->position.y - d2->position.y);
-	double c = (d2->position.y - d1->position.y) * (d2->position.y - d1->position.y) - r * r;
-	double Delta = b * b - 4 * a * c;
 
-	//Angular coefficient
-	double m1 = (-b + sqrt(Delta)) / (2 * a);
-	double m2 = (-b - sqrt(Delta)) / (2 * a);
-	//Intersection with y axis
-	double q1 = d1->position.y - m1 * d1->position.x;
-	double q2 = d1->position.y - m2 * d1->position.x;
 
-	//(xt1,yt1) - first tangent point.
-	double a1 = 1 + m1 * m1;
-	double b1 = 2 * m1 * q1 - 2 * d2->position.x - m1 * 2 * d2->position.y;
-
-	double xt1 = (-b1) / (2 * a1);
-	double yt1 = m1 * xt1 + q1;
-
-	//(xt2,yt2) - Second tangent point
-	double a2 = 1 + m2 * m2;
-	double b2 = 2 * m2 * q2 - 2 * d2->position.x - m2 * 2 * d2->position.y;
-
-	double xt2 = (-b2) / (2 * a2);
-	double yt2 = m2 * xt2 + q2;
-
-	//Construct obstacle
-	Obstacle o;
-	o.position = d2->position;
-	o.radius = r;
-	o.T1.x = xt1;
-	o.T1.y = yt1;
-	o.T2.x = xt2;
-	o.T2.y = yt2;
-	// printf("T1.x= %.3f,T1.y= %.3f\n",o.T1.x,o.T1.y);
-	return o;
-}
-
-barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
-{
-	barycoords bc;
-	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
-			   ((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
-	bc.beta = ((A.y - C.y) * P.x + (C.x - A.x) * P.y + A.x * C.y - C.x * A.y) /
-			  ((A.y - C.y) * B.x + (C.x - A.x) * B.y + A.x * C.y - C.x * A.y);
-	bc.alpha = 1 - bc.beta - bc.gamma;
-
-	return bc;
-}
 
 Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 {
@@ -173,7 +121,7 @@ void DR_goto(Drone *d, vec2 waypoint)
 
 bool DR_collision(Drone *d1, Drone *d2)
 {
-	Obstacle o = compute_obstacle(d1, d2);
+	Obstacle o = compute_obstacle(d1->position, d2->position,d1->size,d2->size);
 
 	vec2 dif = v2_sub(d1->speed, d2->speed);
 	if (v2_mod(dif) > 1.9 * d1->_speed_mod)

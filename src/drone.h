@@ -4,24 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-//Struct to keep barycentric coordinates
-typedef struct
-{
-  double alpha;
-  double beta;
-  double gamma;
-} barycoords;
 
-typedef struct
-{
-  //radius
-  double radius;
-  //center
-  vec2 position;
-  //tangent points
-  vec2 T1;
-  vec2 T2;
-} Obstacle;
 
 typedef struct
 {
