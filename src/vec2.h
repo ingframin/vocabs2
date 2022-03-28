@@ -10,6 +10,15 @@ typedef struct
 
 } vec2;
 
+typedef struct mat2
+{
+  double m00;
+  double m01;
+  double m10;
+  double m11;
+} mat2x2;
+
+
 //module
 double v2_mod(vec2 v);
 //rotate

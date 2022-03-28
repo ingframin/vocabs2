@@ -9,6 +9,7 @@
                 "./src/main.c",
                 "./src/drone.c",
                 "./src/vec2.c",
+                "./src/vec3.c",
                 "./src/comms.c",
                 "-lm",
                 "-o./build/vocabs2",
@@ -18,8 +19,6 @@
                 "-Wextra",
                 "-Wfatal-errors",
                 "-Wall",
-               // "-g",
-                //"-pg",
                 "-O3",
                 "-finline-functions",
                 "-fopenmp"
@@ -34,6 +33,7 @@
                 "./src/main.c",
                 "./src/drone.c",
                 "./src/vec2.c",
+                "./src/vec3.c",
                 "./src/comms.c",
                 "-o./build/vocabs2.exe",
                 "-Wall",
@@ -45,11 +45,10 @@
                 "-Wall",
                 "-Wextra",
                 "-Wfatal-errors",
-                //"-g",
                 "-O3",
                 "-finline-functions",
                 "-fopenmp",
-                // "-pg"
+                
             ],
             "group": "build"
         },  
@@ -61,22 +60,19 @@
                 "./src/main.c",
                 "./src/drone.c",
                 "./src/vec2.c",
+                "./src/vec3.c",
                 "./src/comms.c",
                 "-o./build/vocabs2.exe",
                 "-Wall",
                 "-std=c11",
                 "-march=native",
-                //"-L./lib",
-                //"-lm",
-                //"-lmingw32",
                 "-Wall",
                 "-Wextra",
                 "-Wfatal-errors",
-                //"-g",
                 "-O3",
                 "-finline-functions",
                 "-fopenmp",
-                // "-pg"
+                
             ],
             "group": "build"
         }

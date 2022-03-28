@@ -59,6 +59,7 @@
         "xtree": "cpp",
         "iomanip": "cpp",
         "random": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "stdlib.h": "c"
     }
 }
