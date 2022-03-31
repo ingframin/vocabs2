@@ -1,4 +1,10 @@
 #include "comms.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338327950288419716939937510
+#endif
+#define C 299792458
 #include <stdlib.h>
 
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
@@ -43,4 +49,18 @@ double esat(double dist)
     r = p1 * dist * dist * dist + p2 * dist * dist + p3 * dist + p4;
 
     return r;
+}
+
+double interference(double dist, double ptx, double noise_power, double frequency, double bandwidth, double symbol_rate, long packet_length){
+    double prx = ptx - 20*log10(dist) - 20*log10(frequency*1e6) - 20*log10(4*M_PI/C);
+    double snr = pow(10, (prx-noise_power)/10);
+    /*  Assuming 1 bit per symbol and binary modulation
+    *   coherent detection
+    *   Additive White Gaussian Noise
+    */
+    double eb_n0 = snr*bandwidth/symbol_rate;
+    double ber = 0.5*erfc(sqrt(eb_n0));
+    double per = 1-pow((1-ber),packet_length);
+    return 1-per;
+    
 }

@@ -1,5 +1,6 @@
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
+#include "vec2.h"
 //Struct to keep barycentric coordinates
 typedef struct
 {

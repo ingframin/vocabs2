@@ -47,4 +47,4 @@ mat3x3 m33_rotation(double angleX, double angleY, double angleZ);
 mat3x3 m33_product(mat3x3 m1, mat3x3 m2);
 double m33_det(mat3x3 m);
 vec3 v3_cross(vec3 v1, vec3 v2);
-#endif;
+#endif

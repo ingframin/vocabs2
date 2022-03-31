@@ -1,4 +1,5 @@
 #include "obstacle.h"
+#include "vec2.h"
 #include <math.h>
 
 Obstacle compute_obstacle(vec2 pos1, vec2 pos2, double size1, double size2)
@@ -36,7 +37,7 @@ Obstacle compute_obstacle(vec2 pos1, vec2 pos2, double size1, double size2)
 
 	//Construct obstacle
 	Obstacle o;
-	o.position = d2->position;
+	o.position = pos2;
 	o.radius = r;
 	o.T1.x = xt1;
 	o.T1.y = yt1;
