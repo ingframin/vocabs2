@@ -5,6 +5,7 @@
 #include "vec2.h"
 #include "drone.h"
 #include "comms.h"
+#include "main.h"
 //#include "video.h"
 #include <omp.h>
 omp_lock_t writelock;

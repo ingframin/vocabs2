@@ -11,12 +11,22 @@ typedef enum
     ADS_B
 } RFsystem;
 
+typedef struct channel{
+    double center_frequency;
+    double bandwidth;
+    double noise_power;
+    double (*compute_loss)(double,double,double);
+}Channel;
+
 //Compute receive probability
 //dist is the distance
 double consiglio(double dist);
 double esat(double dist);
+
+//Compute the probability of packet errors
 //Assuming power in dB, frequency in MHz
-double interference(double dist, double ptx, double noise_power, double frequency, double bandwidth, double symbol_rate, long packet_length);
+double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length);
+
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf, double loss);
 
 #endif

@@ -51,16 +51,20 @@ double esat(double dist)
     return r;
 }
 
-double interference(double dist, double ptx, double noise_power, double frequency, double bandwidth, double symbol_rate, long packet_length){
-    double prx = ptx - 20*log10(dist) - 20*log10(frequency*1e6) - 20*log10(4*M_PI/C);
-    double snr = pow(10, (prx-noise_power)/10);
+double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length){
+    //This should be a separate function and part of the channel model
+    double prx = ptx - 20*log10(dist) - 20*log10(chn->center_frequency*1e6) - 20*log10(4*M_PI/C);
+    //To be replaced with SINR
+    //Interference: Compute received power from other drones + other sources
+    double snr = pow(10, (prx-chn->noise_power)/10);
     /*  Assuming 1 bit per symbol and binary modulation
     *   coherent detection
     *   Additive White Gaussian Noise
     */
-    double eb_n0 = snr*bandwidth/symbol_rate;
+    double eb_n0 = snr*chn->bandwidth/symbol_rate;
     double ber = 0.5*erfc(sqrt(eb_n0));
     double per = 1-pow((1-ber),packet_length);
-    return 1-per;
+    
+    return per;
     
 }
