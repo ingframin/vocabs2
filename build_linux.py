@@ -1,0 +1,17 @@
+from subprocess import run
+run(["clang", "./src/main.c",
+     "./src/drone.c",
+     "./src/vec2.c",
+     "./src/vec3.c",
+     "./src/comms.c",
+     "./src/obstacle.c",
+     "-o./build/vocabs2.exe",
+     "-Wall",
+     "-std=c11",
+     "-march=native",
+     "-Wall",
+     "-Wextra",
+     "-Wfatal-errors",
+     "-O3",
+     "-finline-functions",
+     "-fopenmp", ])
