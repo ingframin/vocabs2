@@ -87,3 +87,33 @@ vec2 v2_rotateHalfPI(vec2 v, int sign)
   vr.y = sign * v.x;
   return vr;
 }
+
+
+vec2 v2_rotatePI(vec2 p){
+  vec2 ret;
+  ret.x = -p.x;
+  ret.y = -p.y;
+  return ret;
+
+}
+
+vec2* v2_lerp(vec2 p1, vec2 p2, uint32_t steps){
+  vec2* result = malloc((steps+1)*sizeof(vec2));
+  if(p1.x > p2.x){
+    vec2 tmp = p2;
+    p2=p1;
+    p1=tmp;
+  }
+
+  double m = (p2.y-p1.y)/(p2.x-p1.x);
+  double q = p1.y-p2.x*m;
+  double t = (p2.x-p1.x)/steps;
+  int i = 0;
+  for(double x = p1.x; x < p2.x; x+=t){
+    vec2 tmpv = {x,x*m+q};
+    result[i] = tmpv;
+
+  }
+  result[steps-1]=p2;
+  return result;
+}
