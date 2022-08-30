@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdbool.h>
+#include <omp.h>
 #include "vec2.h"
 #include "drone.h"
 #include "comms.h"
 #include "main.h"
-//#include "video.h"
-#include <omp.h>
+
 omp_lock_t writelock;
 
 time_t t;
@@ -87,6 +87,7 @@ double rates[] = {
     15.5,
     15.75,
     16.0}; //msg/s
+    
 int num_threads = 32;
 double speed = 20.0;
 uint32_t len_rates = sizeof(rates) / sizeof(double);
@@ -95,8 +96,8 @@ double rate = 1.0;
 char prob = 'A';
 RFsystem sys;
 double l = 1000.0;
-int main(int argc, char *argv[])
-{
+
+void parseArguments(int argc, char *argv[]){
   if (argc > 1)
   {
     prob = argv[1][0];
@@ -134,6 +135,40 @@ int main(int argc, char *argv[])
   }
   printf("Loss: %.3f\n", l);
   printf("Speed: %.3f\n", speed);
+
+}
+
+void saveResults(double collisions[]){
+  FILE *results;
+  fopen_s(&results,"results_speed_loss_avoid_1s_ttc.txt", "a");
+  fprintf(results, "Error: %.3f\n", error);
+  fprintf(results, "Loss: %.3f\n", l);
+  fprintf(results, "Speed: %.3f\n", speed);
+  switch (prob)
+  {
+  case 'E':
+    fprintf(results, "Wi-Fi beacons\n");
+    break;
+  case 'C':
+    fprintf(results, "ADS-B\n");
+    break;
+  default:
+    fprintf(results, "No loss\n");
+  }
+
+  for (uint32_t k = 0; k < len_rates; k++)
+  {
+    printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
+    fprintf(results, "%.3f\t%.10f\n", rates[k], collisions[k] / iterations);
+  }
+  fclose(results);
+}
+
+int main(int argc, char *argv[])
+{
+
+  parseArguments(argc,argv);
+  
   double collisions[len_rates];
   for (uint32_t k = 0; k < len_rates; k++)
   {
@@ -226,29 +261,7 @@ int main(int argc, char *argv[])
 
   } //openmp
 
-  FILE *results;
-  fopen_s(&results,"results_speed_loss_avoid_1s_ttc.txt", "a");
-  fprintf(results, "Error: %.3f\n", error);
-  fprintf(results, "Loss: %.3f\n", l);
-  fprintf(results, "Speed: %.3f\n", speed);
-  switch (prob)
-  {
-  case 'E':
-    fprintf(results, "Wi-Fi beacons\n");
-    break;
-  case 'C':
-    fprintf(results, "ADS-B\n");
-    break;
-  default:
-    fprintf(results, "No loss\n");
-  }
-
-  for (uint32_t k = 0; k < len_rates; k++)
-  {
-    printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
-    fprintf(results, "%.3f\t%.10f\n", rates[k], collisions[k] / iterations);
-  }
-  fclose(results);
-
+  
+  saveResults(collisions);
   return 0;
 }
