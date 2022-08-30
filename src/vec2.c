@@ -97,23 +97,14 @@ vec2 v2_rotatePI(vec2 p){
 
 }
 
-vec2* v2_lerp(vec2 p1, vec2 p2, uint32_t steps){
-  vec2* result = malloc((steps+1)*sizeof(vec2));
+vec2 v2_lerp(vec2 p1, vec2 p2, double t){
+  
   if(p1.x > p2.x){
     vec2 tmp = p2;
     p2=p1;
     p1=tmp;
   }
 
-  double m = (p2.y-p1.y)/(p2.x-p1.x);
-  double q = p1.y-p2.x*m;
-  double t = (p2.x-p1.x)/steps;
-  int i = 0;
-  for(double x = p1.x; x < p2.x; x+=t){
-    vec2 tmpv = {x,x*m+q};
-    result[i] = tmpv;
+  return v2_add(p1,v2_prodK(v2_sub(v2,v1),t));
 
-  }
-  result[steps-1]=p2;
-  return result;
 }

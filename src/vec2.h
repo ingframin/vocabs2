@@ -51,5 +51,5 @@ vec2 v2_prodK(vec2, double k);
 double v2_distance(vec2, vec2);
 
 //linear interpolation between 2 points
-vec2* v2_lerp(vec2 p1, vec2 p2, uint32_t steps);
+vec2 v2_lerp(vec2 p1, vec2 p2, double t){;
 #endif
