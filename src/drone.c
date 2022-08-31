@@ -89,7 +89,7 @@ void DR_move(Drone *d, double dt)
 
 	DR_goto(d, d->waypoints[d->curr_wp]);
 
-	vec2 dP = v2_prodK(d->speed, dt);
+	vec2 dP = v2_scale(d->speed, dt);
 	d->position = v2_add(d->position, dP);
 }
 
@@ -163,7 +163,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 		{
 			vec2 escape = v2_rotateHalfPI(d->speed, -1);
 			escape = v2_norm(escape);
-			escape = v2_prodK(escape, 4 * (d->size + dx.size));
+			escape = v2_scale(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);
 			DR_push_waypoint(d, escape);
 		}

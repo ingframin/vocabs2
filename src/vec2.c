@@ -66,7 +66,7 @@ vec2 v2_addK(vec2 v, double k)
   return res;
 }
 
-vec2 v2_prodK(vec2 v, double k)
+vec2 v2_scale(vec2 v, double k)
 {
   vec2 res;
   res.x = v.x * k;
@@ -98,13 +98,23 @@ vec2 v2_rotatePI(vec2 p){
 }
 
 vec2 v2_lerp(vec2 p1, vec2 p2, double t){
-  
-  if(p1.x > p2.x){
-    vec2 tmp = p2;
-    p2=p1;
-    p1=tmp;
-  }
+  vec2 a = v2_scale(p1,1.0-t);
+  vec2 b = v2_scale(p2,t);
+  return v2_add(a,b);
 
-  return v2_add(p1,v2_prodK(v2_sub(v2,v1),t));
+}
 
+vec2 v2_qspline(vec2 p1, vec2 p2, vec2 p3, double t){
+    vec2 p0i = v2_lerp(p1,p2,t);
+    vec2 p1i = v2_lerp(p2,p3,t);
+    
+    return v2_lerp(p0i,p1i,t);
+}
+
+vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t){
+    vec2 p0i = v2_lerp(p1,p2,t);
+    vec2 p1i = v2_lerp(p2,p3,t);
+    vec2 p2i = v2_lerp(p3,p4,t);
+    
+    return v2_qspline(p0i,p1i,p2i,t);
 }
