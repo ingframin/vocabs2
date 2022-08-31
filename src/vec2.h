@@ -3,20 +3,13 @@
 //round floats and doubles to int
 #define DROUND(x) (int)(x + 0.5)
 #include<stdint.h>
+
 typedef struct
 {
   double x;
   double y;
 
 } vec2;
-
-typedef struct mat2
-{
-  double m00;
-  double m01;
-  double m10;
-  double m11;
-} mat2x2;
 
 
 //module

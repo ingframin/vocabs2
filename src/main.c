@@ -15,7 +15,7 @@ uint32_t iterations = 20000;
 
 double dt = 1E-3; //seconds
 
-double error = -1.0;
+double error = 0;
 
 double rates[] = {
     1E-2,

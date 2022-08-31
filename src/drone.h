@@ -4,10 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct fp{
-  vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  uint64_t wp_len;  //max flight plan length
-} FlightPlan;
+
 
 typedef struct
 {
@@ -15,11 +12,11 @@ typedef struct
   vec2 position;     // current position
   vec2 speed;        //current speed
   double _speed_mod; //speed module
-  
-  vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  uint64_t wp_len;  //max flight plan length
-  uint64_t curr_wp; //Index of the current waypoint
   double size;          //Physical size of the drone
+  vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
+  uint64_t wp_len;  //flight plan length
+  uint64_t curr_wp; //Index of the current waypoint
+  
 } Drone;
 
 //Initialize a new drone.
@@ -44,9 +41,5 @@ void DR_push_waypoint(Drone *d, vec2 wp);
 //pop removes the top waypoints (but it does not shrink the waypoint array)
 void DR_pop_waypoint(Drone *d);
 
-//***********************//
-void FP_pushWaypoint(FlightPlan *fp, vec2 wp);
-void FP_popWaypoint(FlightPlan *fp);
-void FP_insertWaypoint(FlightPlan* fp, uint64_t index);
 
 #endif

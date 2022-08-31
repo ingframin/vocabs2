@@ -2,14 +2,13 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build linux",
             "type": "shell",
             "command": "gcc",
             "args": [
                 "./src/main.c",
                 "./src/drone.c",
                 "./src/vec2.c",
-                "./src/vec3.c",
                 "./src/comms.c",
                 "./src/obstacle.c",
                 "-lm",
@@ -25,44 +24,15 @@
                 "-fopenmp"
             ],
             "group": "build"
-        },
+        }, 
         {
-            "label": "build win",
-            "type": "shell",
-            "command": "gcc",
-            "args": [
-                "./src/main.c",
-                "./src/drone.c",
-                "./src/vec2.c",
-                "./src/vec3.c",
-                "./src/comms.c",
-                "./src/obstacle.c",
-                "-o./build/vocabs2.exe",
-                "-Wall",
-                "-std=c11",
-                "-L./lib",
-                "-march=native",
-                "-lm",
-                "-lmingw32",
-                "-Wall",
-                "-Wextra",
-                "-Wfatal-errors",
-                "-O3",
-                "-finline-functions",
-                "-fopenmp",
-                
-            ],
-            "group": "build"
-        },  
-        {
-            "label": "build clang",
+            "label": "build windows",
             "type": "shell",
             "command": "clang",
             "args": [
                 "./src/main.c",
                 "./src/drone.c",
                 "./src/vec2.c",
-                "./src/vec3.c",
                 "./src/comms.c",
                 "./src/obstacle.c",
                 "-o./build/vocabs2.exe",
@@ -74,8 +44,7 @@
                 "-Wfatal-errors",
                 "-O3",
                 "-finline-functions",
-                "-fopenmp",
-                
+                "-fopenmp"
             ],
             "group": "build"
         }
