@@ -62,7 +62,7 @@ double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol
     *   Additive White Gaussian Noise
     */
     double eb_n0 = snr*chn->bandwidth/symbol_rate;
-    double ber = 0.5*erfc(sqrt(eb_n0));
+    double ber = 0.5*erfc(sqrt(eb_n0));//Depends on modulation + coding
     double per = 1-pow((1-ber),packet_length);
     
     return per;
