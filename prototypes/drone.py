@@ -57,10 +57,14 @@ class Drone:
 
     def compute_trajectory(self,P, steps=100):
         
-        Pm1 = self.vel*self.size + self.pos+(P+self.pos)*0.5 
-        
+        Pm1 = self.vel*self.size
+        try:
+            pstart = self.trajectory[-1]
+        except:
+            pstart = self.pos
+
         for i in range(1,steps+1): #11 steps just because...
-            self.trajectory.append(spline(self.pos,Pm1,P,i/steps))
+            self.trajectory.append(spline(pstart,Pm1,P,i/steps))
         
     def obstacle(self, d2):
         # Minkowski addition

@@ -31,18 +31,22 @@ running = True
 d1 = Drone(0,200,200,30,30,dsize)
 print(d1.pos)
 P = None
+fp = [vec2(20,100),vec2(200,50),vec2(20,700),vec2(600,100)]
+for p in fp:
+    d1.compute_trajectory(p,steps=300)
+
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
             break
-        elif event.type == pg.MOUSEBUTTONDOWN:
-            x,y = pg.mouse.get_pos()
-            d1.compute_trajectory(vec2(x,y),steps=400)
+        # elif event.type == pg.MOUSEBUTTONDOWN:
+        #     x,y = pg.mouse.get_pos()
+        #     d1.compute_trajectory(vec2(x,y),steps=400)
             
-    if len(d1.trajectory) > 0:
+    if len(d1.trajectory) > 0 and d1.pos.distance(d1.trajectory[0])<d1.size:
         P = d1.trajectory.popleft()
-        d1.steer_towards(P)
+        d1.steer_towards(d1.trajectory[0])
     
     d1.move(1/60)
     screen.fill(black)
