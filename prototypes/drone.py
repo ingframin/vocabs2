@@ -1,5 +1,7 @@
 from vector2 import *
 from dataclasses import dataclass
+from collections import deque
+from math import sqrt,cos,sin,acos
 
 @dataclass
 class Obstacle:
@@ -30,6 +32,7 @@ class Drone:
         self.pos = vec2(x,y)
         self.vel = vec2(vx,vy)
         self.size = size
+        self.trajectory = deque()
     
     def move(self,dt):
         self.pos += self.vel*dt
@@ -44,12 +47,6 @@ class Drone:
     def start(self,vx,vy):
         self.vel = vec2(vx,vy)    
     
-class DroneAgent:
-    def __init__(self, drone) -> None:
-        self.d = drone
-        self.flight_plan = []
-        self.trajectory = []
-        
     def collide(self,drone):
         obs = self.obstacle(drone)
         # (V1 - V2) + P (The translation is needed to check if the difference falls into the triangle)
@@ -58,12 +55,16 @@ class DroneAgent:
         a,b,g = barycentric(obs.T1, obs.T2, self.pos, DV.x, DV.y)
         return (a>0 and b>0 and g>0)
 
-    def compute_trajectory(self,P):
-        pass
-
+    def compute_trajectory(self,P, steps=100):
+        
+        Pm1 = self.vel*self.size + self.pos+(P+self.pos)*0.5 
+        
+        for i in range(1,steps+1): #11 steps just because...
+            self.trajectory.append(spline(self.pos,Pm1,P,i/steps))
+        
     def obstacle(self, d2):
         # Minkowski addition
-        r = self.radius+d2.radius
+        r = self.size+d2.size
 
         # Computing tangent lines to circle passing through the point self.pos
         dx = self.pos.x-d2.pos.x
@@ -96,9 +97,10 @@ class DroneAgent:
         xt2 = (-b2)/(2*a2)
         yt2 = m2*xt2+q2
         return Obstacle(r, d2.pos,vec2(xt1,yt1),vec2(xt2,yt2))
-        # # (V1 - V2) + P (The translation is needed to check if the difference falls into the triangle)
-        # S = self.speed - d2.speed + self.pos
-        # # computes barycentric coordinates
-        # bar_c = barycentric(xt1, yt1, xt2, yt2, self.pos.x,
-        #                     self.pos.y, S.x, S.y)
-        # return bar_c
+        
+    def steer_towards(self,P):
+        M = self.vel.mod()
+        dirp = (P-self.pos).norm()
+        
+        self.vel = dirp*M
+

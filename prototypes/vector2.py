@@ -13,7 +13,7 @@ class vec2:
 
     def __mul__(self,k):
         if type(k) == vec2:
-            return self.x*k.x,self.y*k.y
+            return self.x*k.x+self.y*k.y
         return vec2(self.x*k,self.y*k)
     
     def mod(self):
@@ -59,4 +59,11 @@ def spline(v1,v2,v3,t):
     p0 = lerp(v1,v2,t)
     p1 = lerp(v2,v3,t)
     p = lerp(p0,p1,t)
+    return p
+
+def qspline(v1,v2,v3,v4,t):
+    p0 = lerp(v1,v2,t)
+    p1 = lerp(v2,v3,t)
+    p2 = lerp(v3,v4,t)
+    p = spline(p0,p1,p2,t)
     return p
