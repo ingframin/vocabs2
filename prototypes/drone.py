@@ -1,7 +1,7 @@
 from vector2 import *
 from dataclasses import dataclass
 from collections import deque
-from math import sqrt
+from math import sqrt,pi,copysign
 
 @dataclass
 class Obstacle:
@@ -60,7 +60,9 @@ class Drone:
 
     def compute_trajectory(self,P, steps=100):
         
-        Pm1 = self.vel*self.size
+        Pm1 = self.pos+P
+        M = Pm1.mod()/2
+        Pm1 = Pm1.norm()*M
         try:
             pstart = self.trajectory[-1]
         except:
@@ -71,7 +73,7 @@ class Drone:
     
     def insert_trajectory(self,P, steps=200):
         
-        Pm1 = self.vel*self.size
+        Pm1 = self.vel
         pstart = self.pos
 
         for i in range(1,steps+1): #11 steps just because...
@@ -116,8 +118,9 @@ class Drone:
     def steer_towards(self,P):
         
         M = self.vel.mod()
-        dirp = (P-self.pos).norm()
         
+        dirp = (P-self.pos).norm()
+
         self.vel = dirp*M
 
     def has_next_point(self):
