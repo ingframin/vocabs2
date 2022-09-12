@@ -1,14 +1,16 @@
 from vector2 import *
 from dataclasses import dataclass
 from collections import deque
-from math import sqrt,cos,sin,acos
+from math import sqrt
 
 @dataclass
 class Obstacle:
     size :float
     pos :vec2
+    vel: vec2
     T1 :vec2
     T2 :vec2
+
 
 #kinematic model of the drone
 def barycentric( P1,  P2,  P3,  P):
@@ -47,12 +49,13 @@ class Drone:
     def start(self,vx,vy):
         self.vel = vec2(vx,vy)    
     
-    def collide(self,drone):
-        obs = self.obstacle(drone)
+    
+    def will_collide(self,obstacle):
+        
         # (V1 - V2) + P (The translation is needed to check if the difference falls into the triangle)
-        DV = self.vel - drone.vel + self.pos
+        DV = self.vel - obstacle.vel + self.pos
         # computes barycentric coordinates
-        a,b,g = barycentric(obs.T1, obs.T2, self.pos, DV.x, DV.y)
+        a,b,g = barycentric(obstacle.T1, obstacle.T2, self.pos, DV.x, DV.y)
         return (a>0 and b>0 and g>0)
 
     def compute_trajectory(self,P, steps=100):
@@ -65,6 +68,14 @@ class Drone:
 
         for i in range(1,steps+1): #11 steps just because...
             self.trajectory.append(spline(pstart,Pm1,P,i/steps))
+    
+    def insert_trajectory(self,P, steps=200):
+        
+        Pm1 = self.vel*self.size
+        pstart = self.pos
+
+        for i in range(1,steps+1): #11 steps just because...
+            self.trajectory.appendleft(spline(pstart,Pm1,P,i/steps))
         
     def obstacle(self, d2):
         # Minkowski addition
@@ -100,11 +111,32 @@ class Drone:
 
         xt2 = (-b2)/(2*a2)
         yt2 = m2*xt2+q2
-        return Obstacle(r, d2.pos,vec2(xt1,yt1),vec2(xt2,yt2))
+        return Obstacle(r, d2.pos,d2.vel,vec2(xt1,yt1),vec2(xt2,yt2))
         
     def steer_towards(self,P):
+        
         M = self.vel.mod()
         dirp = (P-self.pos).norm()
         
         self.vel = dirp*M
 
+    def has_next_point(self):
+        return len(self.trajectory)>0
+    
+    def reached(self,point):
+        return self.pos.distance(point) < self.size
+
+    def current_target(self):
+        return self.trajectory[0]
+
+    def pop_waypoint(self):
+        return self.trajectory.popleft()
+
+    def compute_avoidance(self,drones):
+        obstacles = [self.obstacle(d) for d in drones if d.id != self.id]
+        v = self.vel
+        while any([self.will_collide(obs) for obs in obstacles]):
+            self.vel = self.vel.rotate(2*pi/(10*len(obstacles)))
+        p = self.pos+self.vel*2
+        self.vel = v
+        self.insert_trajectory(p)

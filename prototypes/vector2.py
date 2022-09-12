@@ -1,4 +1,4 @@
-from math import sqrt, cos, sin, pi
+from math import sqrt, cos, sin, pi, acos
 
 class vec2:
     def __init__(self, x,y):
@@ -26,6 +26,14 @@ class vec2:
     def norm(self):
         module = self.mod()
         return vec2(self.x/module, self.y/module)
+    
+    def angle_to(self,v2):
+        v1n = self.norm()
+        v2n = v2.norm()
+        C = v1n*v2n/(v1n.mod()*v2n.mod())
+        if abs(C)>1:
+            C = C/abs(C)
+        return acos(C)
 
     def rotate(self,angle):
         if abs(angle) < 1e-4:
