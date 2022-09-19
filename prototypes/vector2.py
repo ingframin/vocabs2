@@ -49,7 +49,7 @@ class vec2:
                 return vec2(-self.x,-self.y)
             case _ if abs(angle - 3*pi/2) <1e-4:
                 return vec2(self.y,-self.x)
-            case other:
+            case _:
                 m = self.mod()
                 X = self.x / m
                 Y = self.y / m
