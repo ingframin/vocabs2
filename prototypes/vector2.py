@@ -39,23 +39,23 @@ class vec2:
         return acos(C)
 
     def rotate(self,angle):
+        a = abs(angle)
         match abs(angle):
-            case 
-        if abs(angle) < 1e-4:
-            return self
-        elif abs(angle - pi/2) <1e-4:
-            return vec2(-self.y,self.x)
-        elif abs(angle - pi) <1e-4:
-            return vec2(-self.x,-self.y)
-        elif abs(angle - 3*pi/2) <1e-4:
-            return vec2(self.y,-self.x)
-            
-        m = self.mod()
-        X = self.x / m
-        Y = self.y / m
-        C = cos(angle)
-        S = sin(angle)
-        return vec2(m * (X * C - Y * S),m * (X * S + Y * C))
+            case _ if a < 1e-4:
+                return self
+            case _ if abs(angle - pi/2) < 1e-4:
+                return vec2(-self.y,self.x)
+            case _ if abs(angle - pi) <1e-4:
+                return vec2(-self.x,-self.y)
+            case _ if abs(angle - 3*pi/2) <1e-4:
+                return vec2(self.y,-self.x)
+            case other:
+                m = self.mod()
+                X = self.x / m
+                Y = self.y / m
+                C = cos(angle)
+                S = sin(angle)
+                return vec2(m * (X * C - Y * S),m * (X * S + Y * C))
 
     def __str__(self):
         return f'{self.x},{self.y}'
