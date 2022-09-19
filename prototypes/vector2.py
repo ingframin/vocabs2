@@ -26,8 +26,14 @@ class vec2:
     def norm(self):
         module = self.mod()
         return vec2(self.x/module, self.y/module)
+    
+    def scale(self, k):
+        return vec2(self.x*k,self.y*k)
+
 
     def rotate(self,angle):
+        match abs(angle):
+            case 
         if abs(angle) < 1e-4:
             return self
         elif abs(angle - pi/2) <1e-4:

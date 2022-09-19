@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 from random import randint
+
 class vec2:
     def __init__(self, x,y):
         self.x = x
