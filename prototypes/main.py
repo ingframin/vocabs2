@@ -28,10 +28,11 @@ screen = pg.display.set_mode(size)
 drone_gfx1 = pg.transform.scale(pg.image.load('drone.png'), (dsize, dsize))
 
 running = True
-d1 = Drone(0,200,200,30,30,dsize)
+drones = [Drone(0,50,50,20,0,dsize),Drone(0,200,200,30,30,dsize),Drone(0,200,200,30,30,dsize),Drone(0,200,200,30,30,dsize)]
+d1 = Drone(0,0,0,0,20,dsize)
 print(d1.pos)
 P = None
-fp = [vec2(20,100),vec2(200,50),vec2(20,700),vec2(600,100)]
+fp = [vec2(200,100),vec2(100,500),vec2(200,700),vec2(600,100),vec2(600,700)]
 for p in fp:
     d1.compute_trajectory(p,steps=300)
 
@@ -40,18 +41,29 @@ while running:
         if event.type == pg.QUIT:
             running = False
             break
-        # elif event.type == pg.MOUSEBUTTONDOWN:
-        #     x,y = pg.mouse.get_pos()
-        #     d1.compute_trajectory(vec2(x,y),steps=400)
-            
-    if len(d1.trajectory) > 0 and d1.pos.distance(d1.trajectory[0])<d1.size:
-        P = d1.trajectory.popleft()
-        d1.steer_towards(d1.trajectory[0])
+    
+    # calculate obstacles
+    # for d in drones:
+    #     d.compute_avoidance(drones)
+
+    # check collisions
+    # compute escape
+                
+    if d1.has_next_point() > 0 and d1.reached(d1.current_target()):
+        P = d1.pop_waypoint()
+        if d1.has_next_point():
+            d1.steer_towards(d1.trajectory[0])
+        else:
+            running = False
     
     d1.move(1/60)
     screen.fill(black)
     draw_drone(d1,screen)
+    for wp in fp:
+        pg.draw.circle(screen,(255,255,0),(wp.x,wp.y),5,1)
     pg.display.flip()
+    if len(fp)>0 and d1.reached(fp[0]):
+        fp.pop(0)
     clock.tick(60)
 
 pg.quit()
