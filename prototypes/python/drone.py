@@ -38,14 +38,14 @@ class Drone:
     def compute_trajectory(self,P, steps=100):
         
         Pm1 = self.pos+P
-        M = Pm1.mod()/2
-        Pm1 = Pm1.norm()*M
+        M = magnitude(Pm1)/2
+        Pm1 = norm(Pm1)*M
         try:
             pstart = self.trajectory[-1]
         except:
             pstart = self.pos
 
-        for i in range(1,steps+1): #11 steps just because...
+        for i in range(1,steps+1): 
             self.trajectory.append(spline(pstart,Pm1,P,i/steps))
     
     def insert_trajectory(self,P, steps=200):
@@ -53,14 +53,14 @@ class Drone:
         Pm1 = self.vel
         pstart = self.pos
 
-        for i in range(1,steps+1): #11 steps just because...
+        for i in range(1,steps+1): 
             self.trajectory.appendleft(spline(pstart,Pm1,P,i/steps))
         
     def steer_towards(self,P):
         
-        M = self.vel.mod()
+        M = magnitude(self.vel)
         
-        dirp = (P-self.pos).norm()
+        dirp = norm(P-self.pos)
 
         self.vel = dirp*M
 

@@ -24,7 +24,7 @@ class Vec2f:
 def dot(v1,v2):
     return Vec2f(v1.x*v2.x,v1.y*v2.y)
 
-def mod(v1):
+def magnitude(v1):
     return sqrt(v1.x**2 + v1.y**2)
 
 def distance(v1, v2):
@@ -62,6 +62,36 @@ def qspline(v1,v2,v3,v4,t):
     p = spline(p0,p1,p2,t)
     return p
 
+
+def deg2Eq(a:float,b:float,c:float):
+    Delta = b**2 - 4*a*c
+    if Delta < 0:
+        Delta = 0
+    # Angular coefficient
+    x1 = (-b + sqrt(Delta))/(2*a)
+    x2 = (-b - sqrt(Delta))/(2*a)
+    return x1,x2
+
+def lineEq(m,q):
+    return lambda x: m*x + q
+
+def tangents_to_circle(xp,yp,xo,yo,r):
+     # Computing tangent lines to circle passing through the point d1.pos
+    dx = xo-xp
+    dy = yo-yp
+    a = dx**2 - r**2
+    b = 2*dx*dy
+    c = dy**2 - r**2
+                   
+    # Angular coefficient
+    m1,m2 = deg2Eq(a,b,c)
+    
+    # Intersection with y axis
+    q1 = yp-m1*xp
+    q2 = yp-m2*xp
+
+    return (m1,q1,m2,q2)
+
 @dataclass
 class Obstacle:
     size :float
@@ -75,35 +105,24 @@ class Obstacle:
         r = d1.size+d2.size
 
         # Computing tangent lines to circle passing through the point d1.pos
-        dx = d1.pos.x-d2.pos.x
-
-        a = dx**2 - r**2
-        b = 2*dx*(d2.pos.y-d1.pos.y)
-        c = (d2.pos.y-d1.pos.y)**2 - r**2
-        Delta = b**2 - 4*a*c
-        if Delta < 0:
-            Delta = 0
-        # Angular coefficient
-        m1 = (-b + sqrt(Delta))/(2*a)
-        m2 = (-b - sqrt(Delta))/(2*a)
-       
-        # Intersection with y axis
-        q1 = d1.pos.y-m1*d1.pos.x
-        q2 = d1.pos.y-m2*d1.pos.x
+        m1,q1,m2,q2 = tangents_to_circle(d1.pos.x,d1.pos.y,d2.pos.x,d2.pos.y,r)
+        
+        tangEq1 = lineEq(m1,q1)
+        tangEq2 = lineEq(m2,q2)
 
         # P1 - first tangent point.
         a1 = 1+m1**2
         b1 = 2*m1*q1-2*d2.pos.x-m1*2*d2.pos.y
 
         xt1 = (-b1)/(2*a1)
-        yt1 = m1*xt1+q1
+        yt1 = tangEq1(xt1)
 
         # P2 - second tangent point.
         a2 = 1+m2**2
         b2 = 2*m2*q2-2*d2.pos.x-m2*2*d2.pos.y
 
         xt2 = (-b2)/(2*a2)
-        yt2 = m2*xt2+q2
+        yt2 = tangEq2(xt2)
         
         self.size = r
         self.pos = d2.pos
