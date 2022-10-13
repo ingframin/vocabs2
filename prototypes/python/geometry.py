@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from math import sqrt, cos, sin, pi, acos
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Vec2f:
     x:float
     y:float
