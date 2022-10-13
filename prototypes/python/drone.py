@@ -1,9 +1,8 @@
-from geometry import *
+
 from dataclasses import dataclass
 from collections import deque
 from math import sqrt,pi,copysign
-
-
+from geometry import Vec2f, magnitude,norm,distance,spline,scale,barycentric,Obstacle
 
 class Drone:
     def __init__(self, id, x, y, vx, vy, size) -> None:
@@ -39,7 +38,8 @@ class Drone:
         
         Pm1 = self.pos+P
         M = magnitude(Pm1)/2
-        Pm1 = norm(Pm1)*M
+        
+        Pm1 = scale(norm(Pm1),M)
         try:
             pstart = self.trajectory[-1]
         except:

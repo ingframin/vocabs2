@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from math import sqrt, cos, sin, pi, acos
 
-@dataclass(frozen=True, slots=True)
+
 class Vec2f:
-    x:float
-    y:float
+    
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
 
     def __add__(self,v2):
         return Vec2f(self.x+v2.x,self.y+v2.y)
@@ -20,9 +22,16 @@ class Vec2f:
 
     def __len__(self):
         return sqrt(self.x**2 + self.y**2)
+    def __mul__(self,k):
+        return Vec2f(self.x*k,self.y*k)
+
+
+
+cdef cdot(double x1, double y1, double x2, double y2):
+    return x1*x2+y1*y2
 
 def dot(v1,v2):
-    return Vec2f(v1.x*v2.x,v1.y*v2.y)
+    return cdot(v1.x,v1.y,v2.x,v2.y)
 
 def magnitude(v1):
     return sqrt(v1.x**2 + v1.y**2)
@@ -32,7 +41,7 @@ def distance(v1, v2):
     return sqrt((v1.x-v2.x)**2 + (v1.y-v2.y)**2)
 
 def norm(v1):
-    module = len(v1)
+    module = magnitude(v1)
     return Vec2f(v1.x/module, v1.y/module)
 
 def scale(v1, k):

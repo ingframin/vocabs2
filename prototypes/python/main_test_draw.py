@@ -1,6 +1,7 @@
 from math import sqrt
 import pygame as pg
 from drone import *
+from geometry import Vec2f
 
 def draw_drone(d1, screen):
 
@@ -32,7 +33,7 @@ drones = [Drone(0,50,50,20,0,dsize),Drone(0,200,200,30,30,dsize),Drone(0,200,200
 d1 = Drone(0,0,0,0,20,dsize)
 print(d1.pos)
 P = None
-fp = [vec2(200,100),vec2(100,500),vec2(200,700),vec2(600,100),vec2(600,700)]
+fp = [Vec2f(200,100),Vec2f(100,500),Vec2f(200,700),Vec2f(600,100),Vec2f(600,700)]
 for p in fp:
     d1.compute_trajectory(p,steps=300)
 
