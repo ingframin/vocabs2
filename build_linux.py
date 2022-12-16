@@ -2,7 +2,6 @@ from subprocess import run
 run(["clang", "./src/main.c",
      "./src/drone.c",
      "./src/vec2.c",
-     "./src/vec3.c",
      "./src/comms.c",
      "./src/obstacle.c",
      "-o./build/vocabs2",
