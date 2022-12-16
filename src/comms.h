@@ -29,4 +29,5 @@ double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol
 
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf, double loss);
 
+bool COM_broadcast_Pint(double Ptx, double Prx, double Pint);
 #endif

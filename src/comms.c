@@ -7,6 +7,12 @@
 #define C 299792458
 #include <stdlib.h>
 
+bool COM_broadcast_Pint(double Ptx, double Prx, double Pint){
+    int p = rand() % 1000;
+    double pcheck = 1000*Ptx*Prx*(1-Pint);
+    return p < pcheck;
+}
+
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
 { // Change to wi-fi or ads-b functions
     int p = rand() % 1000;
@@ -19,6 +25,7 @@ bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
     case ADS_B:
         lim = loss * consiglio(v2_distance(d1, d2));
         break;
+        
     default:
         lim = loss;
     }
