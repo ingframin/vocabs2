@@ -56,16 +56,16 @@ int main(int argc, char *argv[])
         rate = rates[i];
 
         bool running = true;
-        double timer = 0;
+        uint64_t timer = 0;
 
         while (running)
         {
 
-          if (timer >= 1 / rate)
+          if (timer >= 1 /(1000*rate))
           {
 
             // if (COM_broadcast(d1.position, d2.position, sys, l))
-            if (COM_broadcast_Pint(0.5,0.5,0.7))
+            if (COM_broadcast_Pint(0.5,0.5,0.1))
             {
 
               DR_avoid(&d2, &d1, error);
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
             running = false;
           }
 
-          timer += dt;
+          timer += 1;
         }
 
       } //iterations
@@ -109,6 +109,6 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  saveResults("pinterf_0.7.txt", collisions);
+  saveResults("pinterf_0.1.txt", collisions);
   return 0;
 }
