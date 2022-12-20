@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         while (running)
         {
 
-          if (timer >= 1 /(1000*rate))
+          if (timer >= 1.0 /(1000*rate))
           {
 
             // if (COM_broadcast(d1.position, d2.position, sys, l))
