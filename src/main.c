@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
 
           timer += 1;
         }
-        printf("Iter: %d",it);
+        // printf("Iter: %d",it);
 
       } //iterations
       if (collisions[i] == 0.0)

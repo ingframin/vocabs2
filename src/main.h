@@ -12,10 +12,10 @@ double error = 0;
 
 double rates[] = 
 {
-  100000.000,
-  20000.000,
-  10000.000,
-  2000.000,
+  // 100000.000,
+  // 20000.000,
+  // 10000.000,
+  // 2000.000,
   1000.000,
   500.000,
   333.333,
@@ -40,7 +40,7 @@ double rates[] =
     
 int num_threads = 8;
 double speed = 20.0;
-uint32_t len_rates = sizeof(rates) / sizeof(uint64_t);
+uint32_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
 uint64_t rate = 1;
 char prob = 'A';
