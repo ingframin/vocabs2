@@ -38,7 +38,7 @@ double rates[] =
   50.000
 }; //msg/s
     
-int num_threads = 8;
+int num_threads = 64;
 double speed = 20.0;
 uint32_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;

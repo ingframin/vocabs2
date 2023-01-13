@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
           {
 
             // if (COM_broadcast(d1.position, d2.position, sys, l))
-            if (COM_broadcast_Pint(0.5,0.5,0.1))
+            if (COM_broadcast_Pint(0.5,0.5,0.9))
             {
 
               DR_avoid(&d2, &d1, error);
@@ -110,6 +110,6 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  saveResults("pinterf_0.1.txt", collisions);
+  saveResults("pinterf_0.9.txt", collisions);
   return 0;
 }
