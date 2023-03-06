@@ -132,11 +132,11 @@ vec2 interpolate(vec2 vs[], size_t vs_len, double t){
   if(vs_len == 1){
       return vs[0];
   }
-  vec2 vls[] = malloc(vs_len-1);
+  vec2* vls = malloc(vs_len-1);
   for(size_t L = vs_len-1; L>1; L--){
     
-    for(int i = 1; i < L; i++){
-      vls[i-1] = lerp(vs[i],vs[i-1],t);
+    for(size_t i = 1; i < L; i++){
+      vls[i-1] = v2_lerp(vs[i],vs[i-1],t);
     }
 
   }

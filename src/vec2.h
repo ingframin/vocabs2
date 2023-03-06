@@ -53,7 +53,7 @@ vec2 v2_qspline(vec2 p1, vec2 p2,vec2 p3, double t);
 vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t);
 
 //N-points interpolation
-vec2 interpolate(vec2 vs[], size_t vs_len, double t)
+vec2 interpolate(vec2 vs[], size_t vs_len, double t);
 
 //Angle between 2 vectors
 double angle_between(vec2 v1, vec2 v2);
