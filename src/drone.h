@@ -60,4 +60,5 @@ void FP_push_waypoint(FlightPlan *fp, vec2 wp);
 //pop removes the top waypoints (but it does not shrink the waypoint array)
 vec2 FP_pop_waypoint(FlightPlan *fp);
 
+void FP_free_FlightPlan(FlightPlan* fp);
 #endif

@@ -205,7 +205,7 @@ void DR_push_waypoint(Drone *d, vec2 wp)
 	if (d->curr_wp == (d->wp_len - 1))
 	{
 		d->wp_len = (d->wp_len + (d->wp_len >> 1));
-		d->waypoints = realloc(d->waypoints, (d->wp_len + (d->wp_len >> 1)) * sizeof(vec2));
+		d->waypoints = realloc(d->waypoints, ((int)floor(fp->wp_len*1.5)) * sizeof(vec2));
 	}
 	d->curr_wp += 1;
 	d->waypoints[d->curr_wp] = wp;
@@ -226,7 +226,7 @@ void FP_push_waypoint(FlightPlan *fp, vec2 wp){
 	if (fp->curr_wp == (fp->wp_len - 1))
 	{
 		fp->wp_len = (fp->wp_len + (fp->wp_len >> 1));
-		fp->waypoints = realloc(fp->waypoints, DROUND(fp->wp_len*1.5) * sizeof(vec2));
+		fp->waypoints = realloc(fp->waypoints, ((size_t)floor(fp->wp_len*1.5)) * sizeof(vec2));
 	}
 	fp->curr_wp += 1;
 	fp->waypoints[fp->curr_wp] = wp;
@@ -239,4 +239,9 @@ vec2 FP_pop_waypoint(FlightPlan *fp){
 	fp->curr_wp = (fp->curr_wp > 0) ? fp->curr_wp - 1 : 0;
 	return ret;
 
+}
+
+void FP_free_FlightPlan(FlightPlan* fp){
+	free(fp->waypoints);
+	free(fp);
 }

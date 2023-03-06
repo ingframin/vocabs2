@@ -1,7 +1,5 @@
 #ifndef VEC2_H
 #define VEC2_H
-//round floats and doubles to int
-#define DROUND(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
 #include<stdint.h>
 
 typedef struct
