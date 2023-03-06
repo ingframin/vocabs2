@@ -220,3 +220,23 @@ void DR_freeDrone(Drone *d)
 	free(d->waypoints);
 	free(d);
 }
+
+//Increase the waypoint array size if needed
+void FP_push_waypoint(FlightPlan *fp, vec2 wp){
+	if (fp->curr_wp == (fp->wp_len - 1))
+	{
+		fp->wp_len = (fp->wp_len + (fp->wp_len >> 1));
+		fp->waypoints = realloc(fp->waypoints, DROUND(fp->wp_len*1.5) * sizeof(vec2));
+	}
+	fp->curr_wp += 1;
+	fp->waypoints[fp->curr_wp] = wp;
+
+}
+
+//pop removes the top waypoints (but it does not shrink the waypoint array)
+vec2 FP_pop_waypoint(FlightPlan *fp){
+	vec2 ret = fp->waypoints[fp->curr_wp];
+	fp->curr_wp = (fp->curr_wp > 0) ? fp->curr_wp - 1 : 0;
+	return ret;
+
+}
