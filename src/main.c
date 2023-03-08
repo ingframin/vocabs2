@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     for (uint32_t i = 0; i < len_rates; i++)
     {
-      printf("rate: %.2f \n", rates[i]);
+      printf("rate: %.2f \n", 1000.0/rates[i]);
 
 #pragma omp for
       for (uint32_t it = 0; it < iterations; it++)
@@ -61,11 +61,11 @@ int main(int argc, char *argv[])
         while (running)
         {
 
-          if (timer >= 1 /(1000*rate))
+          if (timer >= rate)
           {
 
             // if (COM_broadcast(d1.position, d2.position, sys, l))
-            if (COM_broadcast_Pint(0.5,0.5,0.1))
+            if (COM_broadcast_Pint(0.5,0.5,0.9))
             {
 
               DR_avoid(&d2, &d1, error);
@@ -97,11 +97,12 @@ int main(int argc, char *argv[])
 
           timer += 1;
         }
+        // printf("Iter: %d",it);
 
       } //iterations
       if (collisions[i] == 0.0)
       {
-        printf("%.3f\n", rates[i]);
+        printf("%.3f\n", 1000.0/rate);
         break;
       }
     } //rates
@@ -109,6 +110,6 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  saveResults("pinterf_0.1.txt", collisions);
+  saveResults("pinterf_0.9.txt", collisions);
   return 0;
 }

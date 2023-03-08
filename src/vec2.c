@@ -8,7 +8,7 @@
 
 double v2_mod(vec2 v)
 {
-  return sqrt(v.x * v.x + v.y * v.y);
+  return hypot(v.x, v.y);
 }
 
 vec2 v2_rotate(vec2 v, double angle)
@@ -117,4 +117,30 @@ vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t){
     vec2 p2i = v2_lerp(p3,p4,t);
     
     return v2_qspline(p0i,p1i,p2i,t);
+}
+
+double angle_between(vec2 v1, vec2 v2){
+  double mods = v2_mod(v1)*v2_mod(v2);
+  double sina = (v1.x*v2.y - v2.x*v1.y)/mods;
+  double cosa = (v1.x*v2.x + v1.y*v2.y)/mods;
+
+  return atan2(sina, cosa);
+
+}
+
+vec2 interpolate(vec2 vs[], size_t vs_len, double t){
+  if(vs_len == 1){
+      return vs[0];
+  }
+  vec2* vls = malloc(vs_len-1);
+  for(size_t L = vs_len-1; L>1; L--){
+    
+    for(size_t i = 1; i < L; i++){
+      vls[i-1] = v2_lerp(vs[i],vs[i-1],t);
+    }
+
+  }
+  vec2 res = vls[0];
+  free(vls);
+  return res; 
 }

@@ -13,11 +13,23 @@ typedef struct
   vec2 speed;        //current speed
   double _speed_mod; //speed module
   double size;          //Physical size of the drone
+  /*
+  This should become a pointer to the current waypoint contained within the FlightPlan structure or an integer index.
+  Even better this can just be a copy of the 2D point.
+  */
   vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
   uint64_t wp_len;  //flight plan length
   uint64_t curr_wp; //Index of the current waypoint
   
 } Drone;
+
+typedef struct flight_plan
+{
+  vec2 *waypoints;      //flight plan (array of waypoints that rescales automagically when adding new waypoints)
+  size_t wp_len;  //flight plan length
+  size_t curr_wp; //Index of the current waypoint
+
+}FlightPlan;
 
 //Initialize a new drone.
 Drone DR_newDrone(double x, double y, double vx, double vy, double size);
@@ -35,11 +47,18 @@ void DR_avoid(Drone *d, Drone *d2, double error);
 void DR_stopAndWait(Drone *d, Drone *d2, double error);
 //Compute avoidance for a list of drones
 void DR_avoidMany(Drone *d, Drone *drones, uint32_t ndrones, double error);
+
 //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
 //Increase the waypoint array size if needed
 void DR_push_waypoint(Drone *d, vec2 wp);
 //pop removes the top waypoints (but it does not shrink the waypoint array)
 void DR_pop_waypoint(Drone *d);
 
+//Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
+//Increase the waypoint array size if needed
+void FP_push_waypoint(FlightPlan *fp, vec2 wp);
+//pop removes the top waypoints (but it does not shrink the waypoint array)
+vec2 FP_pop_waypoint(FlightPlan *fp);
 
+void FP_free_FlightPlan(FlightPlan* fp);
 #endif

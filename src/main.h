@@ -10,33 +10,39 @@ double dt = 1E-3; //seconds
 
 double error = 0;
 
-double rates[] = {
-    1E-2,
-    5E-2,
-    1E-1,
-    5E-1,
-    1.0,
-    2.0,
-    3.0,
-    4.0,
-    5.0,
-    6.0,
-    7.0,
-    8.0,
-    9.0,
-    10.0,
-    11.0,
-    12.0,
-    13.0,
-    14.0,
-    15.0,
-    16.0}; //msg/s
+double rates[] = 
+{
+  // 100000.000,
+  // 20000.000,
+  // 10000.000,
+  2000.000,
+  1000.000,
+  500.000,
+  333.333,
+  250.000,
+  200.000,
+  166.667,
+  142.857,
+  125.000,
+  111.111,
+  100.000,
+  90.909,
+  83.333,
+  76.923,
+  71.429,
+  66.667,
+  62.500,
+  58.824,
+  55.556,
+  52.632,
+  50.000
+}; //msg/s
     
-int num_threads = 8;
+int num_threads = 64;
 double speed = 20.0;
 uint32_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;
-double rate = 1.0;
+uint64_t rate = 1;
 char prob = 'A';
 RFsystem sys;
 double l = 1000.0;
@@ -102,8 +108,8 @@ void saveResults(const char* filename, double collisions[]){
 
   for (uint32_t k = 0; k < len_rates; k++)
   {
-    printf("%.3f\t%.6f\n", rates[k], collisions[k] / iterations);
-    fprintf(results, "%.3f\t%.10f\n", rates[k], collisions[k] / iterations);
+    printf("%.3f\t%.6f\n", 1000.0/rates[k], collisions[k] / iterations);
+    fprintf(results, "%.3f\t%.10f\n", 1000.0/rates[k], collisions[k] / iterations);
   }
   fclose(results);
 }
