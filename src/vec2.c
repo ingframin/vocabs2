@@ -13,15 +13,20 @@ double v2_mod(vec2 v)
 
 vec2 v2_rotate(vec2 v, double angle)
 {
+  double C = cos(angle);
+  double S = sin(angle);
 
-  if(abs(angle) < 1e-5){
+  if(C-1 < 1e-5){
     return v;
   }
-  else if(abs(angle-M_PI)<1e-5){
+  else if(C+1 < 1e-5){
     return v2_rotatePI(v);
   }
-  else if(abs(sin(angle))-1.0) < 1e-5){
-    return v2_rotateHalfPI(v,copysign(sin(angle),1.0));
+  else if(S-1.0 < 1e-5){
+    return v2_rotateHalfPI(v,1.0);
+  }
+  else if(S+1 < 1e-5){
+    return v2_rotateHalfPI(v,-1.0);
   }
 
   double m = v2_mod(v);
