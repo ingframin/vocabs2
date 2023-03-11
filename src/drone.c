@@ -55,8 +55,13 @@ inline vec2 generateGaussian2D(double mean, double stdDev)
 	
 }
 
-
-
+FlightPlan* FP_newFlightPlan(size_t length){
+	FlightPlan* fp = malloc(sizeof(FlightPlan));
+	fp->waypoints = malloc(length*sizeof(vec2));
+	fp->curr_wp = length-1;
+	fp->wp_len = length;
+	return fp;
+}
 
 
 Drone DR_newDrone(double x, double y, double vx, double vy, double size)
@@ -66,37 +71,33 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	ids++;
 	d.position.x = x;
 	d.position.y = y;
-	d.speed.x = vx;
-	d.speed.y = vy;
-	d._speed_mod = v2_mod(d.speed);
-	d.waypoints = malloc(2 * sizeof(vec2));
-	d.wp_len = 2;
-	d.curr_wp = 0;
-	d.waypoints[0].x = x;
-	d.waypoints[0].y = y;
+	d.velocity.x = vx;
+	d.velocity.y = vy;
+	d.fp = FP_newFlightPlan(4);
+	FP_push_waypoint(d.fp,d.position);
 	d.size = size;
 	return d;
 }
 
 void DR_move(Drone *d, double dt)
 {
-
-	if (v2_distance(d->position, d->waypoints[d->curr_wp]) < d->size)
+	//This has to become a new function
+	if (v2_distance(d->position, d->fp->waypoints[d->fp->curr_wp]) < d->size)
 	{
 		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->curr_wp].x, d->waypoints[d->curr_wp].y);
-		DR_pop_waypoint(d);
+		FP_pop_waypoint(d->fp);
 	}
 
-	DR_goto(d, d->waypoints[d->curr_wp]);
+	DR_goto(d,d->fp->waypoints[d->fp->curr_wp]);
 
-	vec2 dP = v2_scale(d->speed, dt);
+	vec2 dP = v2_scale(d->velocity, dt);
 	d->position = v2_add(d->position, dP);
 }
 
 void DR_goto(Drone *d, vec2 waypoint)
 {
 
-	vec2 dir = v2_norm(d->speed);
+	vec2 dir = v2_norm(d->velocity);
 
 	vec2 dirp = v2_sub(waypoint, d->position);
 
@@ -109,22 +110,22 @@ void DR_goto(Drone *d, vec2 waypoint)
 	if (C < -0.9999)
 	{
 		//angle = M_PI;
-		d->speed.x = -d->speed.x;
-		d->speed.y = -d->speed.y;
+		d->velocity.x = -d->velocity.x;
+		d->velocity.y = -d->velocity.y;
 	}
 	else if (C >= -0.9999 && C < 0.9999)
 	{
 		angle = -acos(C);
-		d->speed = v2_rotate(d->speed, angle);
+		d->velocity = v2_rotate(d->velocity, angle);
 	}
 }
 
 bool DR_collision(Drone *d1, Drone *d2)
 {
 	Obstacle o = compute_obstacle(d1->position, d2->position,d1->size,d2->size);
-
-	vec2 dif = v2_sub(d1->speed, d2->speed);
-	if (v2_mod(dif) > 1.9 * d1->_speed_mod)
+	double speed = v2_mod(d1->velocity);
+	vec2 dif = v2_sub(d1->velocity, d2->velocity);
+	if (v2_mod(dif) > 1.9 * speed)
 	{
 		return true;
 	}
@@ -155,17 +156,17 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 	if (DR_collision(d, &dx))
 	{
 
-		vec2 dir = v2_norm(d->speed);
+		vec2 dir = v2_norm(d->velocity);
 		double theta = atan2(dir.y, dir.x);
 		vec2 p2rel = v2_sub(dx.position, d->position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_rotateHalfPI(d->speed, -1);
+			vec2 escape = v2_rotateHalfPI(d->velocity, -1);
 			escape = v2_norm(escape);
 			escape = v2_scale(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);
-			DR_push_waypoint(d, escape);
+			FP_push_waypoint(d->fp, escape);
 		}
 	}
 }
@@ -173,6 +174,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 void DR_stopAndWait(Drone *d, Drone *d2, double error)
 {
 	Drone dx = *d2;
+	double speed = v2_mod(d->velocity);
 	if (error > 0)
 	{
 		vec2 pos_error;
@@ -188,36 +190,20 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error)
 		if (dx.id > d->id)
 		{
 
-			d->speed.x = 0;
-			d->speed.y = 0;
+			d->velocity.x = 0;
+			d->velocity.y = 0;
 		}
 	}
 	else
 	{
-		d->speed.x = d->_speed_mod;
-		d->speed.y = 0;
+		d->velocity.x = speed;
+		d->velocity.y = 0;
 	}
-}
-
-void DR_push_waypoint(Drone *d, vec2 wp)
-{
-
-	if (d->curr_wp == (d->wp_len - 1))
-	{
-		d->wp_len = (d->wp_len + (d->wp_len >> 1));
-		d->waypoints = realloc(d->waypoints, ((int)floor(fp->wp_len*1.5)) * sizeof(vec2));
-	}
-	d->curr_wp += 1;
-	d->waypoints[d->curr_wp] = wp;
-}
-void DR_pop_waypoint(Drone *d)
-{
-	d->curr_wp = (d->curr_wp > 0) ? d->curr_wp - 1 : 0;
 }
 
 void DR_freeDrone(Drone *d)
 {
-	free(d->waypoints);
+	FP_free_FlightPlan(d->fp);
 	free(d);
 }
 

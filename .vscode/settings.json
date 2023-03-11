@@ -61,5 +61,6 @@
         "random": "cpp",
         "sstream": "cpp",
         "stdlib.h": "c"
-    }
+    },
+    "FSharp.suggestGitignore": false
 }
