@@ -1,8 +1,9 @@
 #include "fligthplan.h"
 #include "vec2.h"
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-
+#include <math.h>
 
 FlightPlan* FP_newFlightPlan(size_t length){
 	FlightPlan* fp = malloc(sizeof(FlightPlan));
@@ -34,7 +35,7 @@ vec2 FP_pop_waypoint(FlightPlan *fp){
         
     }
     else{
-        fp->curr_wp - 1;
+        fp->curr_wp -= 1;
     }
 	
 	return ret;

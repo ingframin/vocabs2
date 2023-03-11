@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
             running = false;
           }
 
-          if (d2.fp_>empty)
+          if (d2.fp->empty)
           {
             running = false;
           }

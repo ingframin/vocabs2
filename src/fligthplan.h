@@ -1,5 +1,5 @@
 #ifndef FLIGHTPLAN_H
-#define FLIGTHPLAN_H
+#define FLIGHTPLAN_H
 #include "vec2.h"
 #include <stdint.h>
 #include <stdbool.h>

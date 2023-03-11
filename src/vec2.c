@@ -34,8 +34,6 @@ vec2 v2_rotate(vec2 v, double angle)
   vn.x = v.x / m;
   vn.y = v.y / m;
   vec2 ret;
-  double C = cos(angle);
-  double S = sin(angle);
 
   ret.x = m * (vn.x * C - vn.y * S);
   ret.y = m * (vn.x * S + vn.y * C);
