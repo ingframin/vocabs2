@@ -8,9 +8,17 @@
 #include "comms.h"
 #include "main.h"
 #ifdef TEST
-#include "test.h"
+#include "test_vec2.h"
 
 int main(int argc, char** argv){
+  bool tests[] = {
+    test_v2_mod(),
+    test_v2_rotateHalfPI()
+  };
+  for(int i =0; i<2;i++){
+    printf("T%d pass: %s",i,tests[i] ? "true" : "false");
+  }
+  
 
   return 0;
 }

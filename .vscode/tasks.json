@@ -39,6 +39,26 @@
                 "-fopenmp"
             ],
             "group": "build"
+        },
+        {
+            "label": "build test",
+            "type": "shell",
+            "command": "clang",
+            "args": [
+                "-DTEST",
+                "./src/*.c",
+                "-o./build/vocabs2_test.exe",
+                "-Wall",
+                "-std=c11",
+                "-march=native",
+                "-Wall",
+                "-Wextra",
+                "-Wfatal-errors",
+                "-O3",
+                "-finline-functions",
+                "-fopenmp"
+            ],
+            "group": "build"
         }
     ]
 }

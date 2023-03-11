@@ -61,7 +61,9 @@
         "random": "cpp",
         "sstream": "cpp",
         "stdlib.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "main.h": "c",
+        "drone.h": "c"
     },
     "FSharp.suggestGitignore": false
 }
