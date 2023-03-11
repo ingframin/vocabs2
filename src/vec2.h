@@ -23,11 +23,11 @@ vec2 v2_rotateHalfPI(vec2 v, int sign);
 vec2 v2_rotatePI(vec2 v);
 
 //normalize
-vec2 v2_norm(vec2 v);
+vec2 v2_normalize(vec2 v);
 
 //Add and subtract
 vec2 v2_add(vec2 v1, vec2 v2);
-vec2 v2_sub(vec2 v1, vec2 v2);
+vec2 v2_diff(vec2 v1, vec2 v2);
 
 //dot product
 double v2_dot(vec2 v1, vec2 v2);
@@ -54,5 +54,5 @@ vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t);
 vec2 interpolate(vec2 vs[], size_t vs_len, double t);
 
 //Angle between 2 vectors
-double angle_between(vec2 v1, vec2 v2);
+double v2_angle_between(vec2 v1, vec2 v2);
 #endif

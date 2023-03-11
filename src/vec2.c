@@ -14,6 +14,16 @@ double v2_mod(vec2 v)
 vec2 v2_rotate(vec2 v, double angle)
 {
 
+  if(abs(angle) < 1e-5){
+    return v;
+  }
+  else if(abs(angle-M_PI)<1e-5){
+    return v2_rotatePI(v);
+  }
+  else if(abs(sin(angle))-1.0) < 1e-5){
+    return v2_rotateHalfPI(v,copysign(sin(angle),1.0));
+  }
+
   double m = v2_mod(v);
   vec2 vn;
   vn.x = v.x / m;
@@ -28,7 +38,7 @@ vec2 v2_rotate(vec2 v, double angle)
   return ret;
 }
 
-vec2 v2_norm(vec2 v)
+vec2 v2_normalize(vec2 v)
 {
   vec2 n;
   double m = v2_mod(v);
@@ -45,7 +55,7 @@ vec2 v2_add(vec2 v1, vec2 v2)
   return res;
 }
 
-vec2 v2_sub(vec2 v1, vec2 v2)
+vec2 v2_diff(vec2 v1, vec2 v2)
 {
   vec2 res;
   res.x = v1.x - v2.x;
@@ -76,7 +86,7 @@ vec2 v2_scale(vec2 v, double k)
 
 double v2_distance(vec2 v1, vec2 v2)
 {
-  vec2 res = v2_sub(v1, v2);
+  vec2 res = v2_diff(v1, v2);
   return v2_mod(res);
 }
 
@@ -119,7 +129,7 @@ vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t){
     return v2_qspline(p0i,p1i,p2i,t);
 }
 
-double angle_between(vec2 v1, vec2 v2){
+double v2_angle_between(vec2 v1, vec2 v2){
   double mods = v2_mod(v1)*v2_mod(v2);
   double sina = (v1.x*v2.y - v2.x*v1.y)/mods;
   double cosa = (v1.x*v2.x + v1.y*v2.y)/mods;

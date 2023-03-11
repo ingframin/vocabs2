@@ -90,34 +90,22 @@ void DR_move(Drone *d, double dt)
 void DR_goto(Drone *d, vec2 waypoint)
 {
 
-	vec2 dir = v2_norm(d->velocity);
+	vec2 dir = v2_normalize(d->velocity);
 
-	vec2 dirp = v2_sub(waypoint, d->position);
+	vec2 dirp = v2_diff(waypoint, d->position);
 
-	dirp = v2_norm(dirp);
+	dirp = v2_normalize(dirp);
 
-	double C = v2_dot(dir, dirp);
+	double angle = v2_angle_between(dirp,dir);
 
-	double angle = 0;
-
-	if (C < -0.9999)
-	{
-		//angle = M_PI;
-		d->velocity.x = -d->velocity.x;
-		d->velocity.y = -d->velocity.y;
-	}
-	else if (C >= -0.9999 && C < 0.9999)
-	{
-		angle = -acos(C);
-		d->velocity = v2_rotate(d->velocity, angle);
-	}
+	d->velocity = v2_rotate(d->velocity, angle);
 }
 
 bool DR_collision(Drone *d1, Drone *d2)
 {
 	Obstacle o = compute_obstacle(d1->position, d2->position,d1->size,d2->size);
 	double speed = v2_mod(d1->velocity);
-	vec2 dif = v2_sub(d1->velocity, d2->velocity);
+	vec2 dif = v2_diff(d1->velocity, d2->velocity);
 	if (v2_mod(dif) > 1.9 * speed)
 	{
 		return true;
@@ -149,14 +137,14 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 	if (DR_collision(d, &dx))
 	{
 
-		vec2 dir = v2_norm(d->velocity);
+		vec2 dir = v2_normalize(d->velocity);
 		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_sub(dx.position, d->position);
+		vec2 p2rel = v2_diff(dx.position, d->position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 		if (fabs(thetaP2) > fabs(theta))
 		{
 			vec2 escape = v2_rotateHalfPI(d->velocity, -1);
-			escape = v2_norm(escape);
+			escape = v2_normalize(escape);
 			escape = v2_scale(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);
 			FP_push_waypoint(d->fp, escape);
