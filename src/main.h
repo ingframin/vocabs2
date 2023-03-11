@@ -4,7 +4,7 @@
 #define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
 #endif
 time_t t;
-uint32_t iterations = 1000000;
+uint32_t iterations = 100;
 
 double dt = 1E-3; //seconds
 
@@ -38,7 +38,7 @@ double rates[] =
   50.000
 }; //msg/s
     
-int num_threads = 64;
+int num_threads = 8;
 double speed = 20.0;
 uint32_t len_rates = sizeof(rates) / sizeof(double);
 int si = 0;

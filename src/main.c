@@ -7,7 +7,14 @@
 #include "drone.h"
 #include "comms.h"
 #include "main.h"
+#ifdef TEST
+#include "test.h"
 
+int main(int argc, char** argv){
+
+  return 0;
+}
+#else
 omp_lock_t writelock;
 
 int main(int argc, char *argv[])
@@ -65,7 +72,7 @@ int main(int argc, char *argv[])
           {
 
             // if (COM_broadcast(d1.position, d2.position, sys, l))
-            if (COM_broadcast_Pint(0.5,0.5,0.9))
+            if (COM_broadcast_Pint(0.5,0.5,0.0))
             {
 
               DR_avoid(&d2, &d1, error);
@@ -112,6 +119,7 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  saveResults("pinterf_0.9.txt", collisions);
+  saveResults("pinterf_0.0.txt", collisions);
   return 0;
 }
+#endif
