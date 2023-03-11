@@ -9,6 +9,7 @@
 #include "vec2.h"
 #include "obstacle.h"
 #define MAX_ANGLE 0.01
+#include "fligthplan.h"
 
 static uint32_t ids = 0;
 
@@ -55,14 +56,6 @@ inline vec2 generateGaussian2D(double mean, double stdDev)
 	
 }
 
-FlightPlan* FP_newFlightPlan(size_t length){
-	FlightPlan* fp = malloc(sizeof(FlightPlan));
-	fp->waypoints = malloc(length*sizeof(vec2));
-	fp->curr_wp = length-1;
-	fp->wp_len = length;
-	return fp;
-}
-
 
 Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 {
@@ -82,13 +75,13 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 void DR_move(Drone *d, double dt)
 {
 	//This has to become a new function
-	if (v2_distance(d->position, d->fp->waypoints[d->fp->curr_wp]) < d->size)
+	if (v2_distance(d->position, FP_current_wp(d->fp)) < d->size)
 	{
 		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->curr_wp].x, d->waypoints[d->curr_wp].y);
 		FP_pop_waypoint(d->fp);
 	}
 
-	DR_goto(d,d->fp->waypoints[d->fp->curr_wp]);
+	DR_goto(d,FP_current_wp(d->fp));
 
 	vec2 dP = v2_scale(d->velocity, dt);
 	d->position = v2_add(d->position, dP);
@@ -207,27 +200,3 @@ void DR_freeDrone(Drone *d)
 	free(d);
 }
 
-//Increase the waypoint array size if needed
-void FP_push_waypoint(FlightPlan *fp, vec2 wp){
-	if (fp->curr_wp == (fp->wp_len - 1))
-	{
-		fp->wp_len = (fp->wp_len + (fp->wp_len >> 1));
-		fp->waypoints = realloc(fp->waypoints, ((size_t)floor(fp->wp_len*1.5)) * sizeof(vec2));
-	}
-	fp->curr_wp += 1;
-	fp->waypoints[fp->curr_wp] = wp;
-
-}
-
-//pop removes the top waypoints (but it does not shrink the waypoint array)
-vec2 FP_pop_waypoint(FlightPlan *fp){
-	vec2 ret = fp->waypoints[fp->curr_wp];
-	fp->curr_wp = (fp->curr_wp > 0) ? fp->curr_wp - 1 : 0;
-	return ret;
-
-}
-
-void FP_free_FlightPlan(FlightPlan* fp){
-	free(fp->waypoints);
-	free(fp);
-}

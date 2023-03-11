@@ -78,11 +78,13 @@ int main(int argc, char *argv[])
           DR_move(&d1, dt);
           DR_move(&d2, dt);
           
-          if (d1.fp->waypoints[d1.fp->curr_wp].x == 0 && d1.fp->waypoints[d1.fp->curr_wp].y == 0)
+          
+          if (d1.fp->empty)
           {
             running = false;
           }
-          if (d2.fp->waypoints[d2.fp->curr_wp].x == 0 && d2.fp->waypoints[d2.fp->curr_wp].y == 0)
+
+          if (d2.fp_>empty)
           {
             running = false;
           }

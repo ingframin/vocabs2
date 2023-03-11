@@ -60,7 +60,8 @@
         "iomanip": "cpp",
         "random": "cpp",
         "sstream": "cpp",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "stdbool.h": "c"
     },
     "FSharp.suggestGitignore": false
 }

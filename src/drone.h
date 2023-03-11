@@ -3,14 +3,8 @@
 #include "vec2.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "fligthplan.h"
 
-typedef struct flight_plan
-{
-  vec2 *waypoints;//flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  size_t wp_len;  //flight plan length
-  size_t curr_wp; //Index of the current waypoint
-
-}FlightPlan;
 
 typedef struct
 {
@@ -38,16 +32,6 @@ bool DR_collision(Drone *d1, Drone *d2);
 void DR_avoid(Drone *d, Drone *d2, double error);
 //Instead of computing an avoidance maneuver waits until no collision is imminent
 void DR_stopAndWait(Drone *d, Drone *d2, double error);
-//Compute avoidance for a list of drones
-void DR_avoidMany(Drone *d, Drone *drones, uint32_t ndrones, double error);
 
-//Initialize a new fligth plan
-FlightPlan* FP_newFlightPlan(size_t length);
-//Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
-//Increase the waypoint array size if needed
-void FP_push_waypoint(FlightPlan *fp, vec2 wp);
-//pop removes the top waypoints (but it does not shrink the waypoint array)
-vec2 FP_pop_waypoint(FlightPlan *fp);
-//Free memory used by a FlightPlan
-void FP_free_FlightPlan(FlightPlan* fp);
+
 #endif
