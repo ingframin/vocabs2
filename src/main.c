@@ -13,9 +13,10 @@
 int main(int argc, char** argv){
   bool tests[] = {
     test_v2_mod(),
-    test_v2_rotateHalfPI()
+    test_v2_rotateHalfPI(),
+    test_v2_rotate()
   };
-  for(int i =0; i<2;i++){
+  for(int i =0; i<3;i++){
     printf("T%d pass: %s",i,tests[i] ? "true" : "false");
   }
   
