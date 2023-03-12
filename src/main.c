@@ -16,10 +16,11 @@ int main(int argc, char** argv){
     test_v2_mod(),
     test_v2_rotateHalfPI(),
     test_v2_rotate(),
-    test_newFlightPlan()
+    test_newFlightPlan(),
+    test_push_waypoint()
   };
-  for(int i =0; i<4;i++){
-    printf("T%d pass: %s",i,tests[i] ? "true" : "false");
+  for(int i =0; i<5;i++){
+    printf("T%d pass: %s\n",i,tests[i] ? "true" : "false");
   }
   
 
