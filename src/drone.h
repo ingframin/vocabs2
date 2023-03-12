@@ -3,7 +3,7 @@
 #include "vec2.h"
 #include <stdint.h>
 #include <stdbool.h>
-#include "fligthplan.h"
+#include "flightplan.h"
 
 
 typedef struct

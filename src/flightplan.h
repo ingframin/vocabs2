@@ -7,8 +7,8 @@
 typedef struct flight_plan
 {
   vec2 *waypoints;//flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  size_t wp_len;  //flight plan length
-  size_t curr_wp; //Index of the current waypoint
+  size_t length;  //flight plan length
+  size_t current_wp; //Index of the current waypoint
   bool empty;
 }FlightPlan;
 

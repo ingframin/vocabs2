@@ -9,7 +9,7 @@
 #include "vec2.h"
 #include "obstacle.h"
 #define MAX_ANGLE 0.01
-#include "fligthplan.h"
+#include "flightplan.h"
 
 static uint32_t ids = 0;
 
@@ -77,7 +77,7 @@ void DR_move(Drone *d, double dt)
 	//This has to become a new function
 	if (v2_distance(d->position, FP_current_wp(d->fp)) < d->size)
 	{
-		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->curr_wp].x, d->waypoints[d->curr_wp].y);
+		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->current_wp].x, d->waypoints[d->current_wp].y);
 		FP_pop_waypoint(d->fp);
 	}
 

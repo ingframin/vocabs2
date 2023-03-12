@@ -9,14 +9,16 @@
 #include "main.h"
 #ifdef TEST
 #include "test_vec2.h"
+#include "test_flightplan.h"
 
 int main(int argc, char** argv){
   bool tests[] = {
     test_v2_mod(),
     test_v2_rotateHalfPI(),
-    test_v2_rotate()
+    test_v2_rotate(),
+    test_newFlightPlan()
   };
-  for(int i =0; i<3;i++){
+  for(int i =0; i<4;i++){
     printf("T%d pass: %s",i,tests[i] ? "true" : "false");
   }
   

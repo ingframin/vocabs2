@@ -63,7 +63,8 @@
         "stdlib.h": "c",
         "stdbool.h": "c",
         "main.h": "c",
-        "drone.h": "c"
+        "drone.h": "c",
+        "flightplan.h": "c"
     },
     "FSharp.suggestGitignore": false
 }
