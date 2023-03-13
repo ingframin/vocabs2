@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 
   printf("Rate:\tPcrash:\n");
   omp_set_num_threads(num_threads);
+//The simulation code should go into a separate function
 #pragma omp parallel
   {
 
@@ -76,7 +77,7 @@ int main(int argc, char *argv[])
         
 
         rate = rates[i];
-
+        //Timer should be part of the simulation object
         bool running = true;
         uint64_t timer = 0;
 
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
             // if (COM_broadcast(d1.position, d2.position, sys, l))
             if (COM_broadcast_Pint(0.5,0.5,0.0))
             {
-
+              
               DR_avoid(&d2, &d1, error);
               DR_avoid(&d1, &d2, error);
               
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
           {
             running = false;
           }
-          
+          //This should be improved for better collision detection
           if (v2_distance(d1.position, d2.position) < (d1.size + d2.size)) 
           {
             omp_set_lock(&writelock);
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
           timer += 1;
         }//while
         // printf("Iter: %d",it);
+        //Fix for memory leak: flight plan within drones was allocated with malloc and never freed.
         DR_freeDrone(&d1);
         DR_freeDrone(&d2);
       } //iterations
