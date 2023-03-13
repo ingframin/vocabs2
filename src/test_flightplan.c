@@ -72,8 +72,8 @@ bool test_push_waypoint(){
     for(int i = 0; i<15;i++){
         FP_push_waypoint(fp,v2_addK(test_wp,i));
     }
-    printf("%u\n", fp->length);
-    for(int i =0;i<fp->length;i++){
+    printf("%llu\n", fp->length);
+    for(size_t i =0;i<fp->length;i++){
          printf("(%.9f,\t%.9f)\n",fp->waypoints[i].x,fp->waypoints[i].y);
     }
     return true;

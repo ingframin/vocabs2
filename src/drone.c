@@ -90,15 +90,12 @@ void DR_move(Drone *d, double dt)
 void DR_goto(Drone *d, vec2 waypoint)
 {
 
-	vec2 dir = v2_normalize(d->velocity);
-
 	vec2 dirp = v2_diff(waypoint, d->position);
 
 	dirp = v2_normalize(dirp);
+	double vmod = v2_mod(d->velocity);
 
-	double angle = v2_angle_between(dirp,dir);
-
-	d->velocity = v2_rotate(d->velocity, angle);
+	d->velocity = v2_scale(dirp,vmod);
 }
 
 bool DR_collision(Drone *d1, Drone *d2)

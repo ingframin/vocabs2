@@ -33,28 +33,39 @@ omp_lock_t writelock;
 int main(int argc, char *argv[])
 {
   vec2 p1 = {500.0, 500.0};
-  vec2 p2 = {1000.0, 1000.0};
+  vec2 p2 = {120.0, 1000.0};
   Drone d1 = DR_newDrone(1.0, 1.0, 10.0, 0.0, 1);
   if(d1.fp == NULL){
     printf("error: fp == NULL");
   }
+
   FP_push_waypoint(d1.fp, p2);
   FP_push_waypoint(d1.fp, p1);
-  for(int i=0;i<3;i++){
-    printf("Waypoints: %.6f;%.6f\n",d1.fp->waypoints[i]);
+
+  for(int i=0;i<2;i++){
+    printf("Waypoints: %.6f;%.6f\n",d1.fp->waypoints[i].x,d1.fp->waypoints[i].y);
   }
   bool running = true;
-  dt=1.0;
-  // while(running){
-  //   DR_move(&d1, dt);
-  //   printf("Position: %.6f;%.6f\n",d1.position.x,d1.position.y);
-  //   printf("Velocity: %.6f;%.6f\n",d1.velocity.x,d1.velocity.y);
-  //   printf("Current waypoint: %.6f;%.6f\n",FP_current_wp(d1.fp));
-  //   if (d1.fp->empty)
-  //   {
-  //     running = false;
-  //   }
-  // }
+  dt=1e-3;
+  
+  while(running){
+    DR_move(&d1, dt);
+    // printf("Position: %.6f;%.6f\n",d1.position.x,d1.position.y);
+    // printf("Velocity: %.6f;%.6f\n",d1.velocity.x,d1.velocity.y);
+    // printf("Current waypoint: %.6f;%.6f\n",FP_current_wp(d1.fp));
+    if(v2_distance(d1.position,p1)<d1.size){
+      printf("Position: %.6f;%.6f\n",d1.position.x,d1.position.y);
+      printf("Velocity: %.6f;%.6f\n",d1.velocity.x,d1.velocity.y);
+    }
+    if(v2_distance(d1.position,p2)<d1.size){
+      printf("Position: %.6f;%.6f\n",d1.position.x,d1.position.y);
+      printf("Velocity: %.6f;%.6f\n",d1.velocity.x,d1.velocity.y);
+    }
+    if (d1.fp->empty)
+    {
+      running = false;
+    }
+  }
   
   // parseArguments(argc,argv);
   
