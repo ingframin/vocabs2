@@ -18,7 +18,8 @@ int main(int argc, char** argv){
     test_v2_rotateHalfPI(),
     test_v2_rotate(),
     test_newFlightPlan(),
-    test_push_waypoint()
+    test_push_waypoint(),
+    test_pop_waypoint()
   };
   for(int i =0; i<5;i++){
     printf("T%d pass: %s\n",i,tests[i] ? "true" : "false");

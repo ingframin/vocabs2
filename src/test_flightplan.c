@@ -17,8 +17,8 @@ bool test_newFlightPlan(){
         printf("failed pointer initialization: fp->waypoints == NULL\n");
         goto test_failed;
     }
-    if(fp->current_wp != 0){
-        printf("failed initialization: fp->current_wp != 0\n");
+    if(fp->current_wp != -1){
+        printf("failed initialization: fp->current_wp != -1\n");
         goto test_failed;
     } 
 	if(fp->length != 4){
@@ -53,8 +53,8 @@ bool test_push_waypoint(){
 
     FP_push_waypoint(fp,test_wp);
     
-    if(fp->current_wp != 1){
-        printf("failed increment current wp index: fp->current_wp != 1\n");
+    if(fp->current_wp != 0){
+        printf("failed increment current wp index: fp->current_wp != 0\n");
         goto test_failed;
     } 
 	if(fp->length != 4){
@@ -85,7 +85,23 @@ test_failed:
 }
 // //pop "removes" the top waypoint (but it does not shrink the waypoint array)
 // //If the FlightPlan is empty, returns the 0-position waypoint
-// bool test_pop_waypoint();
+bool test_pop_waypoint(){
+    FlightPlan* fp = FP_newFlightPlan(4);
+    vec2 test_wp = {1.0,2.0};
+    for(int i = 0; i<15;i++){
+        FP_push_waypoint(fp,v2_addK(test_wp,i));
+    }
+    
+    for(int i = 15; i>-1;i--){
+        FP_pop_waypoint(fp);
+        printf("Current waypoint index: %.lld\n",fp->current_wp);
+        vec2 cwp = FP_current_wp(fp);
+        printf("Current Waypoint: %.6f;%.6f\n",cwp.x,cwp.y);
+        printf("FlightPlan empty?: %s;\n",(fp->empty)?"true":"false");
+    }
+    return true;
+
+}
 // //get the current waypoint
 // bool test_current_wp();
 // //Free memory used by a FlightPlan

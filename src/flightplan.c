@@ -12,7 +12,7 @@ FlightPlan* FP_newFlightPlan(size_t length){
 		printf("failed init");
 	}
 	fp->waypoints = malloc(length*sizeof(vec2));
-	fp->current_wp = 0;
+	fp->current_wp = -1;
 	fp->length = length;
     fp->empty = true;
 	return fp;
@@ -20,6 +20,7 @@ FlightPlan* FP_newFlightPlan(size_t length){
 
 //Increase the waypoint array size if needed
 void FP_push_waypoint(FlightPlan *fp, vec2 wp){
+	fp->current_wp += 1;
 	if (fp->current_wp == (fp->length - 1))
 	{
 		fp->length = (fp->length + (fp->length >> 1));
@@ -27,28 +28,33 @@ void FP_push_waypoint(FlightPlan *fp, vec2 wp){
 	}
 	
 	fp->waypoints[fp->current_wp] = wp;
-	fp->current_wp += 1;
+	
     fp->empty = false;
 }
 
 //pop "removes" the top waypoint (but it does not shrink the waypoint array)
 //If the FlightPlan is empty, returns the 0-position waypoint
 vec2 FP_pop_waypoint(FlightPlan *fp){
-	
-    if(fp->current_wp == 0){
+	vec2 ret;
+    if(fp->current_wp <= 0){
         fp->empty = true;
-        
+		fp->current_wp = -1;
+        ret = fp->waypoints[0];
     }
     else{
         fp->current_wp -= 1;
+		ret = fp->waypoints[fp->current_wp];
     }
-	vec2 ret = fp->waypoints[fp->current_wp];
+	
 	return ret;
 
 }
 
 vec2 FP_current_wp(FlightPlan* fp){
-	return fp->waypoints[fp->current_wp-1];
+	if(fp->current_wp <=0){
+		return fp->waypoints[0];
+	}
+	return fp->waypoints[fp->current_wp];
 }
 
 void FP_free_FlightPlan(FlightPlan* fp){
