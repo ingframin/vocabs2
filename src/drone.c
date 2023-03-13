@@ -182,6 +182,6 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error)
 void DR_freeDrone(Drone *d)
 {
 	FP_free_FlightPlan(d->fp);
-	free(d);
+	// free(d);
 }
 

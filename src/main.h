@@ -4,7 +4,7 @@
 #define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
 #endif
 time_t t;
-uint32_t iterations = 100;
+uint32_t iterations = 10000;
 
 double dt = 1E-3; //seconds
 

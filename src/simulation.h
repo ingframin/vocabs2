@@ -3,8 +3,9 @@
 #include "drone.h"
 #include "vec2.h"
 
+//This structure contains the status of the Simulation
 typedef struct config{
-    Drone* drones;
+    Drone* drones;//This is the base of a list
     uint64_t num_drones;
     vec2* points;
     uint64_t num_points;
