@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <omp.h>
 #include "vec2.h"
+#include "flightplan.h"
 #include "drone.h"
 #include "comms.h"
 #include "main.h"
@@ -34,6 +35,9 @@ int main(int argc, char *argv[])
   vec2 p1 = {500.0, 500.0};
   vec2 p2 = {1000.0, 1000.0};
   Drone d1 = DR_newDrone(1.0, 1.0, 10.0, 0.0, 1);
+  if(d1.fp == NULL){
+    printf("error: fp == NULL");
+  }
   FP_push_waypoint(d1.fp, p2);
   FP_push_waypoint(d1.fp, p1);
   for(int i=0;i<3;i++){

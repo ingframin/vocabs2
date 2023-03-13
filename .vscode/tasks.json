@@ -41,6 +41,26 @@
             "group": "build"
         },
         {
+            "label": "build gcc",
+            "type": "shell",
+            "command": "C:\\mingw64\\bin\\gcc.exe",
+            "args": [
+                "./src/*.c",
+                "-o./build/vocabs2.exe",
+                "-g",
+                "-Wall",
+                "-std=c11",
+                "-march=native",
+                "-Wall",
+                "-Wextra",
+                "-Wfatal-errors",
+                //"-O3",
+                "-finline-functions",
+                "-fopenmp"
+            ],
+            "group": "build"
+        },
+        {
             "label": "build test",
             "type": "shell",
             "command": "clang",
