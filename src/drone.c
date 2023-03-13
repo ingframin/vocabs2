@@ -67,7 +67,7 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 	d.velocity.x = vx;
 	d.velocity.y = vy;
 	d.fp = FP_newFlightPlan(4);
-	FP_push_waypoint(d.fp,d.position);
+	// FP_push_waypoint(d.fp,d.position);
 	d.size = size;
 	return d;
 }
