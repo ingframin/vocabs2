@@ -8,13 +8,19 @@ uint32_t iterations = 10000;
 
 double dt = 1E-3; //seconds
 
+/*This is supposed to be the positional error in m
+It's an ugly solution, it should be corrected.
+Maybe it makes more sense to have an error_x and error_y
+or make it a struct.
+*/
 double error = 0;
-
+/*These are not rates but timings in ms.
+The timings are not integers but the timer is.
+This should be changed or even calculated at runtime.
+*/
 double rates[] = 
 {
-  // 100000.000,
-  // 20000.000,
-  // 10000.000,
+  
   2000.000,
   1000.000,
   500.000,
@@ -88,6 +94,7 @@ void parseArguments(int argc, char *argv[]){
 
 }
 
+/*Maybe I should add some error checking? :-/*/
 void saveResults(const char* filename, double collisions[]){
   FILE *results;
   fopen_s(&results,filename, "a");
@@ -96,14 +103,14 @@ void saveResults(const char* filename, double collisions[]){
   fprintf(results, "Speed: %.3f\n", speed);
   switch (prob)
   {
-  case 'E':
-    fprintf(results, "Wi-Fi beacons\n");
-    break;
-  case 'C':
-    fprintf(results, "ADS-B\n");
-    break;
-  default:
-    fprintf(results, "No loss\n");
+    case 'E':
+      fprintf(results, "Wi-Fi beacons\n");
+      break;
+    case 'C':
+      fprintf(results, "ADS-B\n");
+      break;
+    default:
+      fprintf(results, "No loss\n");
   }
 
   for (uint32_t k = 0; k < len_rates; k++)
@@ -114,5 +121,4 @@ void saveResults(const char* filename, double collisions[]){
   fclose(results);
 }
 
-double p_interf[] = {0.0,0.1,0.2,0.3,0.4,0.5};
 #endif
