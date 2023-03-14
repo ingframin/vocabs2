@@ -102,15 +102,12 @@ int main(int argc, char *argv[])
           DR_move(&d2, dt);
           
           
-          if (d1.fp->empty)
+          if (FP_isFlightPlanEmpty(d1.fp) || FP_isFlightPlanEmpty(d2.fp))
           {
             running = false;
           }
 
-          if (d2.fp->empty)
-          {
-            running = false;
-          }
+
           //This should be improved for better collision detection
           if (v2_distance(d1.position, d2.position) < (d1.size + d2.size)) 
           {

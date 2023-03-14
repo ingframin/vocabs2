@@ -14,7 +14,6 @@ FlightPlan* FP_newFlightPlan(size_t length){
 	fp->waypoints = malloc(length*sizeof(vec2));
 	fp->current_wp = -1;
 	fp->length = length;
-    fp->empty = true;
 	return fp;
 }
 
@@ -57,6 +56,10 @@ vec2 FP_current_wp(FlightPlan* fp){
 	return fp->waypoints[fp->current_wp];
 }
 
+//Are there waypoints in the FlightPlan?
+bool FP_isFlightPlanEmpty(FlightPlan* fp){
+	return (fp->current_wp >= 0)
+}
 void FP_free_FlightPlan(FlightPlan* fp){
 	free(fp->waypoints);
 	free(fp);

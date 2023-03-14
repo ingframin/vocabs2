@@ -9,7 +9,7 @@ typedef struct flight_plan
   vec2 *waypoints;//flight plan (array of waypoints that rescales automagically when adding new waypoints)
   size_t length;  //flight plan length
   int64_t current_wp; //Index of the current waypoint
-  bool empty;
+
 }FlightPlan;
 
 //Initialize a new fligth plan
@@ -22,6 +22,8 @@ void FP_push_waypoint(FlightPlan *fp, vec2 wp);
 vec2 FP_pop_waypoint(FlightPlan *fp);
 //get the current waypoint
 vec2 FP_current_wp(FlightPlan* fp);
+//Are there waypoints in the FlightPlan?
+bool FP_isFlightPlanEmpty(FlightPlan* fp);
 //Free memory used by a FlightPlan
 void FP_free_FlightPlan(FlightPlan* fp);
 #endif

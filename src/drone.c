@@ -13,7 +13,7 @@
 
 static uint32_t ids = 0;
 
-double generateGaussian(double mean, double stdDev)
+inline double generateGaussian(double mean, double stdDev)
 {
 	static double spare;
 	static bool hasSpare = false;
@@ -76,11 +76,10 @@ void DR_move(Drone *d, double dt)
 {
 	//This has to become a new function
 	if (v2_distance(d->position, FP_current_wp(d->fp)) < d->size)
-	{
-		// printf("D%d Reached: %.3f,%.3f\n", d->id, d->waypoints[d->current_wp].x, d->waypoints[d->current_wp].y);
+	{	
 		FP_pop_waypoint(d->fp);
 	}
-
+	
 	DR_goto(d,FP_current_wp(d->fp));
 
 	vec2 dP = v2_scale(d->velocity, dt);
