@@ -25,7 +25,7 @@ bool test_newFlightPlan(){
         printf("failed initialization: fp->length != 4\n");
         goto test_failed;
     } 
-    if(!fp->empty){
+    if(FP_isFlightPlanEmpty(fp)){
         printf("failed initialization: fp not empty\n");
         goto test_failed;
     } 
@@ -61,7 +61,7 @@ bool test_push_waypoint(){
         printf("failed initialization: fp->length != 4\n");
         goto test_failed;
     } 
-    if(fp->empty){
+    if(fp->current_wp<0){
         printf("failed initialization: fp is empty\n");
         goto test_failed;
     } 
@@ -97,7 +97,7 @@ bool test_pop_waypoint(){
         printf("Current waypoint index: %.lld\n",fp->current_wp);
         vec2 cwp = FP_current_wp(fp);
         printf("Current Waypoint: %.6f;%.6f\n",cwp.x,cwp.y);
-        printf("FlightPlan empty?: %s;\n",(fp->empty)?"true":"false");
+        printf("FlightPlan empty?: %s;\n",(FP_isFlightPlanEmpty(fp))?"true":"false");
     }
     return true;
 
