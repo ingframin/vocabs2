@@ -51,6 +51,7 @@ int si = 0;
 uint64_t rate = 1;
 char prob = 'A';
 RFsystem sys;
+//loss probability x1000
 double l = 1000.0;
 
 void parseArguments(int argc, char *argv[]){

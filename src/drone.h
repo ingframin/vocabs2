@@ -8,7 +8,7 @@
 
 typedef struct
 {
-  uint32_t id;      //Unique ID
+  uint64_t id;      //Unique ID
   vec2 position;    // current position
   vec2 velocity;    //current velocity
   double size;      //Physical size of the drone
