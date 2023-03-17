@@ -123,10 +123,8 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 	Drone dx = *d2;
 	if (error > 0)
 	{
-		vec2 pos_error;
-		pos_error.x = generateGaussian(0, 5);
-		pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
-
+		vec2 pos_error= generateGaussian2D(0, error);
+		
 		dx.position = v2_add(dx.position, pos_error);
 	}
 
@@ -181,6 +179,6 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error)
 void DR_freeDrone(Drone *d)
 {
 	FP_free_FlightPlan(d->fp);
-	// free(d);
+	
 }
 

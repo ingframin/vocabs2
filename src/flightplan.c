@@ -28,29 +28,24 @@ void FP_push_waypoint(FlightPlan *fp, vec2 wp){
 	
 	fp->waypoints[fp->current_wp] = wp;
 	
-    fp->empty = false;
 }
 
 //pop "removes" the top waypoint (but it does not shrink the waypoint array)
 //If the FlightPlan is empty, returns the 0-position waypoint
 vec2 FP_pop_waypoint(FlightPlan *fp){
 	vec2 ret;
-    if(fp->current_wp <= 0){
-        fp->empty = true;
+    if(fp->current_wp < 0){
+        
 		fp->current_wp = -1;
-        ret = fp->waypoints[0];
+        return fp->waypoints[0];
     }
-    else{
-        fp->current_wp -= 1;
-		ret = fp->waypoints[fp->current_wp];
-    }
-	
-	return ret;
-
+    
+    fp->current_wp -= 1;
+	return fp->waypoints[fp->current_wp];    
 }
 
 vec2 FP_current_wp(FlightPlan* fp){
-	if(fp->current_wp <=0){
+	if(fp->current_wp <0){
 		return fp->waypoints[0];
 	}
 	return fp->waypoints[fp->current_wp];
@@ -58,7 +53,7 @@ vec2 FP_current_wp(FlightPlan* fp){
 
 //Are there waypoints in the FlightPlan?
 bool FP_isFlightPlanEmpty(FlightPlan* fp){
-	return (fp->current_wp >= 0)
+	return (fp->current_wp < 0)
 }
 void FP_free_FlightPlan(FlightPlan* fp){
 	free(fp->waypoints);
