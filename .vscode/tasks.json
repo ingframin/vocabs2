@@ -43,7 +43,7 @@
         {
             "label": "build gcc",
             "type": "shell",
-            "command": "C:\\mingw64\\bin\\gcc.exe",
+            "command": "gcc",
             "args": [
                 "./src/*.c",
                 "-o./build/vocabs2.exe",
