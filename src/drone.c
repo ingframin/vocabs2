@@ -119,7 +119,12 @@ bool DR_collision(Drone *d1, Drone *d2)
 
 void DR_avoid(Drone *d, Drone *d2, double error)
 {
+	/*
+	* This needs a complete rewrite...
+	*/
 	Drone dx = *d2;
+
+	//This should be part of the communication rather than the avoidance function
 	if (error > 0)
 	{
 		vec2 pos_error= generateGaussian2D(0, error);
@@ -129,14 +134,24 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 
 	if (DR_collision(d, &dx))
 	{
-
+		/*The goal of this code is to only calculate the maneuver if the incoming drone
+		* is on the leftof the current drone.
+		* This is not actually necessary and both drones can share the rsponsibility of avoiding each other.
+		* This algorithm also does not take into account the presence of other drones.
+		*/
 		vec2 dir = v2_normalize(d->velocity);
+		// This whole mess could just be replaced by a coordinate conversion.
+		// Each drone should place the others in its own frame of reference.
+		// In reality this could be something like East North Up (or Down) coordinates rather than Earth Centered Earth Fixed coordinates.
+		// On a larger scale, it might even be worth using something like WGS84.
 		double theta = atan2(dir.y, dir.x);
 		vec2 p2rel = v2_diff(dx.position, d->position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
+
 		if (fabs(thetaP2) > fabs(theta))
 		{
 			vec2 escape = v2_rotateHalfPI(d->velocity, -1);
+			// If only C had function composition like Haskell...
 			escape = v2_normalize(escape);
 			escape = v2_scale(escape, 4 * (d->size + dx.size));
 			escape = v2_add(escape, d->position);
