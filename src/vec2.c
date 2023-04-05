@@ -141,19 +141,19 @@ double v2_angle_between(vec2 v1, vec2 v2){
 
 }
 
-vec2 interpolate(vec2 vs[], size_t vs_len, double t){
+vec2 v2_interpolate(vec2 vs[], size_t vs_len, double t){
   if(vs_len == 1){
       return vs[0];
   }
-  vec2* vls = malloc(vs_len-1);
+  
   for(size_t L = vs_len-1; L>1; L--){
     
     for(size_t i = 1; i < L; i++){
-      vls[i-1] = v2_lerp(vs[i],vs[i-1],t);
+      vs[i-1] = v2_lerp(vs[i],vs[i-1],t);
     }
 
   }
-  vec2 res = vls[0];
-  free(vls);
+  vec2 res = vs[0];
+  
   return res; 
 }
