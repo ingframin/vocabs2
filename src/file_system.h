@@ -13,5 +13,5 @@ typedef struct content{
 //Allocates an array on the heap containing the text file content
 //!!Remember to free the returned array when done!!!
 Text read_text_file(const char* filename);
-
+void write_text_file(const char* filename, const Text* text);
 #endif

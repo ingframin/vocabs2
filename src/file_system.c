@@ -24,3 +24,20 @@ Text read_text_file(const char* filename){
 
     return cnt;
 }
+
+void write_text_file(const char* filename, const Text* text) {
+    FILE* fp = fopen(filename, "w");
+    if (fp == NULL) {
+        fprintf(stderr, "Error: could not open file %s for writing\n", filename);
+        exit(1);
+    }
+
+    size_t len = text->size;
+    size_t bytes_written = fwrite(text->text, sizeof(char), len, fp);
+    if (bytes_written != len) {
+        fprintf(stderr, "Error: could not write entire file %s\n", filename);
+        exit(1);
+    }
+
+    fclose(fp);
+}
