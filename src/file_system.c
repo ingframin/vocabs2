@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-Content read_text_file(const char* filename){
+Text read_text_file(const char* filename){
     //Open file and create a buffer of the corresponding size
     FILE* fp = fopen(filename,"r");
     long size;
     FILE_SIZE(fp,size);
     printf("%d\n",size);
     //size+1 to be able to add a '\0' at the end
-    Content cnt;
+    Text cnt;
     cnt.size = size;
     cnt.text = calloc(sizeof(char)*(size+1),size+1);
     char buffer[1024];
