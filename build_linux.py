@@ -1,9 +1,5 @@
 from subprocess import run
-run(["clang", "./src/main.c",
-     "./src/drone.c",
-     "./src/vec2.c",
-     "./src/comms.c",
-     "./src/obstacle.c",
+run(["clang ./src/*.c",
      "-o./build/vocabs2",
      "-Wall",
      "-std=c11",

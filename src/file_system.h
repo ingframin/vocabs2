@@ -1,8 +1,9 @@
 #ifndef FILE_SYSTEM_H
 #define FILE_SYSTEM_H
-#define FILE_SIZE(fp, size)  fseeko(fp,0L,SEEK_END);\
-    size = ftello(fp);\
-    fseeko(fp,0L,SEEK_SET);
+#include <stdio.h>
+#define FILE_SIZE(fp, size)  fseek(fp,0L,SEEK_END);\
+    size = ftell(fp);\
+    fseek(fp,0L,SEEK_SET);
 #include <stdint.h>
 
 typedef struct content{
