@@ -5,8 +5,9 @@
 
 Text read_text_file(const char* filename){
     //Open file and create a buffer of the corresponding size
-    FILE* fp = fopen(filename,"r");
-    long size;
+    FILE* fp;
+    fopen_s(&fp,filename,"r");
+    int size;
     FILE_SIZE(fp,size);
     printf("%d\n",size);
     //size+1 to be able to add a '\0' at the end
@@ -16,7 +17,7 @@ Text read_text_file(const char* filename){
     char buffer[1024];
     //Read content
     while(fgets(buffer, 1024, fp)!=NULL){
-        strcat(cnt.text,buffer);
+        strcat_s(cnt.text,size,buffer);
     };
     
     cnt.text[size] = '\0';
@@ -26,7 +27,8 @@ Text read_text_file(const char* filename){
 }
 
 void write_text_file(const char* filename, const Text* text) {
-    FILE* fp = fopen(filename, "w");
+    FILE* fp; 
+    fopen_s(&fp,filename, "w");
     if (fp == NULL) {
         fprintf(stderr, "Error: could not open file %s for writing\n", filename);
         exit(1);

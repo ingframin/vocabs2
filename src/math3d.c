@@ -19,6 +19,7 @@ Cone newCone(vec3 Sc, double radius, vec3 P){
     double h = l*cos(c.aperture/2);
     vec3 cp = v3_diff(Sc,P);
     c.axis = v3_scale(cp,h);
+    return c;
 }
 
 

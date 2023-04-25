@@ -6,7 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-FlightPlan* FP_newFlightPlan(size_t length){
+FlightPlan* FP_newFlightPlan(int64_t length){
 	FlightPlan* fp = malloc(sizeof(FlightPlan));
 	if(fp == NULL){
 		printf("failed init");

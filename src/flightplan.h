@@ -7,13 +7,13 @@
 typedef struct flight_plan
 {
   vec2 *waypoints;//flight plan (array of waypoints that rescales automagically when adding new waypoints)
-  size_t length;  //flight plan length
+  int64_t length;  //flight plan length
   int64_t current_wp; //Index of the current waypoint
 
 }FlightPlan;
 
 //Initialize a new fligth plan
-FlightPlan* FP_newFlightPlan(size_t length);
+FlightPlan* FP_newFlightPlan(int64_t length);
 //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
 //Increase the waypoint array size if needed
 void FP_push_waypoint(FlightPlan *fp, vec2 wp);
