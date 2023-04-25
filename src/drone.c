@@ -107,7 +107,7 @@ bool DR_collision(Drone *d1, Drone *d2)
 	}
 	vec2 ds = v2_add(dif, d1->position);
 
-	barycoords bc = barycentric(d1->position, o.T2, o.T1, ds);
+	barycoords bc = v2_barycentric(d1->position, o.T2, o.T1, ds);
 
 	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
 	{

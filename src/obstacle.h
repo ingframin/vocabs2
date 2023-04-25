@@ -1,7 +1,7 @@
 #ifndef OBSTACLE_H
 #define OBSTACLE_H
 #include "vec2.h"
-//Struct to keep barycentric coordinates
+//Struct to keep v2_barycentric coordinates
 typedef struct
 {
   double alpha;
@@ -21,5 +21,5 @@ typedef struct
 } Obstacle;
 
 Obstacle compute_obstacle(vec2 pos1, vec2 pos2, double size1, double size2);
-barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P);
+barycoords v2_barycentric(vec2 A, vec2 B, vec2 C, vec2 P);
 #endif

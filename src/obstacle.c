@@ -47,7 +47,7 @@ Obstacle compute_obstacle(vec2 pos1, vec2 pos2, double size1, double size2)
 	return o;
 }
 
-barycoords barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
+barycoords v2_barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
 {
 	barycoords bc;
 	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
