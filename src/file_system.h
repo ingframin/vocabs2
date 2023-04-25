@@ -5,6 +5,10 @@
     size = ftell(fp);\
     fseek(fp,0L,SEEK_SET);
 #include <stdint.h>
+#ifdef __unix
+#define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
+#define strcat_s(dest,size,source) strcat((dest),(source))
+#endif
 
 typedef struct content{
     char* text;
