@@ -1,4 +1,6 @@
+import os
 
+copyright = """
 /* 
 Vocabs2 - velocity obstacle for drones simulator
 Copyright (C) 2023  Franco Minucci
@@ -17,22 +19,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef TEST_FLIGHTPLAN
-#define TEST_FLIGHTPLAN
-#include "flightplan.h"
-#include <stdbool.h>
+"""
 
-//Initialize a new fligth plan
-bool test_newFlightPlan();
-//Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
-//Increase the waypoint array size if needed
-bool test_push_waypoint();
-//pop "removes" the top waypoint (but it does not shrink the waypoint array)
-//If the FlightPlan is empty, returns the 0-position waypoint
-bool test_pop_waypoint();
-//get the current waypoint
-bool test_current_wp();
-//Free memory used by a FlightPlan
-bool test_free_FlightPlan();
+for sf in os.listdir('./src'):
+    with open('./src/'+sf,'r') as srcfile:
+        content = srcfile.read()
 
-#endif
+    with open('./src/'+sf,'w') as srcfile:
+        newcnt = copyright+content
+        srcfile.write(newcnt)
