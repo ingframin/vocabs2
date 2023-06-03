@@ -42,10 +42,10 @@ vec2 v2_rotate(vec2 v, double angle)
     return v2_rotatePI(v);
   }
   if(fabs(angle - M_PI/2) < 1e-4){
-    return v2_rotateHalfPI(v);
+    return v2_rotateLeftHalfPI(v);
   }
   else if(fabs(angle + M_PI/2) < 1e-4){
-    return v2_rotatePI(v2_rotateHalfPI(v));
+    return v2_rotatePI(v2_rotateLeftHalfPI(v));
   }
 
   double m = v2_mod(v);
@@ -112,7 +112,7 @@ double v2_distance(vec2 v1, vec2 v2)
   return v2_mod(res);
 }
 
-vec2 v2_rotateHalfPI(vec2 v)
+vec2 v2_rotateLeftHalfPI(vec2 v)
 {
   vec2 vr;
   vr.x = -v.y;
@@ -120,6 +120,13 @@ vec2 v2_rotateHalfPI(vec2 v)
   return vr;
 }
 
+vec2 v2_rotateRightHalfPI(vec2 v)
+{
+  vec2 vr;
+  vr.x = v.y;
+  vr.y = -v.x;
+  return vr;
+}
 
 vec2 v2_rotatePI(vec2 p){
   vec2 ret;

@@ -436,11 +436,11 @@ bool test_v2_mod(){
 //         {-sqrt(2.0)/2,sqrt(2.0)/2}//pi/4 -> -pi/4
 //     };
 //     vec2 results[5];
-//     results[0] = v2_rotateHalfPI(vtest1);
-//     results[1] = v2_rotatePI(v2_rotateHalfPI(vtest1));
-//     results[2] = v2_rotateHalfPI(v2_rotateHalfPI(vtest1));
-//     results[3] = v2_rotateHalfPI(v2_rotateHalfPI(vtest1));
-//     results[4] = v2_rotateHalfPI(vtest2,+1);
+//     results[0] = v2_rotateLeftHalfPI(vtest1);
+//     results[1] = v2_rotatePI(v2_rotateLeftHalfPI(vtest1));
+//     results[2] = v2_rotateLeftHalfPI(v2_rotateLeftHalfPI(vtest1));
+//     results[3] = v2_rotateLeftHalfPI(v2_rotateLeftHalfPI(vtest1));
+//     results[4] = v2_rotateLeftHalfPI(vtest2,+1);
 
 //     printf("result;\texpected;\t -> result\n");
 //     for(uint32_t i = 0; i < 4;i++){
