@@ -35,18 +35,18 @@ vec2 v2_rotate(vec2 v, double angle)
   double C = cos(angle);
   double S = sin(angle);
 
-  // if(fabs(C)-1 < 1e-6 && C>0){
-  //    return v;
-  // }
-  // else if(fabs(C)-1 < 1e-6 && C<0){
-  //   return v2_rotatePI(v);
-  // }
-  // if(S-1.0 < 1e-5){
-  //   return v2_rotateHalfPI(v,1.0);
-  // }
-  // else if(S+1 < 1e-5){
-  //   return v2_rotateHalfPI(v,-1.0);
-  // }
+  if(fabs(angle) < 1e-4){
+     return v;
+  }
+  else if(fabs(angle - M_PI) < 1e-4){
+    return v2_rotatePI(v);
+  }
+  if(fabs(angle - M_PI/2) < 1e-4){
+    return v2_rotateHalfPI(v);
+  }
+  else if(fabs(angle + M_PI/2) < 1e-4){
+    return v2_rotatePI(v2_rotateHalfPI(v));
+  }
 
   double m = v2_mod(v);
   vec2 vn;
