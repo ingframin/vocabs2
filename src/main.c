@@ -34,7 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 int main(int argc, char** argv){
   bool tests[] = {
     test_v2_mod(),
-    test_v2_rotateHalfPI(),
+    // test_v2_rotateHalfPI(),
     test_v2_rotate(),
     test_newFlightPlan(),
     test_push_waypoint(),

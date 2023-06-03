@@ -112,11 +112,11 @@ double v2_distance(vec2 v1, vec2 v2)
   return v2_mod(res);
 }
 
-vec2 v2_rotateHalfPI(vec2 v, int sign)
+vec2 v2_rotateHalfPI(vec2 v)
 {
   vec2 vr;
-  vr.x = -sign * v.y;
-  vr.y = sign * v.x;
+  vr.x = -v.y;
+  vr.y = v.x;
   return vr;
 }
 
