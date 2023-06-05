@@ -49,6 +49,7 @@ int main(int argc, char** argv){
 }
 #else
 omp_lock_t writelock;
+/* This function is too big and needs to be split into multiple functions */
 
 int main(int argc, char *argv[])
 {
