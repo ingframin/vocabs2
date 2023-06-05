@@ -79,7 +79,7 @@ double esat(double dist)
 
 //Frequency in MHz
 double COM_log_distance_Prx(double frequency, double dist, double Ptx){
-  return ptx - 20*log10(dist) - 20*log10(frequency*1e6) - 20*log10(4*M_PI/C);
+  return Ptx - 20*log10(dist) - 20*log10(frequency*1e6) - 20*log10(4*M_PI/C);
 }
 
 

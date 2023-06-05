@@ -32,7 +32,7 @@ Text read_text_file(const char* filename){
     //size+1 to be able to add a '\0' at the end
     Text cnt;
     cnt.size = size;
-    cnt.text = calloc(sizeof(char)*(size+1),size+1);
+    cnt.text = (char*)calloc(sizeof(char)*(size+1),size+1);
     char buffer[1024];
     //Read content
     while(fgets(buffer, 1024, fp)!=NULL){
