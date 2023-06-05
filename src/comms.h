@@ -30,12 +30,28 @@ typedef enum
     ADS_B
 } RFsystem;
 
+typedef enum{
+  OOK,
+  FSK,
+  GFSK,
+  BPSK,
+  QPSK,
+  QAM
+} ModulationFamily;
+
+typedef struct modulation{
+  double bandwidth;
+  uint32_t bits_per_symbol;
+  uint32_t symbol_time;//Symbol t ime in ns
+  ModulationFamily family;
+}Modulation;
+
 typedef struct channel{
     double center_frequency;
     double bandwidth;
     double noise_power;
-    double (*compute_loss)(double,double,double);
 }Channel;
+
 
 //Compute receive probability
 //dist is the distance
@@ -45,8 +61,7 @@ double esat(double dist);
 //Compute the probability of packet errors
 //Assuming power in dB, frequency in MHz
 double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length);
-
+double COM_log_distance_Prx(double frequency, double dist, double Ptx);
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf, double loss);
-
 bool COM_broadcast_Pint(double Ptx, double Prx, double Pint);
 #endif
