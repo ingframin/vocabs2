@@ -9,7 +9,7 @@
                 "./src/*.c",
                 "-lm",
                 "-o./build/vocabs2",
-                "-std=c11",
+                //"-std=c11",
                 "-w",
                 "-march=native",
                 "-Wextra",

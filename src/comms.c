@@ -77,9 +77,15 @@ double esat(double dist)
     return r;
 }
 
+//Frequency in MHz
+double COM_log_distance_Prx(double frequency, double dist, double Ptx){
+  return Ptx - 20*log10(dist) - 20*log10(frequency*1e6) - 20*log10(4*M_PI/C);
+}
+
+
 double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length){
     //This should be a separate function and part of the channel model
-    double prx = ptx - 20*log10(dist) - 20*log10(chn->center_frequency*1e6) - 20*log10(4*M_PI/C);
+    double prx = COM_log_distance_Prx(chn->center_frequency,dist,ptx);
     //To be replaced with SINR
     //Interference: Compute received power from other drones + other sources
     double snr = pow(10, (prx-chn->noise_power)/10);

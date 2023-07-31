@@ -36,8 +36,9 @@ double v2_mod(vec2 v);
 //rotate
 vec2 v2_rotate(vec2 v, double angle);
 
-//rotate sign * PI/2
-vec2 v2_rotateHalfPI(vec2 v, int sign);
+//rotate PI/2
+vec2 v2_rotateLeftHalfPI(vec2 v);
+vec2 v2_rotateRightHalfPI(vec2 v);
 
 //rotate PI
 vec2 v2_rotatePI(vec2 v);

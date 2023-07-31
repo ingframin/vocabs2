@@ -27,12 +27,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 #include "vec2.h"
 #include "obstacle.h"
-#define MAX_ANGLE 0.01
 #include "flightplan.h"
 
 static uint64_t ids = 0;
 
-inline double generateGaussian(double mean, double stdDev)
+static inline double generateGaussian(double mean, double stdDev)
 {
 	static double spare;
 	static bool hasSpare = false;
@@ -58,7 +57,7 @@ inline double generateGaussian(double mean, double stdDev)
 	}
 }
 
-inline vec2 generateGaussian2D(double mean, double stdDev)
+static inline vec2 generateGaussian2D(double mean, double stdDev)
 {
 	
 	double u, v, s;
@@ -169,7 +168,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_rotateHalfPI(d->velocity, -1);
+			vec2 escape = v2_rotatePI(v2_rotateLeftHalfPI(d->velocity));
 			// If only C had function composition like Haskell...
 			escape = v2_normalize(escape);
 			escape = v2_scale(escape, 4 * (d->size + dx.size));
