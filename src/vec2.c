@@ -32,21 +32,31 @@ double v2_mod(vec2 v)
 
 vec2 v2_rotate(vec2 v, double angle)
 {
-  double C = cos(angle);
-  double S = sin(angle);
+  /*
+  * Preliminary checks:
+    - if the angle is very small, no need to rotate
+    - if the angle is close to PI, simply reverse the vector
+    - if the angle is close to pi/2 rotate by pi/2
+    - Otherwise, calculate the actual rotation.
+    Rotating by small angles close to extremes (pi, pi/2) 
+    can cause numerical instability because of floating point errors.
 
+  */
   if(fabs(angle) < 1e-4){
      return v;
   }
   else if(fabs(angle - M_PI) < 1e-4){
-    return v2_rotatePI(v);
+    return v2_reverse(v);
   }
   if(fabs(angle - M_PI/2) < 1e-4){
     return v2_rotateLeftHalfPI(v);
   }
   else if(fabs(angle + M_PI/2) < 1e-4){
-    return v2_rotatePI(v2_rotateLeftHalfPI(v));
+    return v2_reverse(v2_rotateLeftHalfPI(v));
   }
+  
+  double C = cos(angle);
+  double S = sin(angle);
 
   double m = v2_mod(v);
   vec2 vn;
@@ -128,7 +138,7 @@ vec2 v2_rotateRightHalfPI(vec2 v)
   return vr;
 }
 
-vec2 v2_rotatePI(vec2 p){
+vec2 v2_reverse(vec2 p){
   vec2 ret;
   ret.x = -p.x;
   ret.y = -p.y;

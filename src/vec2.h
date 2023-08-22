@@ -41,7 +41,7 @@ vec2 v2_rotateLeftHalfPI(vec2 v);
 vec2 v2_rotateRightHalfPI(vec2 v);
 
 //rotate PI
-vec2 v2_rotatePI(vec2 v);
+vec2 v2_reverse(vec2 v);
 
 //normalize
 vec2 v2_normalize(vec2 v);
