@@ -437,7 +437,7 @@ bool test_v2_mod(){
 //     };
 //     vec2 results[5];
 //     results[0] = v2_rotateLeftHalfPI(vtest1);
-//     results[1] = v2_rotatePI(v2_rotateLeftHalfPI(vtest1));
+//     results[1] = v2_reverse(v2_rotateLeftHalfPI(vtest1));
 //     results[2] = v2_rotateLeftHalfPI(v2_rotateLeftHalfPI(vtest1));
 //     results[3] = v2_rotateLeftHalfPI(v2_rotateLeftHalfPI(vtest1));
 //     results[4] = v2_rotateLeftHalfPI(vtest2,+1);

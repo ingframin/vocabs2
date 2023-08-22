@@ -31,7 +31,7 @@ bool test_v2_mod();
 bool test_v2_rotateHalfPI();
 
 //rotate PI
-bool test_v2_rotatePI();
+bool test_v2_reverse();
 
 //rotate
 bool test_v2_rotate();

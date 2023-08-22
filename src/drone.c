@@ -168,7 +168,7 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_rotatePI(v2_rotateLeftHalfPI(d->velocity));
+			vec2 escape = v2_reverse(v2_rotateLeftHalfPI(d->velocity));
 			// If only C had function composition like Haskell...
 			escape = v2_normalize(escape);
 			escape = v2_scale(escape, 4 * (d->size + dx.size));
