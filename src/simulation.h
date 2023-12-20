@@ -31,9 +31,8 @@ typedef struct config{
 
 } Configuration;
 
-void Conf_pushDrone(double x, double y, double vx, double vy, double size);
-void Conf_pushPoint(vec2 point);
-
-void Sim_run(const Configuration* const conf);
+Configuration* Conf_newConfiguration(const char* configfile);
+void Conf_freeConfiguration(Configuration* conf);
+void Sim_run(const Configuration* conf);
 
 #endif
