@@ -83,13 +83,17 @@ double COM_log_distance_Prx(double frequency, double dist, double Ptx){
 }
 
 
-double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length){
-    //This should be a separate function and part of the channel model
-    double prx = COM_log_distance_Prx(chn->center_frequency,dist,ptx);
+double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length, double(*recv_pwr)(double,double,double)){
+    //This is a function passed as parameters: it takes the frequency, distance, and transmitted power.
+    //It might be worth to pass some context as well. This is a limit of not having Classes.
+    //Maybe I should consider moving to C++ or use another pattern?
+    double prx = recv_pwr(chn->center_frequency,dist,ptx);
     //To be replaced with SINR
     //Interference: Compute received power from other drones + other sources
     double snr = pow(10, (prx-chn->noise_power)/10);
-    /*  Assuming 1 bit per symbol and binary modulation
+    /*
+    *   Maybe this should go into a structure?  
+    *   Assuming 1 bit per symbol and binary modulation
     *   coherent detection
     *   Additive White Gaussian Noise
     */

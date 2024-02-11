@@ -60,7 +60,7 @@ double esat(double dist);
 
 //Compute the probability of packet errors
 //Assuming power in dB, frequency in MHz
-double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length);
+double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length, double(*recv_pwr)(double,double,double));
 double COM_log_distance_Prx(double frequency, double dist, double Ptx);
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf, double loss);
 bool COM_broadcast_Pint(double Ptx, double Prx, double Pint);
