@@ -104,7 +104,7 @@ vec3 v3_scale(vec3 v, double k){
 
 
 
-mat3x3 m33_product(mat3x3 m1, mat3x3 m2){
+mat3x3 m33_product_m33(mat3x3 m1, mat3x3 m2){
     mat3x3 m;
     //row 1 
     m.x1 = m1.x1 * m2.x1 + m1.y1 * m2.x2 + m1.z1 * m2.x3;
