@@ -92,7 +92,8 @@ double v3_angle_to_z(vec3 v);
 
 vec3 v3_barycentric(vec3 P, vec3 A, vec3 B, vec3 C);
 bool is_point_within_cone(vec3 P, Cone C);
-
+//linear interpolation between 2 points
+vec3 v3_lerp(vec3 p1, vec3 p2, double t);
 
 
 #endif

@@ -284,3 +284,8 @@ double v3_angle_to_z(vec3 v){
 }
 
 
+vec3 v3_lerp(vec3 p1, vec3 p2, double t){
+    vec3 a = v3_scale(p1,1.0-t);
+    vec3 b = v3_scale(p2,t);
+    return v3_add(a,b);
+}
