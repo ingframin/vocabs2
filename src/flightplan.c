@@ -56,11 +56,13 @@ vec2 FP_pop_waypoint(FlightPlan *fp){
     if(fp->current_wp < 0){
         
 		fp->current_wp = -1;
-        return fp->waypoints[0];
+		vec2 ZERO;
+        return ZERO;
     }
     
-    fp->current_wp -= 1;
-	return fp->waypoints[fp->current_wp];    
+	int current = fp->current_wp;
+	fp->current_wp -= 1;
+	return fp->waypoints[current];    
 }
 
 vec2 FP_current_wp(FlightPlan* fp){

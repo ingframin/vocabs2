@@ -1,3 +1,7 @@
+#include <stdbool.h>
+#include <stdlib.h>
+#include <math.h>
+
 static inline double generateGaussian(double mean, double stdDev)
 {
 	static double spare;
