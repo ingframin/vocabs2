@@ -5,7 +5,7 @@
 
 void parse_config(Text config){
     
-    for(int i = 0; i < config.size; i++){
+    for(uint32_t i = 0; i < config.size; i++){
 
     }
 

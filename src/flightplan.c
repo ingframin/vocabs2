@@ -27,9 +27,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 FlightPlan* FP_newFlightPlan(int64_t length){
 	FlightPlan* fp = (FlightPlan*)malloc(sizeof(FlightPlan));
-	if(fp == NULL){
-		printf("failed init");
-	}
 	fp->waypoints = (vec2*)malloc(length*sizeof(vec2));
 	fp->current_wp = -1;
 	fp->length = length;
@@ -52,17 +49,16 @@ void FP_push_waypoint(FlightPlan *fp, vec2 wp){
 //pop "removes" the top waypoint (but it does not shrink the waypoint array)
 //If the FlightPlan is empty, returns the 0-position waypoint
 vec2 FP_pop_waypoint(FlightPlan *fp){
+	fp->current_wp -= 1;
 	
     if(fp->current_wp < 0){
         
 		fp->current_wp = -1;
-		vec2 ZERO;
+		vec2 ZERO = {0,0};
         return ZERO;
     }
     
-	int current = fp->current_wp;
-	fp->current_wp -= 1;
-	return fp->waypoints[current];    
+	return fp->waypoints[fp->current_wp];    
 }
 
 vec2 FP_current_wp(FlightPlan* fp){
