@@ -37,7 +37,7 @@
                 "-O3",
                 "-finline-functions",
                 "-fopenmp",
-                "-fsanitize=address"
+                // "-fsanitize=address"
             ],
             "group": "build"
         },

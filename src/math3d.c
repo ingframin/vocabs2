@@ -25,6 +25,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
+#include <xmmintrin.h>
+#include <immintrin.h>
 
 
 
@@ -99,8 +101,41 @@ vec3 v3_scale(vec3 v, double k){
 }
 
 
+mat3x3 simd_m33_product_m33(mat3x3 m1, mat3x3 m2) {
+    mat3x3 m;
 
+    // Load the matrices into SIMD registers
+    __m256d m1_row1 = _mm256_setr_pd(m1.x1, m1.y1, 0.0, 0.0);
+    __m256d m1_row2 = _mm256_setr_pd(m1.z1, m1.x2, 0.0, 0.0);
+    __m256d m1_row3 = _mm256_setr_pd(m1.y2, m1.z2, 0.0, 0.0);
 
+    __m256d m2_row1 = _mm256_setr_pd(m2.x1, m2.y1, 0.0, 0.0);
+    __m256d m2_row2 = _mm256_setr_pd(m2.z1, m2.x2, 0.0, 0.0);
+    __m256d m2_row3 = _mm256_setr_pd(m2.y2, m2.z2, 0.0, 0.0);
+
+    // Perform the matrix multiplication using SIMD intrinsics
+    __m256d result_row1 = _mm256_add_pd(
+        _mm256_add_pd(_mm256_mul_pd(m1_row1, _mm256_permute4x64_pd(m2_row1, _MM_SHUFFLE(0, 0, 0, 0))), 
+                      _mm256_mul_pd(m1_row2, _mm256_permute4x64_pd(m2_row1, _MM_SHUFFLE(1, 1, 1, 1)))), 
+                      _mm256_mul_pd(m1_row3, _mm256_permute4x64_pd(m2_row1, _MM_SHUFFLE(2, 2, 2, 2))));
+
+    __m256d result_row2 = _mm256_add_pd(
+        _mm256_add_pd(_mm256_mul_pd(m1_row1, _mm256_permute4x64_pd(m2_row2, _MM_SHUFFLE(0, 0, 0, 0))), 
+                      _mm256_mul_pd(m1_row2, _mm256_permute4x64_pd(m2_row2, _MM_SHUFFLE(1, 1, 1, 1)))), 
+                      _mm256_mul_pd(m1_row3, _mm256_permute4x64_pd(m2_row2, _MM_SHUFFLE(2, 2, 2, 2))));
+
+    __m256d result_row3 = _mm256_add_pd(
+        _mm256_add_pd(_mm256_mul_pd(m1_row1, _mm256_permute4x64_pd(m2_row3, _MM_SHUFFLE(0, 0, 0, 0))), 
+                      _mm256_mul_pd(m1_row2, _mm256_permute4x64_pd(m2_row3, _MM_SHUFFLE(1, 1, 1, 1)))), 
+                      _mm256_mul_pd(m1_row3, _mm256_permute4x64_pd(m2_row3, _MM_SHUFFLE(2, 2, 2, 2))));
+
+    // Store the result back into the struct
+    _mm256_storeu_pd(&m.x1, result_row1);
+    _mm256_storeu_pd(&m.x2, result_row2);
+    _mm256_storeu_pd(&m.x3, result_row3);
+
+    return m;
+}
 
 
 
@@ -116,8 +151,8 @@ mat3x3 m33_product_m33(mat3x3 m1, mat3x3 m2){
     m.z2 = m1.x2 * m2.z1 + m1.y2 * m2.z2 + m1.z2 * m2.z3;
     //row 3
     m.x3 = m1.x3 * m2.x1 + m1.y3 * m2.x2 + m1.z3 * m2.x3;
-    m.y2 = m1.x3 * m2.y1 + m1.y3 * m2.y2 + m1.z3 * m2.y3;
-    m.z2 = m1.x3 * m2.z1 + m1.y3 * m2.z2 + m1.z3 * m2.z3;
+    m.y3 = m1.x3 * m2.y1 + m1.y3 * m2.y2 + m1.z3 * m2.y3;
+    m.z3 = m1.x3 * m2.z1 + m1.y3 * m2.z2 + m1.z3 * m2.z3;
 
     return m;
 
@@ -211,6 +246,51 @@ mat3x3 m33_rotation_XYZ(double alpha, double beta, double gamma){
     return res;
 }
 
+mat3x3 simd_m33_rotation_XYZ(double alpha, double beta, double gamma) {
+    double ca = cos(alpha);
+    double sa = sin(alpha);
+    double cb = cos(beta);
+    double sb = sin(beta);
+    double cg = cos(gamma);
+    double sg = sin(gamma);
+
+    // Load the scalar values into SIMD registers
+    __m256d scalar_ca = _mm256_set1_pd(ca);
+    // __m256d scalar_sa = _mm256_set1_pd(sa);
+    __m256d scalar_cb = _mm256_set1_pd(cb);
+    __m256d scalar_sb = _mm256_set1_pd(sb);
+    __m256d scalar_cg = _mm256_set1_pd(cg);
+    __m256d scalar_sg = _mm256_set1_pd(sg);
+
+    // Perform the scalar-vector multiplications
+    __m256d res_x1 = _mm256_fmadd_pd(_mm256_set_pd(0.0, sa * sb, cb * cg, cb * sg), scalar_ca, _mm256_mul_pd(_mm256_set1_pd(sb), scalar_sg));
+    __m256d res_x2 = _mm256_fmadd_pd(_mm256_set_pd(0.0, sa * sb, cb * sg, cb * cg), scalar_ca, _mm256_mul_pd(_mm256_set1_pd(sb), scalar_cg));
+    __m256d res_x3 = _mm256_sub_pd(_mm256_set1_pd(0.0), scalar_sb);
+
+    __m256d res_y1 = _mm256_add_pd(_mm256_mul_pd(_mm256_set_pd(0.0, -ca, sa, 0.0), scalar_cb), _mm256_mul_pd(_mm256_set_pd(0.0, sa, ca, 0.0), scalar_sb));
+    __m256d res_y2 = _mm256_add_pd(_mm256_mul_pd(_mm256_set_pd(0.0, -sa, -ca, 0.0), scalar_sb), _mm256_mul_pd(_mm256_set_pd(0.0, ca, -sa, 0.0), scalar_cb));
+    __m256d res_y3 = _mm256_mul_pd(_mm256_setr_pd(0.0, 0.0, 1.0, 0.0), scalar_cb);
+
+    __m256d res_z1 = _mm256_fmadd_pd(_mm256_set_pd(-sa * cb, ca * cb, 0.0, 0.0), scalar_sg, _mm256_mul_pd(_mm256_set1_pd(cb), scalar_cg));
+    __m256d res_z2 = _mm256_fmadd_pd(_mm256_set_pd(-sa * cb, ca * cb, 0.0, 0.0), scalar_cg, _mm256_mul_pd(_mm256_set1_pd(cb), scalar_sg));
+    __m256d res_z3 = _mm256_mul_pd(_mm256_setr_pd(0.0, 0.0, 1.0, 0.0), scalar_sb);
+
+    // Store the results back to the struct
+    mat3x3 res;
+    _mm256_storeu_pd(&res.x1, res_x1);
+    _mm256_storeu_pd(&res.x2, res_x2);
+    _mm256_storeu_pd(&res.x3, res_x3);
+
+    _mm256_storeu_pd(&res.y1, res_y1);
+    _mm256_storeu_pd(&res.y2, res_y2);
+    _mm256_storeu_pd(&res.y3, res_y3);
+
+    _mm256_storeu_pd(&res.z1, res_z1);
+    _mm256_storeu_pd(&res.z2, res_z2);
+    _mm256_storeu_pd(&res.z3, res_z3);
+
+    return res;
+}
 
 
 mat3x3 m33_scale_xyz(double k){
