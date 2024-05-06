@@ -29,6 +29,15 @@ typedef struct vec3
     
 } vec3;
 
+typedef struct vec4
+{
+    double x;
+    double y;
+    double z;
+    double w;
+    
+} vec4;
+
 typedef struct mat3x3{
     double x1;
     double y1;
@@ -43,6 +52,24 @@ typedef struct mat3x3{
     double z3;
 
 } mat3x3;
+
+typedef struct mat4x4{
+    double x1;
+    double y1;
+    double z1;
+    double w1;
+
+    double x2;
+    double y2;
+    double z2;
+    double w2;
+
+    double x3;
+    double y3;
+    double z3;
+    double w3;
+
+} mat4x4;
 
 
 typedef struct Cone{
@@ -71,6 +98,7 @@ double v3_angle_between(vec3 v1, vec3 v2);
 double v3_dot(vec3 v1, vec3 v2);
 vec3 v3_cross(vec3 v1, vec3 v2);
 vec3 v3_scale(vec3 v, double k);
+
 mat3x3 m33_product_m33(mat3x3 m1, mat3x3 m2);
 vec3 m33_product_v3(mat3x3 m1, vec3 v2);
 
