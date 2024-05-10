@@ -99,6 +99,9 @@ double v3_dot(vec3 v1, vec3 v2);
 vec3 v3_cross(vec3 v1, vec3 v2);
 vec3 v3_scale(vec3 v, double k);
 
+mat3x3 simd_m33_product_m33(mat3x3 m1, mat3x3 m2);
+
+
 mat3x3 m33_product_m33(mat3x3 m1, mat3x3 m2);
 vec3 m33_product_v3(mat3x3 m1, vec3 v2);
 

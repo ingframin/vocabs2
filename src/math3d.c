@@ -84,6 +84,25 @@ double v3_angle_between(vec3 v1, vec3 v2){
 
 }
 
+vec3 v3_angle_to_axis(vec3 v){
+    double modv = v3_mod(v);
+    double cx = v.x/modv;
+    double cy = v.y/modv;
+    double cz = v.z/modv;
+
+    if( cx<-1.0 ) cx = -1.0;
+    if( cx>1.0 ) cx = 1.0;
+    if( cy<-1.0 ) cy = -1.0;
+    if( cy>1.0 ) cy = 1.0;
+    if( cz<-1.0 ) cz = -1.0;
+    if( cz>1.0 ) cz = 1.0;
+
+    vec3 angles = {acos(cx),acos(cy),acos(cz)};
+    return angles;
+
+
+}
+
 vec3 v3_cross(vec3 v1, vec3 v2){
     vec3 v = {v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x};
     return v;
