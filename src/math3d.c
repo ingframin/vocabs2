@@ -86,21 +86,19 @@ double v3_angle_between(vec3 v1, vec3 v2){
 
 vec3 v3_angle_to_axis(vec3 v){
     double modv = v3_mod(v);
-    double cx = v.x/modv;
-    double cy = v.y/modv;
-    double cz = v.z/modv;
+    double inv_modv = 1.0 / modv;
 
-    if( cx<-1.0 ) cx = -1.0;
-    if( cx>1.0 ) cx = 1.0;
-    if( cy<-1.0 ) cy = -1.0;
-    if( cy>1.0 ) cy = 1.0;
-    if( cz<-1.0 ) cz = -1.0;
-    if( cz>1.0 ) cz = 1.0;
+    double cx = v.x * inv_modv;
+    double cy = v.y * inv_modv;
+    double cz = v.z * inv_modv;
+
+    // Clamp values to avoid NaN when acos is used
+    cx = fmin(fmax(cx, -1.0), 1.0);
+    cy = fmin(fmax(cy, -1.0), 1.0);
+    cz = fmin(fmax(cz, -1.0), 1.0);
 
     vec3 angles = {acos(cx),acos(cy),acos(cz)};
     return angles;
-
-
 }
 
 vec3 v3_cross(vec3 v1, vec3 v2){
