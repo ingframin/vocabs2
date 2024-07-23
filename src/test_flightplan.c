@@ -23,36 +23,37 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <stdint.h>
 #include "vec2.h"
-//Initialize a new fligth plan
-bool test_newFlightPlan(){
-    FlightPlan* fp = FP_newFlightPlan(4);
-    
-    if(fp==NULL) {
-        printf("failed pointer initialization: fp == NULL\n");
+//Initialize a new flight plan
+bool test_newFlightPlan() {
+    FlightPlan fp = { NULL, 4, -1 };
+    fp.waypoints = calloc(fp.length, sizeof(vec2));
+
+    if (fp.waypoints == NULL) {
+        printf("Failed to allocate memory for waypoints\n");
         return false;
     }
 
-    if(fp->waypoints == NULL){
-        printf("failed pointer initialization: fp->waypoints == NULL\n");
+    if (fp.current_wp != -1) {
+        printf("Failed initialization: fp->current_wp != -1\n");
         goto test_failed;
     }
-    if(fp->current_wp != -1){
-        printf("failed initialization: fp->current_wp != -1\n");
+
+    if (fp.length != 4) {
+        printf("Failed initialization: fp->length != 4\n");
         goto test_failed;
-    } 
-	if(fp->length != 4){
-        printf("failed initialization: fp->length != 4\n");
+    }
+
+    if (!FP_isFlightPlanEmpty(&fp)) {
+        printf("Failed initialization: fp not empty\n");
         goto test_failed;
-    } 
-    if(FP_isFlightPlanEmpty(fp)){
-        printf("failed initialization: fp not empty\n");
-        goto test_failed;
-    } 
+    }
+
+    free(fp.waypoints);
     return true;
+
 test_failed:
-        free(fp->waypoints);
-        free(fp);
-        return false;
+    free(fp.waypoints);
+    return false;
 }
 //Waypoints are stacked (LIFO) push adds a waypoint on top of the stack
 //Increase the waypoint array size if needed

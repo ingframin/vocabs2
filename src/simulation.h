@@ -22,14 +22,14 @@
 // #include "drone.h"
 // #include "vec2.h"
 
-// //This structure contains the status of the Simulation
-// typedef struct config{
-//     Drone* drones;//This is the base of a list
-//     uint64_t num_drones;
-//     vec2* points;
-//     uint64_t num_points;
+//This structure contains the status of the Simulation
+typedef struct config{
+    Drone* drones;//This is the base of a list
+    uint64_t num_drones;
+    vec2* points;
+    uint64_t num_points;
 
-// } Configuration;
+} Configuration;
 
 // Configuration* Conf_newConfiguration(const char* configfile);
 // void Conf_freeConfiguration(Configuration* conf);
