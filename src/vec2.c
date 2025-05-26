@@ -1,4 +1,3 @@
-
 /* 
 Vocabs2 - velocity obstacle for drones simulator
 Copyright (C) 2023  Franco Minucci
@@ -177,19 +176,25 @@ double v2_angle_between(vec2 v1, vec2 v2){
 
 }
 
-vec2 v2_interpolate(vec2 vs[], size_t vs_len, double t){
-  if(vs_len == 1){
-      return vs[0];
-  }
-  
-  for(size_t L = vs_len-1; L>1; L--){
-    
-    for(size_t i = 1; i < L; i++){
-      vs[i-1] = v2_lerp(vs[i],vs[i-1],t);
+vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t) {
+    if (vs_len == 0) return NULL;
+
+    // Allocate a new array for the results
+    vec2* temp = (vec2*)malloc(vs_len * sizeof(vec2));
+    if (!temp) return NULL;
+
+    // Copy input points to temp array
+    for (size_t i = 0; i < vs_len; ++i) {
+        temp[i] = vs[i];
     }
 
-  }
-  vec2 res = vs[0];
-  
-  return res; 
+    // Perform interpolation in-place on the temp array
+    for (size_t L = vs_len; L > 1; L--) {
+        for (size_t i = 1; i < L; i++) {
+            temp[i - 1] = v2_lerp(temp[i], temp[i - 1], t);
+        }
+    }
+
+    // Return the array of points (the first element is the result)
+    return temp;
 }
