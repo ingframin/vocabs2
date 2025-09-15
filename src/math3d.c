@@ -60,46 +60,52 @@ vec3 v3_diff(vec3 v1, vec3 v2){
 double v3_dot(vec3 v1, vec3 v2){
     return v1.x*v2.x+v1.y*v2.y+v1.z*v2.z;
 }
+// Function to compute the dot product of two 3D vectors using SIMD
+double v3_dot_simd(vec3 v1, vec3 v2) {
+    // Load the vector components into SIMD registers
+    __m128d v1_vals = _mm_set_pd(v1.z, v1.y);
+    __m128d v2_vals = _mm_set_pd(v2.z, v2.y);
+    __m128d v1_x = _mm_set_pd(0.0, v1.x);
+    __m128d v2_x = _mm_set_pd(0.0, v2.x);
 
-__m128d v3_dot_simd(__m128d v1x, __m128d v1y, __m128d v1z, __m128d v2x, __m128d v2y, __m128d v2z){
-    __m128d v1v2x = _mm_mul_pd(v1x, v2x);
-    __m128d v1v2y = _mm_mul_pd(v1y, v2y);
-    __m128d v1v2z = _mm_mul_pd(v1z, v2z);
+    // Perform multiplication and accumulate results
+    __m128d product1 = _mm_mul_pd(v1_vals, v2_vals);
+    __m128d product2 = _mm_mul_pd(v1_x, v2_x);
 
-    __m128d sum = _mm_add_pd(_mm_add_pd(v1v2x, v1v2y), v1v2z);
-
-    return sum;
+    // Horizontal addition to sum all components
+    __m128d sum1 = _mm_hadd_pd(product1, product2);
+    __m128d sum2 = _mm_hadd_pd(sum1, sum1);
+    double result[2];
+    _mm_storeu_pd(result, sum2);
+    // The result is in both positions of the array due to _mm_hadd_pd
+    return result[0];
 }
 
-double v3_mod(vec3 v1){
-    __m128d v1x = _mm_set1_pd(v1.x);
-    __m128d v1y = _mm_set1_pd(v1.y);
-    __m128d v1z = _mm_set1_pd(v1.z);
-
-    __m128d v1v1 = v3_dot_simd(v1x, v1y, v1z, v1x, v1y, v1z);
-
-    double* v1v1_arr = (double*)&v1v1;
-
-    return sqrt(v1v1_arr[0] + v1v1_arr[1]);
+// Function to compute the magnitude of a 3D vector using SIMD
+double v3_mod(vec3 v1) {
+    double dot_result = v3_dot_simd(v1, v1);
+    return sqrt(dot_result);
 }
 
-double v3_distance(vec3 v1, vec3 v2){
-    __m128d v1x = _mm_set1_pd(v1.x);
-    __m128d v1y = _mm_set1_pd(v1.y);
-    __m128d v1z = _mm_set1_pd(v1.z);
-    __m128d v2x = _mm_set1_pd(v2.x);
-    __m128d v2y = _mm_set1_pd(v2.y);
-    __m128d v2z = _mm_set1_pd(v2.z);
+// Function to compute the Euclidean distance between two 3D vectors using SIMD
+double v3_distance(vec3 v1, vec3 v2) {
+    // Compute differences in each component
+    __m128d dx = _mm_set_pd(v1.z - v2.z, v1.y - v2.y);
+    __m128d dy = _mm_set_pd(0.0, v1.x - v2.x);
 
-    __m128d dx = _mm_sub_pd(v1x, v2x);
-    __m128d dy = _mm_sub_pd(v1y, v2y);
-    __m128d dz = _mm_sub_pd(v1z, v2z);
+    // Square the differences
+    __m128d dx_sqr = _mm_mul_pd(dx, dx);
+    __m128d dy_sqr = _mm_mul_pd(dy, dy);
 
-    __m128d sum = _mm_add_pd(_mm_add_pd(_mm_mul_pd(dx, dx), _mm_mul_pd(dy, dy)), _mm_mul_pd(dz, dz));
+    // Horizontal addition to sum squared differences
+    __m128d sum1 = _mm_add_pd(dx_sqr, dy_sqr);
+    __m128d sum2 = _mm_hadd_pd(sum1, sum1);
 
-    double* sum_arr = (double*)&sum;
+    double squared_diff[2];
+    _mm_storeu_pd(squared_diff, sum2);
 
-    return sqrt(sum_arr[0] + sum_arr[1] + sum_arr[2]);
+    // Take square root of the sum to get the distance
+    return sqrt(squared_diff[0]);
 }
 
 double v3_angle_between(vec3 v1, vec3 v2){
@@ -145,58 +151,70 @@ vec3 v3_scale(vec3 v, double k){
 
 // Refactored SIMD matrix multiplication function for mat3x3 structures
 mat3x3 simd_m33_product_m33(mat3x3 m1, mat3x3 m2) {
-    mat3x3 m;
+    mat3x3 result;
 
-    // Load the matrices into SIMD registers
+    // Load rows of m1
     __m256d m1_row1 = _mm256_loadu_pd(&m1.x1);
     __m256d m1_row2 = _mm256_loadu_pd(&m1.x2);
-    __m256d m1_row3 = _mm256_set_pd(m1.z1, m1.y2, m1.x3, 0.0);
+    __m256d m1_row3 = _mm256_loadu_pd(&m1.x3);
 
-    __m256d m2_row1 = _mm256_set_pd(0.0, m2.z1, m2.y1, m2.x1);
-    __m256d m2_row2 = _mm256_set_pd(0.0, m2.z2, m2.y2, m2.x2);
-    __m256d m2_row3 = _mm256_set_pd(0.0, m2.z3, m2.y3, m2.x3);
+    // Load columns of m2 (as rows, but we'll use broadcasts)
+    __m256d m2_col1 = _mm256_set_pd(m2.z1, m2.y1, m2.x1, 0.0);
+    __m256d m2_col2 = _mm256_set_pd(m2.z2, m2.y2, m2.x2, 0.0);
+    __m256d m2_col3 = _mm256_set_pd(m2.z3, m2.y3, m2.x3, 0.0);
 
-    // Perform the matrix multiplication using SIMD intrinsics
-    __m256d result_row1 = _mm256_add_pd(
-        _mm256_add_pd(_mm256_mul_pd(m1_row1, m2_row1), 
-                      _mm256_mul_pd(m1_row2, m2_row2)), 
-                      _mm256_mul_pd(m1_row3, m2_row3));
+    // Compute result.x1, result.y1, result.z1 (first row)
+    __m256d row1 = _mm256_mul_pd(m1_row1, m2_col1);
+    __m256d row2 = _mm256_mul_pd(m1_row2, m2_col1);
+    __m256d row3 = _mm256_mul_pd(m1_row3, m2_col1);
+    __m256d sum1 = _mm256_add_pd(row1, row2);
+    sum1 = _mm256_add_pd(sum1, row3);
+    __m128d sum_low = _mm256_castpd256_pd128(sum1);
+    __m128d sum_high = _mm256_extractf128_pd(sum1, 1);
+    __m128d sum = _mm_add_pd(sum_low, sum_high);
+    _mm_storel_pd(&result.x1, sum);
 
-    __m128d result_low = _mm256_castpd256_pd128(result_row1);
-    __m128d result_high = _mm256_extractf128_pd(result_row1, 1);
+    // Compute result.x2, result.y2, result.z2 (second row)
+    row1 = _mm256_mul_pd(m1_row1, m2_col2);
+    row2 = _mm256_mul_pd(m1_row2, m2_col2);
+    row3 = _mm256_mul_pd(m1_row3, m2_col2);
+    sum1 = _mm256_add_pd(row1, row2);
+    sum1 = _mm256_add_pd(sum1, row3);
+    sum_low = _mm256_castpd256_pd128(sum1);
+    sum_high = _mm256_extractf128_pd(sum1, 1);
+    sum = _mm_add_pd(sum_low, sum_high);
+    _mm_storel_pd(&result.x2, sum);
 
-    // Store the result back into the struct
-    _mm_storeu_pd(&m.x1, result_low);
-    _mm_storeu_pd(&m.x2, result_high);
+    // Compute result.x3, result.y3, result.z3 (third row)
+    row1 = _mm256_mul_pd(m1_row1, m2_col3);
+    row2 = _mm256_mul_pd(m1_row2, m2_col3);
+    row3 = _mm256_mul_pd(m1_row3, m2_col3);
+    sum1 = _mm256_add_pd(row1, row2);
+    sum1 = _mm256_add_pd(sum1, row3);
+    sum_low = _mm256_castpd256_pd128(sum1);
+    sum_high = _mm256_extractf128_pd(sum1, 1);
+    sum = _mm_add_pd(sum_low, sum_high);
+    _mm_storel_pd(&result.x3, sum);
 
-    return m;
+    return result;
 }
 
 
 
 mat3x3 m33_product_m33(mat3x3 m1, mat3x3 m2){
-    __m256d m1_row1 = _mm256_loadu_pd(&m1.x1);
-    __m256d m1_row2 = _mm256_loadu_pd(&m1.x2);
-    __m256d m1_row3 = _mm256_set_pd(m1.z1, m1.y2, m1.x3, 0.0);
-
-    __m256d m2_row1 = _mm256_loadu_pd(&m2.x1);
-    __m256d m2_row2 = _mm256_loadu_pd(&m2.x2);
-    __m256d m2_row3 = _mm256_set_pd(m2.z1, m2.y2, m2.x3, 0.0);
-
-    __m256d result_row1 = _mm256_mul_pd(m1_row1, m2_row1);
-    __m256d result_row2 = _mm256_mul_pd(m1_row2, m2_row2);
-    __m256d result_row3 = _mm256_mul_pd(m1_row3, m2_row3);
-
-    __m256d result_row1_sum = _mm256_hadd_pd(result_row1, result_row2);
-    __m256d result_row2_sum = _mm256_hadd_pd(result_row3, _mm256_setzero_pd());
-
-    __m128d result_low = _mm256_castpd256_pd128(result_row1_sum);
-    __m128d result_high = _mm256_extractf128_pd(result_row1_sum, 1);
-    __m128d result_high_2 = _mm256_castpd256_pd128(result_row2_sum);
-
     mat3x3 m;
-    _mm_storeu_pd(&m.x1, _mm_add_pd(result_low, result_high_2));
-    _mm_storeu_pd(&m.x2, result_high);
+    
+    m.x1 = m1.x1 * m2.x1 + m1.y1*m2.x2 + m1.z1*m2.x3;
+    m.x2 = m1.x2 * m2.x1 + m1.y2*m2.x2 + m1.z2*m2.x3;
+    m.x3 = m1.x3 * m2.x1 + m1.y3*m2.x2 + m1.z3*m2.x3;
+
+    m.y1 = m1.x1 * m2.y1 + m1.y1*m2.y2 + m1.z1*m2.y3;
+    m.y2 = m1.x2 * m2.y1 + m1.y2*m2.y2 + m1.z2*m2.y3;
+    m.y3 = m1.x3 * m2.y1 + m1.y3*m2.y2 + m1.z3*m2.y3;
+
+    m.z1 = m1.x1 * m2.z1 + m1.y1*m2.z2 + m1.z1*m2.z3;
+    m.z2 = m1.x2 * m2.z1 + m1.y2*m2.z2 + m1.z2*m2.z3;
+    m.z3 = m1.x3 * m2.z1 + m1.y3*m2.z2 + m1.z3*m2.z3;
 
     return m;
 }
@@ -309,9 +327,10 @@ mat3x3 m33_scale_xyz_v3(vec3 sxyz){
 
 
 vec3 v3_barycentric(vec3 P, vec3 A, vec3 B, vec3 C) {
-    vec3 v0 = B - A; 
-    vec3 v1 = C - A; 
-    vec3 v2 = P - A;
+     
+    vec3 v0 = v3_diff(B,A); 
+    vec3 v1 = v3_diff(C,A);
+    vec3 v2 = v3_diff(P,A);
 
     double d00 = v0.x*v0.x + v0.y*v0.y + v0.z*v0.z;
     double d01 = v0.x*v1.x + v0.y*v1.y + v0.z*v1.z;
@@ -332,10 +351,10 @@ vec3 v3_barycentric(vec3 P, vec3 A, vec3 B, vec3 C) {
 bool is_point_within_cone(vec3 P, Cone C) {
     // A cone is characterised by the coordinates of its vertex, the direction vector of the axis and the aperture angle.
     // vector pointing from the vertex to the point
-    double dp = v3_dot(P - C.vertex, C.axis);
+    double dp = v3_dot(v3_diff(P,C.vertex), C.axis);
     // compare to the cosine of the angle of opening
     double cos_theta = cos(C.aperture/2);
-    return dp >= dp * dp / (v3_mod(P - C.vertex) * v3_mod(C.axis)) * cos_theta;
+    return dp >= dp * dp / v3_mod(v3_diff(P,C.vertex))*v3_mod(C.axis) * cos_theta;
 }
 
 double v3_angle_to_x(vec3 v){

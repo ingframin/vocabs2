@@ -17,22 +17,22 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // */
 
-// #ifndef SIMULATION_H
-// #define SIMULATION_H
-// #include "drone.h"
-// #include "vec2.h"
+#ifndef SIMULATION_H
+#define SIMULATION_H
+#include "drone.h"
+#include "vec2.h"
 
-//This structure contains the status of the Simulation
-typedef struct config{
-    Drone* drones;//This is the base of a list
-    uint64_t num_drones;
-    vec2* points;
-    uint64_t num_points;
+// //This structure contains the status of the Simulation
+// typedef struct config{
+//     Drone* drones;//This is the base of a list
+//     uint64_t num_drones;
+//     vec2* points;
+//     uint64_t num_points;
 
-} Configuration;
+// } Configuration;
 
-// Configuration* Conf_newConfiguration(const char* configfile);
-// void Conf_freeConfiguration(Configuration* conf);
-// void Sim_run(const Configuration* conf);
+// // Configuration* Conf_newConfiguration(const char* configfile);
+// // void Conf_freeConfiguration(Configuration* conf);
+// // void Sim_run(const Configuration* conf);
 
-// #endif
+#endif

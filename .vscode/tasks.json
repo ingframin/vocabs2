@@ -9,7 +9,7 @@
                 "./src/*.c",
                 "-lm",
                 "-o./build/vocabs2",
-                //"-std=c11",
+                "-std=c23",
                 "-w",
                 "-march=native",
                 "-Wextra",
@@ -17,7 +17,9 @@
                 "-Wall",
                 "-O3",
                 "-finline-functions",
-                "-fopenmp"
+                "-fopenmp",
+                "-fsanitize=address"
+
             ],
             "group": "build"
         }, 
@@ -42,27 +44,6 @@
             "group": "build"
         },
         {
-            "label": "build gcc",
-            "type": "shell",
-            "command": "gcc",
-            "args": [
-                "./src/*.c",
-                "-o./build/vocabs2.exe",
-                "-g",
-                "-Wall",
-                "-std=c11",
-                "-march=native",
-                "-Wall",
-                "-Wextra",
-                "-Wfatal-errors",
-                //"-O3",
-                "-finline-functions",
-                "-fopenmp",
-                "-fsanitize=address"
-            ],
-            "group": "build"
-        },
-        {
             "label": "build test",
             "type": "shell",
             "command": "clang",
@@ -71,7 +52,7 @@
                 "./src/*.c",
                 "-o./build/vocabs2_test.exe",
                 "-Wall",
-                "-std=c11",
+                "-std=c23",
                 "-march=native",
                 "-Wall",
                 "-Wextra",

@@ -92,7 +92,7 @@ bool test_push_waypoint(){
     for(int i = 0; i<15;i++){
         FP_push_waypoint(fp,v2_addK(test_wp,i));
     }
-    printf("%llu\n", fp->length);
+    printf("%lu\n", fp->length);
     for(int64_t i =0;i<fp->length;i++){
          printf("(%.9f,\t%.9f)\n",fp->waypoints[i].x,fp->waypoints[i].y);
     }
@@ -114,7 +114,7 @@ bool test_pop_waypoint(){
     
     for(int i = 15; i>-1;i--){
         FP_pop_waypoint(fp);
-        printf("Current waypoint index: %.lld\n",fp->current_wp);
+        printf("Current waypoint index: %.ld\n",fp->current_wp);
         vec2 cwp = FP_current_wp(fp);
         printf("Current Waypoint: %.6f;%.6f\n",cwp.x,cwp.y);
         printf("FlightPlan empty?: %s;\n",(FP_isFlightPlanEmpty(fp))?"true":"false");
