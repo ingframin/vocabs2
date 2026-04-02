@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef DRONE_H
 #define DRONE_H
-#include "vec2.h"
+#include "math2d.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "flightplan.h"

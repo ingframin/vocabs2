@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define COMMS_H
 #include <stdint.h>
 #include <stdbool.h>
-#include "vec2.h"
+#include "math2d.h"
 
 typedef enum
 {

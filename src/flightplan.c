@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "flightplan.h"
-#include "vec2.h"
+#include "math2d.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>

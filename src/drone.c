@@ -25,8 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
-#include "vec2.h"
-#include "obstacle.h"
+#include "math2d.h"
 #include "flightplan.h"
 
 static uint64_t ids = 0;

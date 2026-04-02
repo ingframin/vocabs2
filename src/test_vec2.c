@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "vec2.h"
+#include "math2d.h"
 #include "test_vec2.h"
 #include <assert.h>
 #include <stdbool.h>

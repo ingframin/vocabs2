@@ -53,4 +53,18 @@ typedef struct config {
 
 Config parse_config(const char* filename);
 void free_config(Config* config);
+
+// Save simulation results to file
+// filename: output filename
+// collisions: array of collision counts
+// rates: array of rates (timings in ms)
+// len_rates: length of rates and collisions arrays
+// iterations: number of iterations
+// error: positional error
+// loss: loss probability
+// speed: agent speed
+// prob: system type ('A'=No loss, 'E'=Wi-Fi, 'C'=ADS-B)
+void save_results(const char* filename, double collisions[], const double rates[], 
+                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+                  double speed, char prob);
 #endif

@@ -99,30 +99,4 @@ void parseArguments(int argc, char *argv[]){
 }
 
 /*Maybe I should add some error checking? :-/*/
-void saveResults(const char* filename, double collisions[]){
-  FILE *results;
-  fopen_s(&results,filename, "a");
-  fprintf(results, "Error: %.3f\n", error);
-  fprintf(results, "Loss: %.3f\n", l);
-  fprintf(results, "Speed: %.3f\n", speed);
-  switch (prob)
-  {
-    case 'E':
-      fprintf(results, "Wi-Fi beacons\n");
-      break;
-    case 'C':
-      fprintf(results, "ADS-B\n");
-      break;
-    default:
-      fprintf(results, "No loss\n");
-  }
-
-  for (uint32_t k = 0; k < len_rates; k++)
-  {
-    printf("%.3f\t%.6f\n", 1000.0/rates[k], collisions[k] / iterations);
-    fprintf(results, "%.3f\t%.10f\n", 1000.0/rates[k], collisions[k] / iterations);
-  }
-  fclose(results);
-}
-
 #endif

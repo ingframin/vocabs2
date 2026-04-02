@@ -19,11 +19,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef TEST_H
 #define TEST_H
-#include "vec2.h"
+#include "math2d.h"
 #include "drone.h"
 #include "fligthplan.h"
 #include "comms.h"
-#include "obstacle.h"
 #include <assert.h>
 #include <stdbool.h>
 /*

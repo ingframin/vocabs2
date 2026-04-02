@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <time.h>
 #include <stdbool.h>
 #include <omp.h>
-#include "vec2.h"
+#include "math2d.h"
 #include "flightplan.h"
 #include "drone.h"
 #include "comms.h"
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  saveResults("pinterf_0.0.txt", collisions);
+  save_results("pinterf_0.0.txt", collisions, rates, len_rates, iterations, error, l, speed, prob);
   return 0;
 }
 #endif

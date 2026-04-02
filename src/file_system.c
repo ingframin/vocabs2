@@ -214,3 +214,37 @@ void free_config(Config* config) {
         config->rates = NULL;
     }
 }
+
+void save_results(const char* filename, double collisions[], const double rates[], 
+                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+                  double speed, char prob) {
+    FILE *results;
+    fopen_s(&results, filename, "a");
+    if (results == NULL) {
+        fprintf(stderr, "Error: could not open file %s for writing\n", filename);
+        return;
+    }
+
+    fprintf(results, "Error: %.3f\n", error);
+    fprintf(results, "Loss: %.3f\n", loss);
+    fprintf(results, "Speed: %.3f\n", speed);
+    
+    switch (prob)
+    {
+    case 'E':
+        fprintf(results, "Wi-Fi beacons\n");
+        break;
+    case 'C':
+        fprintf(results, "ADS-B\n");
+        break;
+    default:
+        fprintf(results, "No loss\n");
+    }
+
+    for (uint32_t k = 0; k < len_rates; k++)
+    {
+        printf("%.3f\t%.6f\n", 1000.0/rates[k], collisions[k] / iterations);
+        fprintf(results, "%.3f\t%.10f\n", 1000.0/rates[k], collisions[k] / iterations);
+    }
+    fclose(results);
+}

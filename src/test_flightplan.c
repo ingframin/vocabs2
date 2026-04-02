@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include "vec2.h"
+#include "math2d.h"
 //Initialize a new flight plan
 bool test_newFlightPlan() {
     FlightPlan fp = { NULL, 4, -1 };
