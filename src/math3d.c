@@ -89,23 +89,20 @@ double v3_mod(vec3 v1) {
 
 // Function to compute the Euclidean distance between two 3D vectors using SIMD
 double v3_distance(vec3 v1, vec3 v2) {
-    // Compute differences in each component
-    __m128d dx = _mm_set_pd(v1.z - v2.z, v1.y - v2.y);
-    __m128d dy = _mm_set_pd(0.0, v1.x - v2.x);
+    // Compute differences in all components at once
+    __m128d dx = _mm_set_pd(v1.z - v2.z, v1.x - v2.x);
+    __m128d dy = _mm_set_pd(0.0, v1.y - v2.y);
 
     // Square the differences
     __m128d dx_sqr = _mm_mul_pd(dx, dx);
     __m128d dy_sqr = _mm_mul_pd(dy, dy);
 
-    // Horizontal addition to sum squared differences
-    __m128d sum1 = _mm_add_pd(dx_sqr, dy_sqr);
-    __m128d sum2 = _mm_hadd_pd(sum1, sum1);
+    // Sum all squared differences
+    __m128d sum = _mm_add_pd(dx_sqr, dy_sqr);
+    sum = _mm_hadd_pd(sum, sum);
 
-    double squared_diff[2];
-    _mm_storeu_pd(squared_diff, sum2);
-
-    // Take square root of the sum to get the distance
-    return sqrt(squared_diff[0]);
+    // Extract and return square root
+    return sqrt(_mm_cvtsd_f64(sum));
 }
 
 double v3_angle_between(vec3 v1, vec3 v2){
@@ -149,52 +146,96 @@ vec3 v3_scale(vec3 v, double k){
 }
 
 
-// Refactored SIMD matrix multiplication function for mat3x3 structures
+// Fixed SIMD matrix multiplication function for mat3x3 structures
+// Note: Current mat3x3 struct doesn't store rows contiguously, so we use
+// a different approach that works with the existing layout
 mat3x3 simd_m33_product_m33(mat3x3 m1, mat3x3 m2) {
     mat3x3 result;
 
-    // Load rows of m1
-    __m256d m1_row1 = _mm256_loadu_pd(&m1.x1);
-    __m256d m1_row2 = _mm256_loadu_pd(&m1.x2);
-    __m256d m1_row3 = _mm256_loadu_pd(&m1.x3);
+    // Compute each element of the result matrix individually using SIMD
+    // First row
+    __m128d m1_x1 = _mm_set_pd(m1.z1, m1.y1);
+    __m128d m1_x1_x = _mm_set_pd(0.0, m1.x1);
+    __m128d m2_col1 = _mm_set_pd(m2.z1, m2.y1);
+    __m128d m2_col1_x = _mm_set_pd(0.0, m2.x1);
+    
+    __m128d product1 = _mm_mul_pd(m1_x1, m2_col1);
+    __m128d product2 = _mm_mul_pd(m1_x1_x, m2_col1_x);
+    __m128d sum1 = _mm_add_pd(product1, product2);
+    __m128d sum2 = _mm_hadd_pd(sum1, sum1);
+    double temp[2];
+    _mm_storeu_pd(temp, sum2);
+    result.x1 = temp[0];
 
-    // Load columns of m2 (as rows, but we'll use broadcasts)
-    __m256d m2_col1 = _mm256_set_pd(m2.z1, m2.y1, m2.x1, 0.0);
-    __m256d m2_col2 = _mm256_set_pd(m2.z2, m2.y2, m2.x2, 0.0);
-    __m256d m2_col3 = _mm256_set_pd(m2.z3, m2.y3, m2.x3, 0.0);
+    // result.y1
+    __m128d m2_col2 = _mm_set_pd(m2.z2, m2.y2);
+    __m128d m2_col2_x = _mm_set_pd(0.0, m2.x2);
+    product1 = _mm_mul_pd(m1_x1, m2_col2);
+    product2 = _mm_mul_pd(m1_x1_x, m2_col2_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.y1 = temp[0];
 
-    // Compute result.x1, result.y1, result.z1 (first row)
-    __m256d row1 = _mm256_mul_pd(m1_row1, m2_col1);
-    __m256d row2 = _mm256_mul_pd(m1_row2, m2_col1);
-    __m256d row3 = _mm256_mul_pd(m1_row3, m2_col1);
-    __m256d sum1 = _mm256_add_pd(row1, row2);
-    sum1 = _mm256_add_pd(sum1, row3);
-    __m128d sum_low = _mm256_castpd256_pd128(sum1);
-    __m128d sum_high = _mm256_extractf128_pd(sum1, 1);
-    __m128d sum = _mm_add_pd(sum_low, sum_high);
-    _mm_storel_pd(&result.x1, sum);
+    // result.z1
+    __m128d m2_col3 = _mm_set_pd(m2.z3, m2.y3);
+    __m128d m2_col3_x = _mm_set_pd(0.0, m2.x3);
+    product1 = _mm_mul_pd(m1_x1, m2_col3);
+    product2 = _mm_mul_pd(m1_x1_x, m2_col3_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.z1 = temp[0];
 
-    // Compute result.x2, result.y2, result.z2 (second row)
-    row1 = _mm256_mul_pd(m1_row1, m2_col2);
-    row2 = _mm256_mul_pd(m1_row2, m2_col2);
-    row3 = _mm256_mul_pd(m1_row3, m2_col2);
-    sum1 = _mm256_add_pd(row1, row2);
-    sum1 = _mm256_add_pd(sum1, row3);
-    sum_low = _mm256_castpd256_pd128(sum1);
-    sum_high = _mm256_extractf128_pd(sum1, 1);
-    sum = _mm_add_pd(sum_low, sum_high);
-    _mm_storel_pd(&result.x2, sum);
+    // Second row
+    __m128d m1_x2 = _mm_set_pd(m1.z2, m1.y2);
+    __m128d m1_x2_x = _mm_set_pd(0.0, m1.x2);
+    
+    product1 = _mm_mul_pd(m1_x2, m2_col1);
+    product2 = _mm_mul_pd(m1_x2_x, m2_col1_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.x2 = temp[0];
 
-    // Compute result.x3, result.y3, result.z3 (third row)
-    row1 = _mm256_mul_pd(m1_row1, m2_col3);
-    row2 = _mm256_mul_pd(m1_row2, m2_col3);
-    row3 = _mm256_mul_pd(m1_row3, m2_col3);
-    sum1 = _mm256_add_pd(row1, row2);
-    sum1 = _mm256_add_pd(sum1, row3);
-    sum_low = _mm256_castpd256_pd128(sum1);
-    sum_high = _mm256_extractf128_pd(sum1, 1);
-    sum = _mm_add_pd(sum_low, sum_high);
-    _mm_storel_pd(&result.x3, sum);
+    product1 = _mm_mul_pd(m1_x2, m2_col2);
+    product2 = _mm_mul_pd(m1_x2_x, m2_col2_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.y2 = temp[0];
+
+    product1 = _mm_mul_pd(m1_x2, m2_col3);
+    product2 = _mm_mul_pd(m1_x2_x, m2_col3_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.z2 = temp[0];
+
+    // Third row
+    __m128d m1_x3 = _mm_set_pd(m1.z3, m1.y3);
+    __m128d m1_x3_x = _mm_set_pd(0.0, m1.x3);
+    
+    product1 = _mm_mul_pd(m1_x3, m2_col1);
+    product2 = _mm_mul_pd(m1_x3_x, m2_col1_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.x3 = temp[0];
+
+    product1 = _mm_mul_pd(m1_x3, m2_col2);
+    product2 = _mm_mul_pd(m1_x3_x, m2_col2_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.y3 = temp[0];
+
+    product1 = _mm_mul_pd(m1_x3, m2_col3);
+    product2 = _mm_mul_pd(m1_x3_x, m2_col3_x);
+    sum1 = _mm_add_pd(product1, product2);
+    sum2 = _mm_hadd_pd(sum1, sum1);
+    _mm_storeu_pd(temp, sum2);
+    result.z3 = temp[0];
 
     return result;
 }
@@ -350,30 +391,48 @@ vec3 v3_barycentric(vec3 P, vec3 A, vec3 B, vec3 C) {
 
 bool is_point_within_cone(vec3 P, Cone C) {
     // A cone is characterised by the coordinates of its vertex, the direction vector of the axis and the aperture angle.
+    vec3 diff = v3_diff(P, C.vertex);
+    double diff_mod = v3_mod(diff);
+    double axis_mod = v3_mod(C.axis);
+    
+    // Safety checks for zero-length vectors
+    if(diff_mod < 1e-12 || axis_mod < 1e-12) {
+        return false;
+    }
+    
     // vector pointing from the vertex to the point
-    double dp = v3_dot(v3_diff(P,C.vertex), C.axis);
+    double dp = v3_dot(diff, C.axis);
     // compare to the cosine of the angle of opening
     double cos_theta = cos(C.aperture/2);
-    return dp >= dp * dp / v3_mod(v3_diff(P,C.vertex))*v3_mod(C.axis) * cos_theta;
+    return dp >= (dp * dp) / (diff_mod * axis_mod) * cos_theta;
 }
 
 double v3_angle_to_x(vec3 v){
     double vm = v3_mod(v);
-    if(vm==0.0) return 0.0;
-    return acos(fabs(v.x)/vm);
+    if(vm < 1e-12) return 0.0; // Near-zero check
+    double ratio = fabs(v.x)/vm;
+    // Clamp to avoid NaN from acos
+    ratio = fmin(fmax(ratio, -1.0), 1.0);
+    return acos(ratio);
 }
 
 double v3_angle_to_y(vec3 v){
     double vm = v3_mod(v);
-    if(vm==0.0) return 0.0;
-    return acos(fabs(v.y)/vm);
+    if(vm < 1e-12) return 0.0; // Near-zero check
+    double ratio = fabs(v.y)/vm;
+    // Clamp to avoid NaN from acos
+    ratio = fmin(fmax(ratio, -1.0), 1.0);
+    return acos(ratio);
 
 }
 
 double v3_angle_to_z(vec3 v){
     double vm = v3_mod(v);
-    if(vm==0.0) return 0.0;
-    return acos(fabs(v.z)/vm);
+    if(vm < 1e-12) return 0.0; // Near-zero check
+    double ratio = fabs(v.z)/vm;
+    // Clamp to avoid NaN from acos
+    ratio = fmin(fmax(ratio, -1.0), 1.0);
+    return acos(ratio);
 }
 
 
