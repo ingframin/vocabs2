@@ -24,77 +24,47 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 time_t t;
 
-// Configuration variables (will be loaded from config file)
-uint32_t iterations;
-double dt; //seconds
-double error; // positional error in meters
-double* rates; // timings in ms
-int num_threads;
-double speed;
-int si = 0;
-uint64_t rate = 1;
-char prob;
-RFsystem sys;
-double l; // loss probability x1000
-uint32_t len_rates;
-
+#include "simulation_context.h"  // For SimulationContext
 #include "file_system.h"
-
-void load_config() {
-    Config config = parse_config("config.ini");
-    
-    iterations = config.iterations;
-    dt = config.dt;
-    error = config.error;
-    rates = config.rates;
-    len_rates = config.num_rates;
-    num_threads = config.num_threads;
-    speed = config.speed;
-    prob = config.prob;
-    l = config.loss;
-    
-    // Don't free config.rates here as we're using it directly
-    // The rates array is now managed by the main program
-}
 
 void parseArguments(int argc, char *argv[]){
   if (argc > 1)
   {
-    prob = argv[1][0];
+    sim_context.prob = argv[1][0];
   }
   if (argc > 2)
   {
-    error = atof(argv[2]);
+    sim_context.error = atof(argv[2]);
   }
   if (argc > 3)
   {
-    l = 1000.0 * atof(argv[3]);
+    sim_context.l = 1000.0 * atof(argv[3]);
   }
   if (argc > 4)
   {
-    speed = atof(argv[4]);
-    if (speed > 100.0)
+    sim_context.speed = atof(argv[4]);
+    if (sim_context.speed > 100.0)
     {
-      dt = 1e-4;
+      sim_context.dt = 1e-4;
     }
   }
-  printf("Error: %.3f\n", error);
-  switch (prob)
+  printf("Error: %.3f\n", sim_context.error);
+  switch (sim_context.prob)
   {
   case 'E':
     printf("Wi-Fi beacons\n");
-    sys = WI_FI;
+    sim_context.sys = WI_FI;
     break;
   case 'C':
     printf("ADS-B\n");
-    sys = ADS_B;
+    sim_context.sys = ADS_B;
     break;
   default:
-    sys = NO_LOSS;
+    sim_context.sys = NO_LOSS;
     printf("No loss\n");
   }
-  printf("Loss: %.3f\n", l);
-  printf("Speed: %.3f\n", speed);
+  printf("Loss: %.3f\n", sim_context.l);
+  printf("Speed: %.3f\n", sim_context.speed);
 
 }
 

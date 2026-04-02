@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef TEST_V2
 #define TEST_V2
-#include "vec2.h"
+#include "math2d.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>

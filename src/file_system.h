@@ -29,6 +29,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define strcat_s(dest,size,source) strcat((dest),(source))
 #endif
 
+#include "simulation_context.h"  // For SimulationContext
+
 typedef struct content{
     char* text;
     uint32_t size;
@@ -54,6 +56,9 @@ typedef struct config {
 
 Config parse_config(const char* filename);
 void free_config(Config* config);
+
+// Load configuration from file and populate global simulation context
+void load_config();
 
 // Save simulation results to file
 // filename: output filename

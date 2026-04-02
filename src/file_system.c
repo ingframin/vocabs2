@@ -23,6 +23,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string.h>
 #include <ctype.h>
 
+// Global simulation context (defined here, declared in simulation_context.h)
+SimulationContext sim_context = {
+    .iterations = 0,
+    .dt = 0.0,
+    .error = 0.0,
+    .rates = NULL,
+    .num_threads = 0,
+    .speed = 0.0,
+    .si = 0,
+    .rate = 1,
+    .prob = 'A',
+    .sys = NO_LOSS,
+    .l = 0.0,
+    .len_rates = 0
+};
+
 Text read_text_file(const char* filename){
     //Open file and create a buffer of the corresponding size
     FILE* fp;
@@ -251,4 +267,42 @@ void save_results(const char* filename, double collisions[], const double rates[
         fprintf(results, "%.3f\t%.10f\n", 1000.0/rates[k], collisions[k] / iterations);
     }
     fclose(results);
+}
+
+void load_config() {
+    Config config = parse_config("config.ini");
+    
+    sim_context.iterations = config.iterations;
+    sim_context.dt = config.dt;
+    sim_context.error = config.error;
+    
+    // Copy the rates array - we need to manage our own copy
+    if (config.rates != NULL && config.num_rates > 0) {
+        sim_context.rates = (double*)malloc(config.num_rates * sizeof(double));
+        if (sim_context.rates != NULL) {
+            memcpy(sim_context.rates, config.rates, config.num_rates * sizeof(double));
+        }
+        sim_context.len_rates = config.num_rates;
+    }
+    
+    sim_context.num_threads = config.num_threads;
+    sim_context.speed = config.speed;
+    sim_context.prob = config.prob;
+    sim_context.l = config.loss;
+    
+    // Set system type based on prob
+    switch (sim_context.prob)
+    {
+    case 'E':
+        sim_context.sys = WI_FI;
+        break;
+    case 'C':
+        sim_context.sys = ADS_B;
+        break;
+    default:
+        sim_context.sys = NO_LOSS;
+    }
+    
+    // Free the config's rates array since we've made our own copy
+    free_config(&config);
 }

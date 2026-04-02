@@ -1,0 +1,44 @@
+/* 
+Simulation Context for Vocabs2 - velocity obstacle for drones simulator
+Copyright (C) 2023  Franco Minucci
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#ifndef SIMULATION_CONTEXT_H
+#define SIMULATION_CONTEXT_H
+
+#include <stdint.h>
+#include "comms.h"  // For RFsystem type
+
+// Simulation context structure to hold all configuration and runtime state
+typedef struct {
+    uint32_t iterations;
+    double dt; //seconds
+    double error; // positional error in meters
+    double* rates; // timings in ms
+    int num_threads;
+    double speed;
+    int si;
+    uint64_t rate;
+    char prob;
+    RFsystem sys;
+    double l; // loss probability x1000
+    uint32_t len_rates;
+} SimulationContext;
+
+// Global simulation context (defined in file_system.c, declared here)
+extern SimulationContext sim_context;
+
+#endif

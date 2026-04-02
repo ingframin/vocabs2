@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
   // Parse command line arguments (can override config)
   parseArguments(argc,argv);
   
-  double collisions[len_rates];
-  for (uint32_t k = 0; k < len_rates; k++)
+  double collisions[sim_context.len_rates];
+  for (uint32_t k = 0; k < sim_context.len_rates; k++)
   {
     collisions[k] = 0.0;
   }
@@ -77,21 +77,21 @@ int main(int argc, char *argv[])
   
 
   printf("Rate:\tPcrash:\n");
-  omp_set_num_threads(num_threads);
+  omp_set_num_threads(sim_context.num_threads);
 //The simulation code should go into a separate function
 #pragma omp parallel
   {
 
-    for (uint32_t i = 0; i < len_rates; i++)
+    for (uint32_t i = 0; i < sim_context.len_rates; i++)
     {
-      printf("rate: %.2f \n", 1000.0/rates[i]);
+      printf("rate: %.2f \n", 1000.0/sim_context.rates[i]);
 
 #pragma omp for
-      for (uint32_t it = 0; it < iterations; it++)
+      for (uint32_t it = 0; it < sim_context.iterations; it++)
       {
         //Should Drone become a reference type?
-        Drone d1 = DR_newDrone(0.0, 0.0, speed, 0.0, 1);
-        Drone d2 = DR_newDrone(1000.0, 0.0, speed, 0.0, 1);
+        Drone d1 = DR_newDrone(0.0, 0.0, sim_context.speed, 0.0, 1);
+        Drone d2 = DR_newDrone(1000.0, 0.0, sim_context.speed, 0.0, 1);
         
         FP_push_waypoint(d1.fp, p2);
         FP_push_waypoint(d2.fp, p2);
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
         FP_push_waypoint(d2.fp, p1);
         
 
-        rate = rates[i];
+        sim_context.rate = sim_context.rates[i];
         //Timer should be part of the simulation object
         bool running = true;
         uint64_t timer = 0;
@@ -108,22 +108,22 @@ int main(int argc, char *argv[])
         while (running)
         {
 
-          if (timer >= rate)
+          if (timer >= sim_context.rate)
           {
 
             // if (COM_broadcast(d1.position, d2.position, sys, l))
             if (COM_broadcast_Pint(0.5,0.5,0.0))
             {
               
-              DR_avoid(&d2, &d1, error);
-              DR_avoid(&d1, &d2, error);
+              DR_avoid(&d2, &d1, sim_context.error);
+              DR_avoid(&d1, &d2, sim_context.error);
               
             }
             timer = 0;
           }
 
-          DR_move(&d1, dt);
-          DR_move(&d2, dt);
+          DR_move(&d1, sim_context.dt);
+          DR_move(&d2, sim_context.dt);
           
           
           if (FP_isFlightPlanEmpty(d1.fp) || FP_isFlightPlanEmpty(d2.fp))
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
       } //iterations
       if (collisions[i] == 0.0)
       {
-        printf("%.3f\n", 1000.0/rate);
+        printf("%.3f\n", 1000.0/sim_context.rate);
         break;
       }
     } //rates
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  save_results("pinterf_0.0.txt", collisions, rates, len_rates, iterations, error, l, speed, prob);
+  save_results("pinterf_0.0.txt", collisions, sim_context.rates, sim_context.len_rates, sim_context.iterations, sim_context.error, sim_context.l, sim_context.speed, sim_context.prob);
   return 0;
 }
 #endif
