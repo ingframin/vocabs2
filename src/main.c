@@ -27,6 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "drone.h"
 #include "comms.h"
 #include "main.h"
+
 #ifdef TEST
 #include "test_vec2.h"
 #include "test_flightplan.h"
@@ -89,17 +90,15 @@ int main(int argc, char *argv[])
 #pragma omp for
       for (uint32_t it = 0; it < sim_context.iterations; it++)
       {
-        //Should Drone become a reference type?
-        Drone d1 = DR_newDrone(0.0, 0.0, sim_context.speed, 0.0, 1);
-        Drone d2 = DR_newDrone(1000.0, 0.0, sim_context.speed, 0.0, 1);
+        // Initialize drone system with 2 drones
+        DroneSystem drone_system = DRS_init_drone_system(2, sim_context.speed);
         
-        FP_push_waypoint(d1.fp, p2);
-        FP_push_waypoint(d2.fp, p2);
+        // Set up waypoints for each drone
+        for (size_t d = 0; d < drone_system.length; d++) {
+            FP_push_waypoint(drone_system.drones[d].fp, p2);
+            FP_push_waypoint(drone_system.drones[d].fp, p1);
+        }
         
-        FP_push_waypoint(d1.fp, p1);
-        FP_push_waypoint(d2.fp, p1);
-        
-
         sim_context.rate = sim_context.rates[i];
         //Timer should be part of the simulation object
         bool running = true;
@@ -111,29 +110,29 @@ int main(int argc, char *argv[])
           if (timer >= sim_context.rate)
           {
 
-            // if (COM_broadcast(d1.position, d2.position, sys, l))
+            // if (COM_broadcast(drone_system.drones[0].position, drone_system.drones[1].position, sys, l))
             if (COM_broadcast_Pint(0.5,0.5,0.0))
             {
               
-              DR_avoid(&d2, &d1, sim_context.error);
-              DR_avoid(&d1, &d2, sim_context.error);
+              DR_avoid(&drone_system.drones[1], &drone_system.drones[0], sim_context.error);
+              DR_avoid(&drone_system.drones[0], &drone_system.drones[1], sim_context.error);
               
             }
             timer = 0;
           }
 
-          DR_move(&d1, sim_context.dt);
-          DR_move(&d2, sim_context.dt);
+          DR_move(&drone_system.drones[0], sim_context.dt);
+          DR_move(&drone_system.drones[1], sim_context.dt);
           
           
-          if (FP_isFlightPlanEmpty(d1.fp) || FP_isFlightPlanEmpty(d2.fp))
+          if (FP_isFlightPlanEmpty(drone_system.drones[0].fp) || FP_isFlightPlanEmpty(drone_system.drones[1].fp))
           {
             running = false;
           }
 
 
           //This should be improved for better collision detection
-          if (v2_distance(d1.position, d2.position) < (d1.size + d2.size)) 
+          if (v2_distance(drone_system.drones[0].position, drone_system.drones[1].position) < (drone_system.drones[0].size + drone_system.drones[1].size)) 
           {
             omp_set_lock(&writelock);
             collisions[i] += 1;
@@ -145,8 +144,7 @@ int main(int argc, char *argv[])
         }//while
         // printf("Iter: %d",it);
         //Fix for memory leak: flight plan within drones was allocated with malloc and never freed.
-        DR_freeDrone(&d1);
-        DR_freeDrone(&d2);
+        DRS_free_drone_system(&drone_system);
       } //iterations
       if (collisions[i] == 0.0)
       {

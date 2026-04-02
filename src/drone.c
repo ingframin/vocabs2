@@ -305,3 +305,37 @@ void DR_freeDrone(Drone *d)
 	}
 }
 
+// Initialize a drone system with the specified number of drones
+DroneSystem DRS_init_drone_system(size_t num_drones, double speed) {
+    DroneSystem system;
+    system.length = num_drones;
+    system.drones = (Drone*)malloc(num_drones * sizeof(Drone));
+    
+    if (system.drones != NULL) {
+        // Initialize drone positions and waypoints
+        vec2 start_positions[] = {{0.0, 0.0}, {1000.0, 0.0}};
+        
+        for (size_t i = 0; i < num_drones; i++) {
+            system.drones[i] = DR_newDrone(
+                start_positions[i % 2].x, 
+                start_positions[i % 2].y, 
+                speed, 0.0, 1
+            );
+        }
+    }
+    
+    return system;
+}
+
+// Free memory allocated for a drone system
+void DRS_free_drone_system(DroneSystem* system) {
+    if (system->drones != NULL) {
+        for (size_t i = 0; i < system->length; i++) {
+            DR_freeDrone(&system->drones[i]);
+        }
+        free(system->drones);
+        system->drones = NULL;
+    }
+    system->length = 0;
+}
+

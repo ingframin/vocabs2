@@ -41,7 +41,17 @@ typedef struct
   
 } Drone;
 
+// Drone system structure to manage multiple drones
+typedef struct {
+    Drone* drones;  // Array of drones
+    size_t length;   // Number of drones in the array
+} DroneSystem;
 
+// Initialize a drone system with the specified number of drones
+DroneSystem DRS_init_drone_system(size_t num_drones, double speed);
+
+// Free memory allocated for a drone system
+void DRS_free_drone_system(DroneSystem* system);
 
 /**
  * @brief Initialize a new drone
