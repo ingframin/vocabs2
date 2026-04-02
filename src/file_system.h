@@ -38,4 +38,19 @@ typedef struct content{
 //!!Remember to free the returned array when done!!!
 Text read_text_file(const char* filename);
 void write_text_file(const char* filename, const Text* text);
+
+typedef struct config {
+    uint32_t iterations;
+    double dt;
+    double error;
+    double* rates;
+    uint32_t num_rates;
+    int num_threads;
+    double speed;
+    char prob;
+    double loss;
+} Config;
+
+Config parse_config(const char* filename);
+void free_config(Config* config);
 #endif

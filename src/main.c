@@ -55,6 +55,10 @@ int main(int argc, char *argv[])
 {
 
   
+  // Load configuration from file
+  load_config();
+  
+  // Parse command line arguments (can override config)
   parseArguments(argc,argv);
   
   double collisions[len_rates];

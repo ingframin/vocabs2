@@ -23,55 +23,39 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
 #endif
 time_t t;
-uint32_t iterations = 10000;
 
-double dt = 1E-3; //seconds
-
-/*This is supposed to be the positional error in m
-It's an ugly solution, it should be corrected.
-Maybe it makes more sense to have an error_x and error_y
-or make it a struct.
-*/
-double error = 0;
-/*These are not rates but timings in ms.
-The timings are not integers but the timer is.
-This should be changed or even calculated at runtime.
-*/
-double rates[] = 
-{
-  
-  2000.000,
-  1000.000,
-  500.000,
-  333.333,
-  250.000,
-  200.000,
-  166.667,
-  142.857,
-  125.000,
-  111.111,
-  100.000,
-  90.909,
-  83.333,
-  76.923,
-  71.429,
-  66.667,
-  62.500,
-  58.824,
-  55.556,
-  52.632,
-  50.000
-}; //msg/s
-    
-int num_threads = 8;
-double speed = 20.0;
-uint32_t len_rates = sizeof(rates) / sizeof(double);
+// Configuration variables (will be loaded from config file)
+uint32_t iterations;
+double dt; //seconds
+double error; // positional error in meters
+double* rates; // timings in ms
+int num_threads;
+double speed;
 int si = 0;
 uint64_t rate = 1;
-char prob = 'A';
+char prob;
 RFsystem sys;
-//loss probability x1000
-double l = 1000.0;
+double l; // loss probability x1000
+uint32_t len_rates;
+
+#include "file_system.h"
+
+void load_config() {
+    Config config = parse_config("config.ini");
+    
+    iterations = config.iterations;
+    dt = config.dt;
+    error = config.error;
+    rates = config.rates;
+    len_rates = config.num_rates;
+    num_threads = config.num_threads;
+    speed = config.speed;
+    prob = config.prob;
+    l = config.loss;
+    
+    // Don't free config.rates here as we're using it directly
+    // The rates array is now managed by the main program
+}
 
 void parseArguments(int argc, char *argv[]){
   if (argc > 1)
