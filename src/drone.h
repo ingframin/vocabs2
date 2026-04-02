@@ -22,34 +22,80 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "math2d.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 #include "flightplan.h"
 
+// Minimum valid values for drones
+#define MIN_DRONE_SIZE 0.1          // Minimum drone size in meters
+#define MIN_DRONE_SPEED 1e-6       // Minimum drone speed in m/s
+#define MAX_DRONE_SPEED 100.0      // Maximum drone speed in m/s
+#define DEFAULT_DRONE_SIZE 1.0    // Default drone size in meters
 
 typedef struct
 {
-  uint64_t id;      //Unique ID
-  vec2 position;    // current position
-  vec2 velocity;    //current velocity
-  double size;      //Physical size of the drone
-  FlightPlan* fp;   //stack of susequent waypoints to be reached
+  uint64_t id;      /**< Unique ID */
+  vec2 position;    /**< Current position */
+  vec2 velocity;    /**< Current velocity */
+  double size;      /**< Physical size of the drone (meters) */
+  FlightPlan* fp;   /**< Stack of subsequent waypoints to be reached */
   
 } Drone;
 
 
 
-//Initialize a new drone.
+/**
+ * @brief Initialize a new drone
+ * @param x Initial x position
+ * @param y Initial y position
+ * @param vx Initial x velocity (m/s)
+ * @param vy Initial y velocity (m/s)
+ * @param size Drone size in meters (must be > 0)
+ * @return Initialized Drone structure
+ */
 Drone DR_newDrone(double x, double y, double vx, double vy, double size);
-//Free memory used by a drone
+
+/**
+ * @brief Free memory used by a drone
+ * @param d Pointer to drone to free (can be NULL)
+ */
 void DR_freeDrone(Drone *d);
-//move the drone by velocity x time delta
+
+/**
+ * @brief Move the drone by velocity x time delta
+ * @param d Pointer to drone
+ * @param dt Time delta in seconds (must be > 0)
+ */
 void DR_move(Drone *d, double dt);
-//Steer towards next waypoint (It doesn't move the drone!!)
+
+/**
+ * @brief Steer towards next waypoint (does not move the drone)
+ * @param d Pointer to drone
+ * @param waypoint Target waypoint
+ */
 void DR_goto(Drone *d, vec2 waypoint);
-//Are the drones on a collision route?
+
+/**
+ * @brief Check if drones are on a collision route
+ * @param d1 Pointer to first drone
+ * @param d2 Pointer to second drone
+ * @return True if collision is imminent, false otherwise
+ */
 bool DR_collision(Drone *d1, Drone *d2);
-//Compute avoidance maneuver and add escape waypoint
+
+/**
+ * @brief Compute avoidance maneuver and add escape waypoint
+ * @param d Pointer to drone to maneuver
+ * @param d2 Pointer to drone to avoid
+ * @param error Positional error magnitude
+ */
 void DR_avoid(Drone *d, Drone *d2, double error);
-//Instead of computing an avoidance maneuver waits until no collision is imminent
+
+/**
+ * @brief Stop and wait avoidance strategy
+ * @param d Pointer to drone to maneuver
+ * @param d2 Pointer to drone to avoid
+ * @param error Positional error magnitude
+ */
 void DR_stopAndWait(Drone *d, Drone *d2, double error);
 
 
