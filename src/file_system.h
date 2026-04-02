@@ -49,6 +49,7 @@ typedef struct config {
     double speed;
     char prob;
     double loss;
+    int num_drones; // Number of drones
 } Config;
 
 Config parse_config(const char* filename);

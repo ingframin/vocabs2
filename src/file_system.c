@@ -194,6 +194,10 @@ Config parse_config(const char* filename) {
                 if (strcmp(key, "speed") == 0) {
                     config.speed = atof(value);
                 }
+            } else if (strcmp(current_section, "Drones") == 0) {
+                if (strcmp(key, "num_drones") == 0) {
+                    config.num_drones = atoi(value);
+                }
             } else if (strcmp(current_section, "System") == 0) {
                 if (strcmp(key, "prob") == 0) {
                     config.prob = value[0];
