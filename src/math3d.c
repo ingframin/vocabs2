@@ -272,9 +272,9 @@ vec3 m33_product_v3(mat3x3 m1, vec3 v2){
 
 mat3x3 m33_transpose(mat3x3 m1){
     mat3x3 m = {
-        {m1.x1, m1.y1, m1.z1},
-        {m1.x2, m1.y2, m1.z2},
-        {m1.x3, m1.y3, m1.z3}
+        m1.x1, m1.y1, m1.z1,
+        m1.x2, m1.y2, m1.z2,
+        m1.x3, m1.y3, m1.z3
     };
 
     return m;  
@@ -288,9 +288,9 @@ mat3x3 m33_rotationX(double angle) {
     double s = sin(angle);
 
     return (mat3x3){
-        {1, 0, 0},
-        {0, c, s},
-        {0, -s, c}
+        1, 0, 0,
+        0, c, s,
+        0, -s, c
     };
 }
 
@@ -320,10 +320,6 @@ mat3x3 m33_rotationZ(double angle){
 
 }
 
-//Precalculate some values
-static const double halfPI = 0.5*M_PI;
-static const double twoPI = 2.0*M_PI;
-
 mat3x3 m33_rotation_XYZ(double alpha, double beta, double gamma){
     double ca = cos(alpha);
     double sa = sin(alpha);
@@ -336,8 +332,7 @@ mat3x3 m33_rotation_XYZ(double alpha, double beta, double gamma){
     double ca_sb = ca*sb;
     double sa_cb = sa*cb;
     double sa_sb = sa*sb;
-    double sg_cb = sg*cb;
-    double sg_sb = sg*sb;
+    // Removed unused variables: sg_cb, sg_sb
 
     return (mat3x3){ 
         cb*cg, sa_sb*cg-ca_cb*sg, ca_sb*cg+sa_cb*sg, 
@@ -359,9 +354,9 @@ mat3x3 m33_scale_xyz(double k){
 
 
 mat3x3 m33_scale_xyz_v3(vec3 sxyz){
-    mat3x3 sc = {{sxyz.x, 0.0f, 0.0f},
-                 {0.0f, sxyz.y, 0.0f},
-                 {0.0f, 0.0f, sxyz.z}};
+    mat3x3 sc = {sxyz.x, 0.0f, 0.0f,
+                 0.0f, sxyz.y, 0.0f,
+                 0.0f, 0.0f, sxyz.z};
     return sc;
 
 }

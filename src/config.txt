@@ -1,2 +1,0 @@
-num drones = 10
-num points = 2
