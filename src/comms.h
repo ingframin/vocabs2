@@ -21,47 +21,100 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define COMMS_H
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 #include "math2d.h"
+
+// Physical constants
+#define SPEED_OF_LIGHT 299792458.0 // m/s
+#define PROBABILITY_SCALE 1000.0    // Scale factor for probability calculations
+
+// Minimum valid values for numerical stability
+#define MIN_DISTANCE 1e-6         // Minimum distance (meters)
+#define MIN_POWER -200.0          // Minimum power (dB)
+#define MIN_BANDWIDTH 1e3         // Minimum bandwidth (Hz)
+#define MIN_SYMBOL_RATE 1e3       // Minimum symbol rate (symbols/s)
 
 typedef enum
 {
-    NO_LOSS,
-    WI_FI,
-    ADS_B
+    NO_LOSS,   /**< No loss model */
+    WI_FI,     /**< Wi-Fi beacon model */
+    ADS_B      /**< ADS-B model */
 } RFsystem;
 
 typedef enum{
-  OOK,
-  FSK,
-  GFSK,
-  BPSK,
-  QPSK,
-  QAM
+  OOK,       /**< On-Off Keying */
+  FSK,       /**< Frequency Shift Keying */
+  GFSK,      /**< Gaussian Frequency Shift Keying */
+  BPSK,      /**< Binary Phase Shift Keying */
+  QPSK,      /**< Quadrature Phase Shift Keying */
+  QAM        /**< Quadrature Amplitude Modulation */
 } ModulationFamily;
 
 typedef struct modulation{
-  double bandwidth;
-  uint32_t bits_per_symbol;
-  uint32_t symbol_time;//Symbol t ime in ns
-  ModulationFamily family;
+  double bandwidth;        /**< Bandwidth in Hz */
+  uint32_t bits_per_symbol; /**< Bits per symbol */
+  uint32_t symbol_time;    /**< Symbol time in ns */
+  ModulationFamily family; /**< Modulation type */
 }Modulation;
 
 typedef struct channel{
-    double center_frequency;
-    double bandwidth;
-    double noise_power;
+    double center_frequency; /**< Center frequency in MHz */
+    double bandwidth;        /**< Bandwidth in Hz */
+    double noise_power;      /**< Noise power in dB */
 }Channel;
 
-
-//Compute receive probability
-//dist is the distance
+/**
+ * @brief Compute reception probability using Consiglio model
+ * @param dist Distance in meters (must be >= 0)
+ * @return Probability (0.0 to 1.0)
+ */
 double consiglio(double dist);
+
+/**
+ * @brief Compute reception probability using ESAT model
+ * @param dist Distance in meters (must be >= 0)
+ * @return Probability (0.0 to 1.0)
+ */
 double esat(double dist);
 
-//Compute the probability of packet errors
-//Assuming power in dB, frequency in MHz
+/**
+ * @brief Compute probability of packet errors
+ * @param chn Channel parameters
+ * @param dist Distance in meters (must be > 0)
+ * @param ptx Transmit power in dB (must be > MIN_POWER)
+ * @param symbol_rate Symbol rate in symbols/s (must be > 0)
+ * @param packet_length Packet length in bits (must be > 0)
+ * @param recv_pwr Function pointer to receive power calculation function
+ * @return Packet error rate (0.0 to 1.0)
+ */
 double COM_compute_Pe(const Channel* chn, double dist, double ptx, double symbol_rate, long packet_length, double(*recv_pwr)(double,double,double));
+
+/**
+ * @brief Compute received power using log-distance path loss model
+ * @param frequency Frequency in MHz (must be > 0)
+ * @param dist Distance in meters (must be > 0)
+ * @param Ptx Transmit power in dB (must be > MIN_POWER)
+ * @return Received power in dB
+ */
 double COM_log_distance_Prx(double frequency, double dist, double Ptx);
+
+/**
+ * @brief Simulate broadcast with probability-based interference
+ * @param d1 Position of first drone
+ * @param d2 Position of second drone
+ * @param rf RF system type
+ * @param loss Loss probability factor (0.0 to 1.0)
+ * @return True if broadcast successful, false otherwise
+ */
 bool COM_broadcast(vec2 d1, vec2 d2, RFsystem rf, double loss);
+
+/**
+ * @brief Simulate broadcast with explicit power levels and interference
+ * @param Ptx Transmit power (0.0 to 1.0)
+ * @param Prx Receive power (0.0 to 1.0)
+ * @param Pint Interference probability (0.0 to 1.0)
+ * @return True if broadcast successful, false otherwise
+ */
 bool COM_broadcast_Pint(double Ptx, double Prx, double Pint);
+
 #endif
