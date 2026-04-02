@@ -74,6 +74,9 @@ vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t);
 //Returns a newly allocated array of points (length vs_len), caller must free
 vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t);
 
+//Free the array returned by v2_interpolate
+void v2_free_interpolated(vec2* points);
+
 //Angle between 2 vectors
 double v2_angle_between(vec2 v1, vec2 v2);
 #endif

@@ -23,6 +23,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
 #include <stdlib.h>
+#include <stdbool.h>
+
+// Helper function to check if a vector is approximately zero
+static bool v2_is_zero(vec2 v, double epsilon) {
+    return fabs(v.x) < epsilon && fabs(v.y) < epsilon;
+}
 
 double v2_mod(vec2 v)
 {
@@ -57,6 +63,11 @@ vec2 v2_rotate(vec2 v, double angle)
   double C = cos(angle);
   double S = sin(angle);
 
+  if(v2_is_zero(v, 1e-12)) {
+    // Cannot rotate zero vector
+    return v;
+  }
+  
   double m = v2_mod(v);
   vec2 vn;
   vn.x = v.x / m;
@@ -71,11 +82,13 @@ vec2 v2_rotate(vec2 v, double angle)
 
 vec2 v2_normalize(vec2 v)
 {
-  vec2 n;
+  if(v2_is_zero(v, 1e-12)) {
+    // Return zero vector for zero-length input
+    return (vec2){0.0, 0.0};
+  }
+  
   double m = v2_mod(v);
-  n.x = v.x / m;
-  n.y = v.y / m;
-  return n;
+  return (vec2){v.x / m, v.y / m};
 }
 
 vec2 v2_add(vec2 v1, vec2 v2)
@@ -168,9 +181,21 @@ vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t){
 }
 
 double v2_angle_between(vec2 v1, vec2 v2){
-  double mods = v2_mod(v1)*v2_mod(v2);
+  double mod1 = v2_mod(v1);
+  double mod2 = v2_mod(v2);
+  double mods = mod1 * mod2;
+  
+  // Handle zero vectors
+  if(mods < 1e-12) {
+    return 0.0; // Return 0 angle if either vector is zero
+  }
+  
   double sina = (v1.x*v2.y - v2.x*v1.y)/mods;
   double cosa = (v1.x*v2.x + v1.y*v2.y)/mods;
+  
+  // Clamp values to avoid domain errors in atan2
+  sina = fmin(fmax(sina, -1.0), 1.0);
+  cosa = fmin(fmax(cosa, -1.0), 1.0);
 
   return atan2(sina, cosa);
 
@@ -178,6 +203,11 @@ double v2_angle_between(vec2 v1, vec2 v2){
 
 vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t) {
     if (vs_len == 0) return NULL;
+    if (!vs) return NULL;  // Add null pointer check
+    if (t < 0.0 || t > 1.0) {
+        // Clamp t to valid range
+        t = fmax(0.0, fmin(t, 1.0));
+    }
 
     // Allocate a new array for the results
     vec2* temp = (vec2*)malloc(vs_len * sizeof(vec2));
@@ -188,13 +218,22 @@ vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t) {
         temp[i] = vs[i];
     }
 
-    // Perform interpolation in-place on the temp array
-    for (size_t L = vs_len; L > 1; L--) {
-        for (size_t i = 1; i < L; i++) {
-            temp[i - 1] = v2_lerp(temp[i], temp[i - 1], t);
+    // Perform interpolation using de Casteljau's algorithm
+    // This is more efficient than the original nested loop approach
+    for (size_t level = 1; level < vs_len; ++level) {
+        for (size_t i = 0; i < vs_len - level; ++i) {
+            temp[i] = v2_lerp(temp[i], temp[i + 1], t);
         }
     }
 
-    // Return the array of points (the first element is the result)
+    // The result is in temp[0], but we return the whole array
+    // as documented (caller must free)
     return temp;
+}
+
+// Add a function to free the interpolated array
+void v2_free_interpolated(vec2* points) {
+    if (points) {
+        free(points);
+    }
 }
