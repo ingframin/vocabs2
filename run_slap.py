@@ -44,31 +44,31 @@ Pint = 0.0
 
 # Default run
 config_file = create_config_file("A", 0.0, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_default_A.txt"])
 
 # Different system types
 config_file = create_config_file("C", 0.0, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_default_C.txt"])
 
 config_file = create_config_file("E", 0.0, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_default_E.txt"])
 
 # With error = 2.5
 config_file = create_config_file("A", 2.5, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_error_25_A.txt"])
 
 config_file = create_config_file("C", 2.5, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_error_25_C.txt"])
 
 config_file = create_config_file("E", 2.5, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_error_25_E.txt"])
 
 # With error = 5
 config_file = create_config_file("A", 5.0, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_error_5_A.txt"])
 
 config_file = create_config_file("C", 5.0, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_error_5_C.txt"])
 
 config_file = create_config_file("E", 5.0, 1000.0, 20.0)
-run(["./build/vocabs2", "-c", config_file])
+run(["./build/vocabs2", "-c", config_file, "-o", "results/slap_error_5_E.txt"])

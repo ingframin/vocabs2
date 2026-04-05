@@ -20,14 +20,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define SIMULATION_CONTEXT_H
 
 #include <stdint.h>
+#include <vector>
 #include "comms.h"  // For RFsystem type
 
 // Simulation context structure to hold all configuration and runtime state
-typedef struct {
+struct SimulationContext{
     uint32_t iterations;
     double dt; //seconds
     double error; // positional error in meters
-    double* rates; // timings in ms
+    std::vector<double> rates; // timings in ms
     int num_threads;
     double speed;
     int si;
@@ -35,14 +36,15 @@ typedef struct {
     char prob;
     RFsystem sys;
     double l; // loss probability x1000
-    uint32_t len_rates;
     // Communication parameters
     double Ptx;    // Transmit power (0.0 to 1.0)
     double Prx;    // Receive power (0.0 to 1.0)
     double Pint;   // Interference probability (0.0 to 1.0)
-} SimulationContext;
+    // Output parameters
+    std::string filename; // Output filename
+};
 
-// Global simulation context (defined in file_system.c, declared here)
+// Global simulation context (defined in file_system.cpp, declared here)
 extern SimulationContext sim_context;
 
 #endif

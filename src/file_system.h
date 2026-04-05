@@ -24,28 +24,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <sstream>
 #include <vector>
 #include <stdint.h>
-#ifdef __unix
-#define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
-#define strcat_s(dest,size,source) strcat((dest),(source))
-#endif
+
 
 #include "simulation_context.h"  // For SimulationContext
 
-typedef struct content{
-    char* text;
-    uint32_t size;
-}Text;
-
 // Modern C++ version that returns string instead of Text struct
 std::string read_text_file_modern(const std::string& filename);
-// Legacy versions for backward compatibility
-Text read_text_file(const char* filename);
-Text read_text_file_legacy(const std::string& filename);
 void write_text_file(const std::string& filename, const std::string& content);
 void write_text_file_modern(const std::string& filename, const std::string& content);
-// Legacy versions for backward compatibility  
-void write_text_file(const char* filename, const Text* text);
-void write_text_file_legacy(const std::string& filename, const Text* text);
 
 typedef struct config {
     uint32_t iterations;
@@ -62,12 +48,17 @@ typedef struct config {
     double Ptx;    // Transmit power (0.0 to 1.0)
     double Prx;    // Receive power (0.0 to 1.0)
     double Pint;   // Interference probability (0.0 to 1.0)
+    // Output parameters
+    std::string filename; // Output filename
 } Config;
 
 Config parse_config(const char* filename);
 Config parse_config(const std::string& filename);
 Config parse_config_modern(const std::string& filename);
 void free_config(Config* config);
+
+// Add command line argument for output filename
+void add_output_filename_argument(int argc, char *argv[], std::string& output_filename);
 
 // Load configuration from file and populate global simulation context
 void load_config();
@@ -82,10 +73,10 @@ void load_config();
 // loss: loss probability
 // speed: agent speed
 // prob: system type ('A'=No loss, 'E'=Wi-Fi, 'C'=ADS-B)
-void save_results(const char* filename, double collisions[], const double rates[], 
-                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+void save_results(const char* filename, double collisions[], const std::vector<double>& rates, 
+                  uint32_t iterations, double error, double loss, 
                   double speed, char prob);
-void save_results(const std::string& filename, double collisions[], const double rates[], 
-                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+void save_results(const std::string& filename, double collisions[], const std::vector<double>& rates, 
+                  uint32_t iterations, double error, double loss, 
                   double speed, char prob);
 #endif

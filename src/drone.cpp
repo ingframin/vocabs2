@@ -17,8 +17,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "drone.h"
+#include <memory>
 #include <stdlib.h>
 #include <stdio.h>
+#include <random>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #ifndef M_PI
@@ -30,47 +32,24 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // Initialize static member
 uint64_t Drone::next_id = 0;
 
+// Static random number generator for Gaussian distributions
+static std::mt19937& getRandomEngine() {
+    static std::random_device rd;
+    static std::mt19937 engine(rd());
+    return engine;
+}
+
 static inline double generateGaussian(double mean, double stdDev)
 {
-	static double spare;
-	static bool hasSpare = false;
-
-	if (hasSpare)
-	{
-		hasSpare = false;
-		return spare * stdDev + mean;
-	}
-	else
-	{
-		double u, v, s;
-		do
-		{
-			u = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
-			v = (rand() / ((double)RAND_MAX)) * 2.0 - 1.0;
-			s = u * u + v * v;
-		} while (s >= 1.0 || s == 0.0);
-		s = sqrt(-2.0 * log(s) / s);
-		spare = v * s;
-		hasSpare = true;
-		return mean + stdDev * u * s;
-	}
+    std::normal_distribution<double> dist(mean, stdDev);
+    return dist(getRandomEngine());
 }
 
 static inline vec2 generateGaussian2D(double mean, double stdDev)
 {
-	
-double u, v, s;
-	do
-	{
-		u = (rand()/((double)RAND_MAX)) * 2.0 - 1.0;
-		v = (rand()/((double)RAND_MAX)) * 2.0 - 1.0;
-		s = u * u + v * v;
-	} while (s >= 1.0 || s == 0.0);
-	s = sqrt(-2.0 * log(s) / s);
-	
-	vec2 ret = {mean + stdDev * u * s, mean + stdDev * v * s};
-	return ret;
-	
+    std::normal_distribution<double> dist(mean, stdDev);
+    vec2 ret = {dist(getRandomEngine()), dist(getRandomEngine())};
+    return ret;
 }
 
 
@@ -96,21 +75,22 @@ Drone::Drone(double x, double y, double vx, double vy, double size)
 	position.y = y;
 	velocity.x = vx;
 	velocity.y = vy;
-	fp = new FlightPlan(4);
-	if (fp == NULL) {
-		// Handle memory allocation failure
-		fp = new FlightPlan(2); // Try smaller size
-		if (fp == NULL) {
-			// If still fails, create minimal drone
-			this->size = size;
-			return;
+	try {
+		fp = std::make_unique<FlightPlan>(4);
+	} catch (const std::bad_alloc&) {
+		try {
+			// Try smaller size if allocation fails
+			fp = std::make_unique<FlightPlan>(2);
+		} catch (const std::bad_alloc&) {
+			// If still fails, create minimal drone without flight plan
+			fp = nullptr;
 		}
 	}
 	this->size = size;
 }
 
 // Default constructor
-Drone::Drone() : id(0), size(DEFAULT_DRONE_SIZE), fp(NULL) {
+Drone::Drone() : id(0), size(DEFAULT_DRONE_SIZE), fp(nullptr) {
 	position.x = 0.0;
 	position.y = 0.0;
 	velocity.x = 0.0;
@@ -118,13 +98,8 @@ Drone::Drone() : id(0), size(DEFAULT_DRONE_SIZE), fp(NULL) {
 }
 
 // Drone destructor
-Drone::~Drone()
-{
-	if (fp != NULL) {
-		delete fp;
-		fp = NULL;
-	}
-}
+// Destructor - not needed with unique_ptr
+Drone::~Drone() = default;
 
 // Copy constructor
 Drone::Drone(const Drone& other)
@@ -135,16 +110,12 @@ Drone::Drone(const Drone& other)
 	velocity = other.velocity;
 	size = other.size;
 	// Create a new flight plan and copy waypoints
-	if (other.fp != NULL) {
-		fp = new FlightPlan(other.fp->getLength());
-		if (fp != NULL) {
-			// Copy waypoints manually
-			for (int64_t i = 0; i < other.fp->getCurrentWp() + 1; i++) {
-				fp->pushWaypoint(other.fp->getWaypoints()[i]);
-			}
+	if (other.fp) {
+		fp = std::make_unique<FlightPlan>(other.fp->getLength());
+		// Copy waypoints manually
+		for (int64_t i = 0; i < other.fp->getCurrentWp() + 1; i++) {
+			fp->pushWaypoint(other.fp->getWaypoints()[i]);
 		}
-	} else {
-		fp = NULL;
 	}
 }
 
@@ -159,23 +130,51 @@ Drone& Drone::operator=(const Drone& other)
 	velocity = other.velocity;
 	size = other.size;
 	
-	// Handle flight plan
-	if (fp != NULL) {
-		delete fp;
-	}
-	
 	// Create a new flight plan and copy waypoints
-	if (other.fp != NULL) {
-		fp = new FlightPlan(other.fp->getLength());
-		if (fp != NULL) {
-			// Copy waypoints manually
-			for (int64_t i = 0; i < other.fp->getCurrentWp() + 1; i++) {
-				fp->pushWaypoint(other.fp->getWaypoints()[i]);
-			}
+	if (other.fp) {
+		fp = std::make_unique<FlightPlan>(other.fp->getLength());
+		// Copy waypoints manually
+		for (int64_t i = 0; i < other.fp->getCurrentWp() + 1; i++) {
+			fp->pushWaypoint(other.fp->getWaypoints()[i]);
 		}
 	} else {
-		fp = NULL;
+		fp = nullptr;
 	}
+	
+	return *this;
+}
+
+// Move constructor
+Drone::Drone(Drone&& other) noexcept
+	: id(other.id), position(other.position), velocity(other.velocity), size(other.size), fp(std::move(other.fp))
+{
+	// Reset the source object to a valid state
+	other.id = 0;
+	other.position = {0, 0};
+	other.velocity = {0, 0};
+	other.size = DEFAULT_DRONE_SIZE;
+	other.fp = nullptr;
+}
+
+// Move assignment operator
+Drone& Drone::operator=(Drone&& other) noexcept
+{
+	if (this == &other) {
+		return *this;
+	}
+	
+	// Move all members
+	position = other.position;
+	velocity = other.velocity;
+	size = other.size;
+	fp = std::move(other.fp);
+	
+	// Reset the source object to a valid state
+	other.id = 0;
+	other.position = {0, 0};
+	other.velocity = {0, 0};
+	other.size = DEFAULT_DRONE_SIZE;
+	other.fp = nullptr;
 	
 	return *this;
 }
@@ -183,8 +182,7 @@ Drone& Drone::operator=(const Drone& other)
 void Drone::move(double dt)
 {
 	// Validate inputs
-	if (fp == NULL) return;
-	if (dt <= 0 || isnan(dt) || isinf(dt)) return;
+	if (!fp || dt <= 0 || isnan(dt) || isinf(dt)) return;
 	
 	//This has to become a new function
 	if (position.distanceTo(fp->currentWp()) < size)
@@ -366,26 +364,15 @@ void Drone::stopAndWait(const Drone* d2, double error)
 
 // DroneSystem constructor
 DroneSystem::DroneSystem(size_t num_drones, double speed) {
-    length = num_drones;
-    drones = new Drone[num_drones];
-    
     // Initialize drone positions and waypoints
     vec2 start_positions[] = {{0.0, 0.0}, {1000.0, 0.0}};
     
+    drones.reserve(num_drones);
     for (size_t i = 0; i < num_drones; i++) {
-        drones[i] = Drone(
+        drones.emplace_back(
             start_positions[i % 2].x, 
             start_positions[i % 2].y, 
             speed, 0.0, 1
         );
     }
-}
-
-// DroneSystem destructor
-DroneSystem::~DroneSystem() {
-    if (drones != NULL) {
-        delete[] drones;
-        drones = NULL;
-    }
-    length = 0;
 }

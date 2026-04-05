@@ -19,9 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef MAIN_H
 #define MAIN_H
-#ifdef __unix
-#define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
-#endif
+
 #include <cstring>
 #include <string>
 #include <iostream>
@@ -37,6 +35,7 @@ void displayHelp() {
     std::cout << "\nOptions:\n";
     std::cout << "  -h, --help          Display this help message\n";
     std::cout << "  -c, --config FILE   Use configuration from FILE (overrides all other parameters)\n";
+    std::cout << "  -o, --output FILE   Set output filename for results\n";
     std::cout << "  -p, --prob CHAR     Set system type: A=No loss, E=Wi-Fi, C=ADS-B (default: A)\n";
     std::cout << "  -e, --error VALUE    Set positional error in meters (default: 0.0)\n";
     std::cout << "  -l, --loss VALUE     Set loss probability (0.0 to 1.0, default: 1000.0)\n";
@@ -48,7 +47,7 @@ void displayHelp() {
     std::cout << "Command line parameters override config file settings.\n";
 }
 
-void parseArguments(int argc, char *argv[]) {
+void parseArguments(int argc, char *argv[], std::string& output_filename) {
     std::string config_file = "";
     
     // Check for help flag
@@ -61,7 +60,11 @@ void parseArguments(int argc, char *argv[]) {
     
     // Parse arguments
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--config") == 0) {
+        if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+            if (i + 1 < argc) {
+                output_filename = argv[++i];
+            }
+        } else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--config") == 0) {
             if (i + 1 < argc) {
                 config_file = argv[++i];
             }
@@ -110,14 +113,8 @@ void parseArguments(int argc, char *argv[]) {
         
         // Copy the rates array
         if (config.rates != NULL && config.num_rates > 0) {
-            if (sim_context.rates != NULL) {
-                free(sim_context.rates);
-            }
-            sim_context.rates = (double*)malloc(config.num_rates * sizeof(double));
-            if (sim_context.rates != NULL) {
-                memcpy(sim_context.rates, config.rates, config.num_rates * sizeof(double));
-            }
-            sim_context.len_rates = config.num_rates;
+            // Vector handles its own memory management
+            sim_context.rates.assign(config.rates, config.rates + config.num_rates);
         }
         
         sim_context.num_threads = config.num_threads;
@@ -128,17 +125,23 @@ void parseArguments(int argc, char *argv[]) {
         sim_context.Prx = config.Prx;
         sim_context.Pint = config.Pint;
         
+        // Copy filename if not already set via command line
+        if (output_filename.empty() && !config.filename.empty()) {
+            sim_context.filename = config.filename;
+            output_filename = sim_context.filename;
+        }
+        
         // Set system type based on prob
         switch (sim_context.prob)
         {
         case 'E':
-            sim_context.sys = WI_FI;
+            sim_context.sys = RFsystem::WI_FI;
             break;
         case 'C':
-            sim_context.sys = ADS_B;
+            sim_context.sys = RFsystem::ADS_B;
             break;
         default:
-            sim_context.sys = NO_LOSS;
+            sim_context.sys = RFsystem::NO_LOSS;
         }
         
         free_config(&config);

@@ -45,9 +45,11 @@ Pint = 0.0
 for s in range(5, 100, 5):
     for loss in [0.1, 0.3, 0.5, 0.7]:
         config_file = create_config_file("A", 0.0, loss, s)
-        run(["./build/vocabs2", "-c", config_file])
+        output_file = f"results/fixed_loss_speed_{s}_loss_{int(loss*100)}.txt"
+        run(["./build/vocabs2", "-c", config_file, "-o", output_file])
 
 for s in range(100, 1000, 50):
     for loss in [0.1, 0.3, 0.5, 0.7]:
         config_file = create_config_file("A", 0.0, loss, s)
-        run(["./build/vocabs2", "-c", config_file])
+        output_file = f"results/fixed_loss_speed_{s}_loss_{int(loss*100)}.txt"
+        run(["./build/vocabs2", "-c", config_file, "-o", output_file])

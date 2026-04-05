@@ -61,7 +61,9 @@ int main(int argc, char *argv[])
 
   
   // Parse command line arguments first to check for config file override
-  parseArguments(argc, argv);
+  std::string output_filename;
+  add_output_filename_argument(argc, argv, output_filename);
+  parseArguments(argc, argv, output_filename);
   
   // Load configuration from file (if not already loaded via -c/--config)
   // Check if we need to load the default config
@@ -75,9 +77,13 @@ int main(int argc, char *argv[])
   
   if (need_default_config) {
       load_config();
+      // If no output filename was specified via command line, use the one from config
+      if (output_filename.empty() && !sim_context.filename.empty()) {
+          output_filename = sim_context.filename;
+      }
   }
   
-  std::vector<double> collisions(sim_context.len_rates, 0.0);
+  std::vector<double> collisions(sim_context.rates.size(), 0.0);
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
@@ -94,7 +100,7 @@ int main(int argc, char *argv[])
 #pragma omp parallel
   {
 
-    for (uint32_t i = 0; i < sim_context.len_rates; i++)
+    for (uint32_t i = 0; i < sim_context.rates.size(); i++)
     {
       std::cout << "rate: " << std::fixed << std::setprecision(2) << (1000.0/sim_context.rates[i]) << " \n";
 
@@ -106,8 +112,8 @@ int main(int argc, char *argv[])
         
         // Set up waypoints for each drone
         for (size_t d = 0; d < drone_system.getLength(); d++) {
-            drone_system[d].getFlightPlan()->pushWaypoint(p2);
-            drone_system[d].getFlightPlan()->pushWaypoint(p1);
+            drone_system[d].getFlightPlan().pushWaypoint(p2);
+            drone_system[d].getFlightPlan().pushWaypoint(p1);
         }
         
         sim_context.rate = sim_context.rates[i];
@@ -147,7 +153,7 @@ int main(int argc, char *argv[])
           // Check if any drone has completed its flight plan
           bool all_drones_have_waypoints = true;
           for (size_t d = 0; d < drone_system.getLength(); d++) {
-            if (drone_system[d].getFlightPlan()->isEmpty()) {
+            if (drone_system[d].getFlightPlan().isEmpty()) {
               all_drones_have_waypoints = false;
               break;
             }
@@ -189,7 +195,9 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  save_results("pinterf_0.0.txt", collisions.data(), sim_context.rates, sim_context.len_rates, sim_context.iterations, sim_context.error, sim_context.l, sim_context.speed, sim_context.prob);
+  // Use the configured output filename, default to "pinterf_0.0.txt" if not set
+  std::string final_filename = output_filename.empty() ? "RESULT.txt" : output_filename;
+  save_results(final_filename, collisions.data(), sim_context.rates, sim_context.iterations, sim_context.error, sim_context.l, sim_context.speed, sim_context.prob);
   return 0;
 }
 #endif

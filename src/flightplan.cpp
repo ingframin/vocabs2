@@ -18,115 +18,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "flightplan.h"
 #include "math2d.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <math.h>
+#include <vector>
 
 // Constructor
-FlightPlan::FlightPlan(int64_t length){
-	// Validate input parameters
-	if (length <= 0) {
-		length = MIN_FLIGHTPLAN_LENGTH;
-	}
-	
-	// Allocate memory for waypoints array
-	waypoints = (vec2*)malloc((size_t)length * sizeof(vec2));
-	if (waypoints == NULL) {
-		// Handle memory allocation failure
-		this->length = 0;
-		current_wp = -1;
-		return;
-	}
-	
-	// Initialize flight plan
-	current_wp = -1; // Start with empty flight plan
-	this->length = length;
+FlightPlan::FlightPlan(size_t initial_capacity) {
+    waypoints.reserve(initial_capacity);
+    current_wp = -1; // Start with empty flight plan
 }
 
-// Destructor
-FlightPlan::~FlightPlan(){
-	// Free waypoints array if it exists
-	if (waypoints != NULL) {
-		free(waypoints);
-		waypoints = NULL;
-	}
-}
-
-// Copy constructor
-FlightPlan::FlightPlan(const FlightPlan& other) {
-	length = other.length;
-	current_wp = other.current_wp;
-	
-	// Allocate memory for waypoints array
-	waypoints = (vec2*)malloc((size_t)length * sizeof(vec2));
-	if (waypoints != NULL && other.waypoints != NULL) {
-		// Copy waypoints
-		for (int64_t i = 0; i <= other.current_wp; i++) {
-			waypoints[i] = other.waypoints[i];
-		}
-	} else {
-		waypoints = NULL;
-		current_wp = -1;
-	}
-}
-
-// Assignment operator
-FlightPlan& FlightPlan::operator=(const FlightPlan& other) {
-	if (this == &other) {
-		return *this;
-	}
-	
-	// Free existing waypoints
-	if (waypoints != NULL) {
-		free(waypoints);
-	}
-	
-	// Copy data
-	length = other.length;
-	current_wp = other.current_wp;
-	
-	// Allocate memory for waypoints array
-	waypoints = (vec2*)malloc((size_t)length * sizeof(vec2));
-	if (waypoints != NULL && other.waypoints != NULL) {
-		// Copy waypoints
-		for (int64_t i = 0; i <= other.current_wp; i++) {
-			waypoints[i] = other.waypoints[i];
-		}
-	} else {
-		waypoints = NULL;
-		current_wp = -1;
-	}
-	
-	return *this;
-}
-
-// Increase the waypoint array size if needed
+// Add a waypoint to the flight plan
 void FlightPlan::pushWaypoint(vec2 wp){
-	current_wp += 1;
-	if (current_wp == (length - 1))
-	{
-		// Calculate new length (grow by 50%)
-		int64_t new_length = length + (length >> 1);
-		
-		// Reallocate waypoints array
-		vec2* new_waypoints = (vec2*)realloc(waypoints, (size_t)new_length * sizeof(vec2));
-		if (new_waypoints == NULL) {
-			// Reallocation failed - keep existing array but prevent overflow
-			current_wp -= 1;
-			return;
-		}
-		
-		waypoints = new_waypoints;
-		length = new_length;
-	}
-	
-	// Add the waypoint
-	waypoints[current_wp] = wp;
+    waypoints.push_back(wp);
+    current_wp = waypoints.size() - 1;
 }
 
-// Pop "removes" the top waypoint (but it does not shrink the waypoint array)
+// Pop "removes" the top waypoint
 // If the FlightPlan is empty, returns the 0-position waypoint
 vec2 FlightPlan::popWaypoint(){
 	if(current_wp < 0){
@@ -135,10 +41,13 @@ vec2 FlightPlan::popWaypoint(){
 		return ZERO;
 	}
     
-	current_wp -= 1;
+	if (!waypoints.empty()) {
+		waypoints.pop_back();
+	}
+    
+	current_wp = waypoints.empty() ? -1 : waypoints.size() - 1;
     
 	if(current_wp < 0){
-		current_wp = -1;
 		vec2 ZERO = {0, 0};
         return ZERO;
     }
@@ -153,13 +62,12 @@ vec2 FlightPlan::currentWp() const{
 		return ZERO;
 	}
 	
-	// Check bounds - need to cast away const for this modification
-	int64_t wp_index = current_wp;
-	if (wp_index >= length) {
-		wp_index = length - 1;
+	// Check bounds
+	if (current_wp >= static_cast<int64_t>(waypoints.size())) {
+		return waypoints.back();
 	}
 	
-	return waypoints[wp_index];
+	return waypoints[current_wp];
 }
 
 // Are there waypoints in the FlightPlan?

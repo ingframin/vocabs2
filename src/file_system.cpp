@@ -36,65 +36,21 @@ SimulationContext sim_context = {
     .iterations = 0,
     .dt = 0.0,
     .error = 0.0,
-    .rates = NULL,
+    .rates = {},
     .num_threads = 0,
     .speed = 0.0,
     .si = 0,
     .rate = 1,
     .prob = 'A',
-    .sys = NO_LOSS,
+    .sys = RFsystem::NO_LOSS,
     .l = 0.0,
-    .len_rates = 0
+    .Ptx = 0.0,
+    .Prx = 0.0,
+    .Pint = 0.0,
+    .filename = ""
 };
 
-Text read_text_file(const char* filename){
-    return read_text_file_legacy(std::string(filename));
-}
 
-Text read_text_file_legacy(const std::string& filename){
-    //Open file and create a buffer of the corresponding size
-    FILE* fp;
-    fopen_s(&fp, filename.c_str(), "r");
-    int size;
-    FILE_SIZE(fp,size);
-    std::cout << size << "\n";
-    //size+1 to be able to add a '\0' at the end
-    Text cnt;
-    cnt.size = size;
-    cnt.text = (char*)calloc(sizeof(char)*(size+1),size+1);
-    char buffer[1024];
-    //Read content
-    while(fgets(buffer, 1024, fp)!=NULL){
-        strcat_s(cnt.text,size,buffer);
-    };
-    
-    cnt.text[size] = '\0';
-    fclose(fp);
-
-    return cnt;
-}
-
-void write_text_file(const char* filename, const Text* text) {
-    write_text_file_legacy(std::string(filename), text);
-}
-
-void write_text_file_legacy(const std::string& filename, const Text* text) {
-    FILE* fp; 
-    fopen_s(&fp, filename.c_str(), "w");
-    if (fp == NULL) {
-        std::cerr << "Error: could not open file " << filename << " for writing\n";
-        exit(1);
-    }
-
-    size_t len = text->size;
-    size_t bytes_written = fwrite(text->text, sizeof(char), len, fp);
-    if (bytes_written != len) {
-        std::cerr << "Error: could not write entire file " << filename << "\n";
-        exit(1);
-    }
-
-    fclose(fp);
-}
 
 // Modern C++ version using STL
 std::string read_text_file_modern(const std::string& filename) {
@@ -129,7 +85,7 @@ void write_text_file_modern(const std::string& filename, const std::string& cont
     file.close();
 }
 
-// Trim whitespace from the start and end of a string
+// Trim whitespace from the start and end of a string (C-style)
 static void trim_whitespace(char* str) {
     if (str == NULL || *str == '\0') {
         return;
@@ -150,6 +106,24 @@ static void trim_whitespace(char* str) {
 
     // Move the trimmed string to the start of the buffer
     memmove(str, start, end - start + 2);
+}
+
+// Trim whitespace from the start and end of a string (C++ style)
+static void trim_whitespace(std::string& str) {
+    if (str.empty()) {
+        return;
+    }
+
+    // Trim leading whitespace
+    size_t start = str.find_first_not_of(" \t\n\r");
+    if (start == std::string::npos) {
+        str.clear();
+        return;
+    }
+
+    // Trim trailing whitespace
+    size_t end = str.find_last_not_of(" \t\n\r");
+    str = str.substr(start, end - start + 1);
 }
 
 // Parse a line in the format "key = value"
@@ -204,94 +178,129 @@ Config parse_config(const char* filename) {
 }
 
 Config parse_config(const std::string& filename) {
-    Config config = {0};
+    Config config = {
+        .iterations = 0,
+        .dt = 0.0,
+        .error = 0.0,
+        .rates = NULL,
+        .num_rates = 0,
+        .num_threads = 0,
+        .speed = 0.0,
+        .prob = '\0',
+        .loss = 0.0,
+        .num_drones = 0,
+        .Ptx = 0.0,
+        .Prx = 0.0,
+        .Pint = 0.0,
+        .filename = ""
+    };
 
-    FILE* fp;
-    fopen_s(&fp, filename.c_str(), "r");
-    if (fp == NULL) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
         std::cerr << "Error: could not open config file " << filename << "\n";
         exit(1);
     }
 
-    char line[256];
-    char current_section[64] = "";
-    char key[64];
-    char value[256];
+    std::string line;
+    std::string current_section = "";
+    std::string key;
+    std::string value;
 
-    while (fgets(line, sizeof(line), fp) != NULL) {
+    while (std::getline(file, line)) {
         trim_whitespace(line);
 
         // Skip empty lines and comments
-        if (line[0] == '\0' || line[0] == ';' || line[0] == '#') {
+        if (line.empty() || line[0] == ';' || line[0] == '#') {
             continue;
         }
 
         // Check for section headers
-        if (line[0] == '[') {
-            char* end = strchr(line, ']');
-            if (end != NULL) {
-                strncpy(current_section, line + 1, end - line - 1);
-                current_section[end - line - 1] = '\0';
-                trim_whitespace(current_section);
-            }
+        if (line[0] == '[' && line.back() == ']') {
+            current_section = line.substr(1, line.length() - 2);
+            trim_whitespace(current_section);
             continue;
         }
 
         // Parse key-value pairs
-        if (parse_key_value(line, key, value)) {
-            if (strcmp(current_section, "Simulation") == 0) {
-                if (strcmp(key, "iterations") == 0) {
-                    config.iterations = atoi(value);
-                } else if (strcmp(key, "dt") == 0) {
-                    config.dt = atof(value);
+        size_t equals_pos = line.find('=');
+        if (equals_pos != std::string::npos) {
+            key = line.substr(0, equals_pos);
+            value = line.substr(equals_pos + 1);
+            trim_whitespace(key);
+            trim_whitespace(value);
+            if (current_section == "Simulation") {
+                if (key == "iterations") {
+                    config.iterations = atoi(value.c_str());
+                } else if (key == "dt") {
+                    config.dt = atof(value.c_str());
                 }
-            } else if (strcmp(current_section, "Error") == 0) {
-                if (strcmp(key, "error") == 0) {
-                    config.error = atof(value);
+            } else if (current_section == "Error") {
+                if (key == "error") {
+                    config.error = atof(value.c_str());
                 }
-            } else if (strcmp(current_section, "Rates") == 0) {
-                if (strcmp(key, "num_rates") == 0) {
-                    config.num_rates = atoi(value);
-                } else if (strcmp(key, "rates") == 0) {
-                    config.rates = parse_double_array(value, (int*)&config.num_rates);
+            } else if (current_section == "Rates") {
+                if (key == "num_rates") {
+                    config.num_rates = atoi(value.c_str());
+                } else if (key == "rates") {
+                    config.rates = parse_double_array(value.c_str(), (int*)&config.num_rates);
                 }
-            } else if (strcmp(current_section, "Threads") == 0) {
-                if (strcmp(key, "num_threads") == 0) {
-                    config.num_threads = atoi(value);
+            } else if (current_section == "Threads") {
+                if (key == "num_threads") {
+                    config.num_threads = atoi(value.c_str());
                 }
-            } else if (strcmp(current_section, "Speed") == 0) {
-                if (strcmp(key, "speed") == 0) {
-                    config.speed = atof(value);
+            } else if (current_section == "Speed") {
+                if (key == "speed") {
+                    config.speed = atof(value.c_str());
                 }
-            } else if (strcmp(current_section, "Drones") == 0) {
-                if (strcmp(key, "num_drones") == 0) {
-                    config.num_drones = atoi(value);
+            } else if (current_section == "Drones") {
+                if (key == "num_drones") {
+                    config.num_drones = atoi(value.c_str());
                 }
-            } else if (strcmp(current_section, "System") == 0) {
-                if (strcmp(key, "prob") == 0) {
-                    config.prob = value[0];
-                } else if (strcmp(key, "loss") == 0) {
-                    config.loss = atof(value);
+            } else if (current_section == "System") {
+                if (key == "prob") {
+                    config.prob = value.empty() ? '\0' : value[0];
+                } else if (key == "loss") {
+                    config.loss = atof(value.c_str());
                 }
-            } else if (strcmp(current_section, "Communication") == 0) {
-                if (strcmp(key, "Ptx") == 0) {
-                    config.Ptx = atof(value);
-                } else if (strcmp(key, "Prx") == 0) {
-                    config.Prx = atof(value);
-                } else if (strcmp(key, "Pint") == 0) {
-                    config.Pint = atof(value);
+            } else if (current_section == "Communication") {
+                if (key == "Ptx") {
+                    config.Ptx = atof(value.c_str());
+                } else if (key == "Prx") {
+                    config.Prx = atof(value.c_str());
+                } else if (key == "Pint") {
+                    config.Pint = atof(value.c_str());
+                }
+            } else if (current_section == "Output") {
+                if (key == "filename") {
+                    // Use string directly
+                    config.filename = value;
                 }
             }
         }
     }
 
-    fclose(fp);
+    file.close();
     return config;
 }
 
 // Modern C++ version of config parsing using STL
 Config parse_config_modern(const std::string& filename) {
-    Config config = {0};
+    Config config = {
+        .iterations = 0,
+        .dt = 0.0,
+        .error = 0.0,
+        .rates = NULL,
+        .num_rates = 0,
+        .num_threads = 0,
+        .speed = 0.0,
+        .prob = '\0',
+        .loss = 0.0,
+        .num_drones = 0,
+        .Ptx = 0.0,
+        .Prx = 0.0,
+        .Pint = 0.0,
+        .filename = ""
+    };
 
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -387,6 +396,11 @@ Config parse_config_modern(const std::string& filename) {
                 } else if (key == "Pint") {
                     config.Pint = std::stod(value);
                 }
+            } else if (current_section == "Output") {
+                if (key == "filename") {
+                    // Use string directly
+                    config.filename = value;
+                }
             }
         }
     }
@@ -400,17 +414,18 @@ void free_config(Config* config) {
         free(config->rates);
         config->rates = NULL;
     }
+    // filename is now std::string, no need to free
 }
 
-void save_results(const char* filename, double collisions[], const double rates[], 
-                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+void save_results(const char* filename, double collisions[], const std::vector<double>& rates, 
+                  uint32_t iterations, double error, double loss, 
                   double speed, char prob) {
-    save_results(std::string(filename), collisions, rates, len_rates, iterations, error, loss, speed, prob);
+    save_results(std::string(filename), collisions, rates, iterations, error, loss, speed, prob);
 }
 
 // Modern C++ version using STL
-void save_results(const std::string& filename, double collisions[], const double rates[], 
-                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+void save_results(const std::string& filename, double collisions[], const std::vector<double>& rates, 
+                  uint32_t iterations, double error, double loss, 
                   double speed, char prob) {
     std::ofstream results(filename, std::ios::app);
     if (!results.is_open()) {
@@ -434,7 +449,7 @@ void save_results(const std::string& filename, double collisions[], const double
         results << "No loss\n";
     }
 
-    for (uint32_t k = 0; k < len_rates; k++)
+    for (uint32_t k = 0; k < rates.size(); k++)
     {
         std::cout << std::fixed << std::setprecision(3) << (1000.0/rates[k]) 
                  << "\t" << std::fixed << std::setprecision(6) << (collisions[k] / iterations) << "\n";
@@ -442,6 +457,20 @@ void save_results(const std::string& filename, double collisions[], const double
                << "\t" << std::fixed << std::setprecision(10) << (collisions[k] / iterations) << "\n";
     }
     results.close();
+}
+
+// Add command line argument for output filename
+void add_output_filename_argument(int argc, char *argv[], std::string& output_filename) {
+    // Default to empty string (will use config file setting)
+    output_filename = "";
+    
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+            if (i + 1 < argc) {
+                output_filename = argv[++i];
+            }
+        }
+    }
 }
 
 void load_config() {
@@ -453,11 +482,7 @@ void load_config() {
     
     // Copy the rates array - we need to manage our own copy
     if (config.rates != NULL && config.num_rates > 0) {
-        sim_context.rates = (double*)malloc(config.num_rates * sizeof(double));
-        if (sim_context.rates != NULL) {
-            memcpy(sim_context.rates, config.rates, config.num_rates * sizeof(double));
-        }
-        sim_context.len_rates = config.num_rates;
+        sim_context.rates.assign(config.rates, config.rates + config.num_rates);
     }
     
     sim_context.num_threads = config.num_threads;
@@ -473,13 +498,13 @@ void load_config() {
     switch (sim_context.prob)
     {
     case 'E':
-        sim_context.sys = WI_FI;
+        sim_context.sys = RFsystem::WI_FI;
         break;
     case 'C':
-        sim_context.sys = ADS_B;
+        sim_context.sys = RFsystem::ADS_B;
         break;
     default:
-        sim_context.sys = NO_LOSS;
+        sim_context.sys = RFsystem::NO_LOSS;
     }
     
     // Free the config's rates array since we've made our own copy

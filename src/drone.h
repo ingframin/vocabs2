@@ -22,7 +22,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <vector>
 #include "flightplan.h"
+#include <memory>
 
 // Minimum valid values for drones
 #define MIN_DRONE_SIZE 0.1          // Minimum drone size in meters
@@ -36,7 +38,7 @@ private:
     vec2 position;    /**< Current position */
     vec2 velocity;    /**< Current velocity */
     double size;      /**< Physical size of the drone (meters) */
-    FlightPlan* fp;   /**< Stack of subsequent waypoints to be reached */
+    std::unique_ptr<FlightPlan> fp;   /**< Stack of subsequent waypoints to be reached */
     
     static uint64_t next_id;
 
@@ -56,12 +58,18 @@ public:
     // Assignment operator
     Drone& operator=(const Drone& other);
     
+    // Move constructor
+    Drone(Drone&& other) noexcept;
+    
+    // Move assignment operator
+    Drone& operator=(Drone&& other) noexcept;
+    
     // Getters
     uint64_t getId() const { return id; }
     vec2 getPosition() const { return position; }
     vec2 getVelocity() const { return velocity; }
     double getSize() const { return size; }
-    FlightPlan* getFlightPlan() const { return fp; }
+    FlightPlan& getFlightPlan() const { return *fp; }
     
     // Setters
     void setPosition(vec2 pos) { position = pos; }
@@ -79,23 +87,32 @@ public:
 // Drone system class to manage multiple drones
 class DroneSystem {
 private:
-    Drone* drones;  // Array of drones
-    size_t length;   // Number of drones in the array
+    std::vector<Drone> drones;  // Vector of drones
     
 public:
     // Constructor
     DroneSystem(size_t num_drones, double speed);
     
-    // Destructor
-    ~DroneSystem();
+    // Destructor - not needed with std::vector, but kept for consistency
+    ~DroneSystem() = default;
+    
+    // Move constructor
+    DroneSystem(DroneSystem&& other) noexcept = default;
+    
+    // Move assignment operator
+    DroneSystem& operator=(DroneSystem&& other) noexcept = default;
     
     // Getters
-    Drone* getDrones() const { return drones; }
-    size_t getLength() const { return length; }
+    const std::vector<Drone>& getDrones() const { return drones; }
+    size_t getLength() const { return drones.size(); }
     
     // Access individual drones
     Drone& operator[](size_t index) { return drones[index]; }
     const Drone& operator[](size_t index) const { return drones[index]; }
+    
+    // Add vector-specific methods
+    void addDrone(const Drone& drone) { drones.push_back(drone); }
+    void clearDrones() { drones.clear(); }
 };
 
 #endif

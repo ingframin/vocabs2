@@ -34,34 +34,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define MIN_BANDWIDTH 1e3         // Minimum bandwidth (Hz)
 #define MIN_SYMBOL_RATE 1e3       // Minimum symbol rate (symbols/s)
 
-typedef enum
-{
+enum class RFsystem {
     NO_LOSS,   /**< No loss model */
     WI_FI,     /**< Wi-Fi beacon model */
     ADS_B      /**< ADS-B model */
-} RFsystem;
+};
 
-typedef enum{
-  OOK,       /**< On-Off Keying */
-  FSK,       /**< Frequency Shift Keying */
-  GFSK,      /**< Gaussian Frequency Shift Keying */
-  BPSK,      /**< Binary Phase Shift Keying */
-  QPSK,      /**< Quadrature Phase Shift Keying */
-  QAM        /**< Quadrature Amplitude Modulation */
-} ModulationFamily;
+enum class ModulationFamily {
+    OOK,       /**< On-Off Keying */
+    FSK,       /**< Frequency Shift Keying */
+    GFSK,      /**< Gaussian Frequency Shift Keying */
+    BPSK,      /**< Binary Phase Shift Keying */
+    QPSK,      /**< Quadrature Phase Shift Keying */
+    QAM        /**< Quadrature Amplitude Modulation */
+};
 
-typedef struct modulation{
+struct Modulation{
   double bandwidth;        /**< Bandwidth in Hz */
   uint32_t bits_per_symbol; /**< Bits per symbol */
   uint32_t symbol_time;    /**< Symbol time in ns */
   ModulationFamily family; /**< Modulation type */
-}Modulation;
+};
 
-typedef struct channel{
+struct Channel{
     double center_frequency; /**< Center frequency in MHz */
     double bandwidth;        /**< Bandwidth in Hz */
     double noise_power;      /**< Noise power in dB */
-}Channel;
+};
 
 /**
  * @brief Compute reception probability using Consiglio model

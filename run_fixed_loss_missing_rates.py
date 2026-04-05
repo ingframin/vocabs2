@@ -45,4 +45,5 @@ Pint = 0.0
 for s in range(5, 65):
     for loss in [i/10 for i in range(1, 11)]:
         config_file = create_config_file("A", 0.0, loss, s)
-        run(["./build/vocabs2", "-c", config_file])
+        output_file = f"results/fixed_loss_missing_speed_{s}_loss_{int(loss*100)}.txt"
+        run(["./build/vocabs2", "-c", config_file, "-o", output_file])
