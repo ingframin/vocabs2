@@ -194,24 +194,24 @@ void Drone::move(double dt)
 	
 	gotoWaypoint(fp->currentWp());
 
-	vec2 dP = v2_scale(velocity, dt);
-	position = v2_add(position, dP);
+	vec2 dP = velocity * dt;
+	position = position + dP;
 }
 
 void Drone::gotoWaypoint(vec2 waypoint)
 {
-	vec2 dirp = v2_diff(waypoint, position);
+	vec2 dirp = waypoint - position;
 	
 	// Handle zero vector case
-	if (v2_is_zero(dirp, 1e-12)) {
+	if (dirp.isZero(1e-12)) {
 		// If already at waypoint, keep current velocity
 		return;
 	}
 
-	dirp = v2_normalize(dirp);
-	double vmod = v2_mod(velocity);
+	dirp = dirp.normalize();
+	double vmod = velocity.mod();
 
-	velocity = v2_scale(dirp,vmod);
+	velocity = dirp * vmod;
 }
 
 bool Drone::collision(const Drone* d2) const
@@ -220,12 +220,12 @@ bool Drone::collision(const Drone* d2) const
 	if (d2 == NULL) return false;
 	
 	// Handle case where drones have same position
-	if (v2_is_zero(v2_diff(position, d2->position), 1e-12)) {
+	if ((position - d2->position).isZero(1e-12)) {
 		return true; // Already colliding
 	}
 	
 	Obstacle o = compute_obstacle(position, d2->position, size, d2->size);
-	double speed = v2_mod(velocity);
+	double speed = velocity.mod();
 	
 	// Handle zero speed case
 	if (speed < MIN_DRONE_SPEED) {
@@ -233,12 +233,12 @@ bool Drone::collision(const Drone* d2) const
 		return v2_distance(position, d2->position) < (size + d2->size);
 	}
 	
-	vec2 dif = v2_diff(velocity, d2->velocity);
-	if (v2_mod(dif) > 1.9 * speed)
+	vec2 dif = velocity - d2->velocity;
+	if (dif.mod() > 1.9 * speed)
 	{
 		return true;
 	}
-	vec2 ds = v2_add(dif, position);
+	vec2 ds = dif + position;
 
 	barycoords bc = v2_barycentric(position, o.T2, o.T1, ds);
 
@@ -271,7 +271,7 @@ void Drone::avoid(const Drone* d2, double error)
 			pos_error = (vec2){0, 0};
 		}
 		
-		dx.setPosition(v2_add(dx.getPosition(), pos_error));
+		dx.setPosition(dx.getPosition() + pos_error);
 	}
 
 	if (collision(&dx))
@@ -281,37 +281,37 @@ void Drone::avoid(const Drone* d2, double error)
 		* This is not actually necessary and both drones can share the rsponsibility of avoiding each other.
 		* This algorithm also does not take into account the presence of other drones.
 		*/
-		vec2 dir = v2_normalize(velocity);
+		vec2 dir = velocity.normalize();
 		// This whole mess could just be replaced by a coordinate conversion.
 		// Each drone should place the others in its own frame of reference.
 		// In reality this could be something like East North Up (or Down) coordinates rather than Earth Centered Earth Fixed coordinates.
 		// On a larger scale, it might even be worth using something like WGS84.
 		
 		// Handle zero velocity case
-		if (v2_is_zero(dir, 1e-12)) {
+		if (dir.isZero(1e-12)) {
 			// If not moving, just add a waypoint to stay clear
-			vec2 escape = v2_diff(position, dx.getPosition());
-			if (!v2_is_zero(escape, 1e-12)) {
-				escape = v2_normalize(escape);
-				escape = v2_scale(escape, 2 * (size + dx.getSize()));
-				escape = v2_add(escape, position);
+			vec2 escape = position - dx.getPosition();
+			if (!escape.isZero(1e-12)) {
+				escape = escape.normalize();
+				escape = escape * (2 * (size + dx.getSize()));
+				escape = escape + position;
 				fp->pushWaypoint(escape);
 			}
 			return;
 		}
 		
 		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_diff(dx.getPosition(), position);
+		vec2 p2rel = dx.getPosition() - position;
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 
 		if (fabs(thetaP2) > fabs(theta))
 		{
 			vec2 escape = v2_reverse(v2_rotateLeftHalfPI(velocity));
 			// If only C had function composition like Haskell...
-			escape = v2_normalize(escape);
+			escape = escape.normalize();
 			if (!isnan(escape.x) && !isnan(escape.y)) {
-				escape = v2_scale(escape, 4 * (size + dx.getSize()));
-				escape = v2_add(escape, position);
+				escape = escape * (4 * (size + dx.getSize()));
+				escape = escape + position;
 				fp->pushWaypoint(escape);
 			}
 		}
@@ -325,7 +325,7 @@ void Drone::stopAndWait(const Drone* d2, double error)
 	if (error < 0) error = 0; // Negative error doesn't make sense
 	
 	Drone dx = *d2;
-	double speed = v2_mod(velocity);
+	double speed = velocity.mod();
 	
 	// Handle invalid speed
 	if (isnan(speed) || isinf(speed)) {
@@ -343,7 +343,7 @@ void Drone::stopAndWait(const Drone* d2, double error)
 			pos_error = (vec2){0, 0};
 		}
 		
-		dx.setPosition(v2_add(dx.getPosition(), pos_error));
+		dx.setPosition(dx.getPosition() + pos_error);
 	}
 
 	if (collision(&dx))

@@ -19,123 +19,106 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef MATH2D_H
 #define MATH2D_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdint>
 
-// 2D Vector type
-typedef struct
-{
-  double x;
-  double y;
-} vec2;
+// 2D Vector class
+class vec2 {
+public:
+    double x;
+    double y;
+    
+    // Constructors
+    vec2() : x(0.0), y(0.0) {}
+    vec2(double x, double y) : x(x), y(y) {}
+    
+    // Basic operations
+    double mod() const;
+    vec2 normalize() const;
+    
+    // Operator overloading
+    vec2 operator+(const vec2& other) const;
+    vec2 operator-(const vec2& other) const;
+    vec2 operator*(double k) const;
+    vec2 operator+(double k) const;
+    
+    bool operator==(const vec2& other) const;
+    bool operator!=(const vec2& other) const;
+    
+    // Utility
+    bool isZero(double epsilon = 1e-12) const;
+};
 
-// Barycentric coordinates type
-typedef struct
-{
-  double alpha;
-  double beta;
-  double gamma;
-} barycoords;
+// Barycentric coordinates class
+class barycoords {
+public:
+    double alpha;
+    double beta;
+    double gamma;
+    
+    barycoords() : alpha(0.0), beta(0.0), gamma(0.0) {}
+    barycoords(double alpha, double beta, double gamma) : alpha(alpha), beta(beta), gamma(gamma) {}
+};
 
-// Obstacle type (for velocity obstacle calculations)
-typedef struct
-{
-  //radius
-  double radius;
-  //center
-  vec2 position;
-  //tangent points
-  vec2 T1;
-  vec2 T2;
-} Obstacle;
+// Obstacle class (for velocity obstacle calculations)
+class Obstacle {
+public:
+    //radius
+    double radius;
+    //center
+    vec2 position;
+    //tangent points
+    vec2 T1;
+    vec2 T2;
+    
+    Obstacle() : radius(0.0) {}
+    Obstacle(double radius, vec2 position, vec2 T1, vec2 T2) 
+        : radius(radius), position(position), T1(T1), T2(T2) {}
+};
 
 // ======================
-// Basic Vector Operations
+// Vector Operations (free functions)
 // ======================
 
-// Vector magnitude (Euclidean norm)
-double v2_mod(vec2 v);
-
-// Vector normalization
-vec2 v2_normalize(vec2 v);
-
-// Vector addition and subtraction
-vec2 v2_add(vec2 v1, vec2 v2);
-vec2 v2_diff(vec2 v1, vec2 v2);
-
-// Vector scaling
-vec2 v2_scale(vec2 v, double k);
-
-// Add constant to both vector components
-vec2 v2_addK(vec2 v, double k);
-
-// Vector dot product
-double v2_dot(vec2 v1, vec2 v2);
+double v2_dot(const vec2& v1, const vec2& v2);
 
 // ======================
 // Geometric Transformations
 // ======================
 
-// Vector rotation by angle (radians)
-vec2 v2_rotate(vec2 v, double angle);
-
-// Specialized rotations
-vec2 v2_rotateLeftHalfPI(vec2 v);
-vec2 v2_rotateRightHalfPI(vec2 v);
-vec2 v2_reverse(vec2 v);
+vec2 v2_rotate(const vec2& v, double angle);
+vec2 v2_rotateLeftHalfPI(const vec2& v);
+vec2 v2_rotateRightHalfPI(const vec2& v);
+vec2 v2_reverse(const vec2& v);
 
 // ======================
 // Distance and Angle Calculations
 // ======================
 
-// Distance between two points
-double v2_distance(vec2 v1, vec2 v2);
-
-// Angle between two vectors (radians)
-double v2_angle_between(vec2 v1, vec2 v2);
+double v2_distance(const vec2& v1, const vec2& v2);
+double v2_angle_between(const vec2& v1, const vec2& v2);
 
 // ======================
 // Interpolation
 // ======================
 
-// Linear interpolation between two points
-vec2 v2_lerp(vec2 p1, vec2 p2, double t);
-
-// Quadratic spline interpolation
-vec2 v2_qspline(vec2 p1, vec2 p2, vec2 p3, double t);
-
-// Cubic spline interpolation
-vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t);
-
-// N-points interpolation using de Casteljau's algorithm
-// Returns a newly allocated array of points (length vs_len), caller must free
+vec2 v2_lerp(const vec2& p1, const vec2& p2, double t);
+vec2 v2_qspline(const vec2& p1, const vec2& p2, const vec2& p3, double t);
+vec2 v2_cspline(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4, double t);
 vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t);
-
-// Free the array returned by v2_interpolate
 void v2_free_interpolated(vec2* points);
 
 // ======================
 // Barycentric Coordinates
 // ======================
 
-// Compute barycentric coordinates of point P with respect to triangle ABC
-barycoords v2_barycentric(vec2 A, vec2 B, vec2 C, vec2 P);
+barycoords v2_barycentric(const vec2& A, const vec2& B, const vec2& C, const vec2& P);
 
 // ======================
 // Obstacle Calculations (Velocity Obstacle Method)
 // ======================
 
-// Compute velocity obstacle between two agents
-// pos1, pos2: positions of the two agents
-// size1, size2: radii of the two agents
-Obstacle compute_obstacle(vec2 pos1, vec2 pos2, double size1, double size2);
-
-// ======================
-// Utility Functions
-// ======================
-
-// Check if a vector is approximately zero
-bool v2_is_zero(vec2 v, double epsilon);
+Obstacle compute_obstacle(const vec2& pos1, const vec2& pos2, double size1, double size2);
 
 #endif

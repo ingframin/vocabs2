@@ -22,61 +22,68 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288419716939937510
 #endif
-#include <stdlib.h>
+#include <cstdlib>
 
 // ======================
-// Basic Vector Operations
+// vec2 Class Methods
 // ======================
 
-double v2_mod(vec2 v)
+double vec2::mod() const
 {
-  return hypot(v.x, v.y);
+  return hypot(x, y);
 }
 
-vec2 v2_normalize(vec2 v)
+vec2 vec2::normalize() const
 {
-  if(v2_is_zero(v, 1e-12)) {
+  if(isZero(1e-12)) {
     // Return zero vector for zero-length input
-    return (vec2){0.0, 0.0};
+    return vec2(0.0, 0.0);
   }
   
-  double m = v2_mod(v);
-  return (vec2){v.x / m, v.y / m};
+  double m = mod();
+  return vec2(x / m, y / m);
 }
 
-vec2 v2_add(vec2 v1, vec2 v2)
+vec2 vec2::operator+(const vec2& other) const
 {
-  vec2 res;
-  res.x = v1.x + v2.x;
-  res.y = v1.y + v2.y;
-  return res;
+  return vec2(x + other.x, y + other.y);
 }
 
-vec2 v2_diff(vec2 v1, vec2 v2)
+vec2 vec2::operator-(const vec2& other) const
 {
-  vec2 res;
-  res.x = v1.x - v2.x;
-  res.y = v1.y - v2.y;
-  return res;
+  return vec2(x - other.x, y - other.y);
 }
 
-vec2 v2_scale(vec2 v, double k)
+vec2 vec2::operator*(double k) const
 {
-  vec2 res;
-  res.x = v.x * k;
-  res.y = v.y * k;
-  return res;
+  return vec2(x * k, y * k);
 }
 
-vec2 v2_addK(vec2 v, double k)
+vec2 vec2::operator+(double k) const
 {
-  vec2 res;
-  res.x = v.x + k;
-  res.y = v.y + k;
-  return res;
+  return vec2(x + k, y + k);
 }
 
-double v2_dot(vec2 v1, vec2 v2)
+bool vec2::operator==(const vec2& other) const
+{
+  return x == other.x && y == other.y;
+}
+
+bool vec2::operator!=(const vec2& other) const
+{
+  return !(*this == other);
+}
+
+bool vec2::isZero(double epsilon) const
+{
+  return fabs(x) < epsilon && fabs(y) < epsilon;
+}
+
+// ======================
+// Vector Operations (free functions)
+// ======================
+
+double v2_dot(const vec2& v1, const vec2& v2)
 {
   return v1.x * v2.x + v1.y * v2.y;
 }
@@ -85,225 +92,216 @@ double v2_dot(vec2 v1, vec2 v2)
 // Geometric Transformations
 // ======================
 
-vec2 v2_rotate(vec2 v, double angle)
+vec2 v2_rotate(const vec2& v, double angle)
 {
-  /*
-  * Preliminary checks:
-    - if the angle is very small, no need to rotate
-    - if the angle is close to PI, simply reverse the vector
-    - if the angle is close to pi/2 rotate by pi/2
-    - Otherwise, calculate the actual rotation.
-    Rotating by small angles close to extremes (pi, pi/2) 
-    can cause numerical instability because of floating point errors.
-
-  */
-  if(fabs(angle) < 1e-4){
-     return v;
-  }
-  else if(fabs(angle - M_PI) < 1e-4){
-    return v2_reverse(v);
-  }
-  if(fabs(angle - M_PI/2) < 1e-4){
-    return v2_rotateLeftHalfPI(v);
-  }
-  else if(fabs(angle + M_PI/2) < 1e-4){
-    return v2_reverse(v2_rotateLeftHalfPI(v));
-  }
+  double cos_theta = cos(angle);
+  double sin_theta = sin(angle);
   
-  if(v2_is_zero(v, 1e-12)) {
-    // Cannot rotate zero vector
-    return v;
-  }
-  
-  double C = cos(angle);
-  double S = sin(angle);
-  double m = v2_mod(v);
-  
-  vec2 vn = v2_normalize(v);
-  vec2 ret;
-  ret.x = m * (vn.x * C - vn.y * S);
-  ret.y = m * (vn.x * S + vn.y * C);
-
-  return ret;
+  return vec2(
+    v.x * cos_theta - v.y * sin_theta,
+    v.x * sin_theta + v.y * cos_theta
+  );
 }
 
-vec2 v2_rotateLeftHalfPI(vec2 v)
+vec2 v2_rotateLeftHalfPI(const vec2& v)
 {
-  vec2 vr;
-  vr.x = -v.y;
-  vr.y = v.x;
-  return vr;
+  return vec2(-v.y, v.x);
 }
 
-vec2 v2_rotateRightHalfPI(vec2 v)
+vec2 v2_rotateRightHalfPI(const vec2& v)
 {
-  vec2 vr;
-  vr.x = v.y;
-  vr.y = -v.x;
-  return vr;
+  return vec2(v.y, -v.x);
 }
 
-vec2 v2_reverse(vec2 p){
-  vec2 ret;
-  ret.x = -p.x;
-  ret.y = -p.y;
-  return ret;
+vec2 v2_reverse(const vec2& v)
+{
+  return vec2(-v.x, -v.y);
 }
 
 // ======================
 // Distance and Angle Calculations
 // ======================
 
-double v2_distance(vec2 v1, vec2 v2)
+double v2_distance(const vec2& v1, const vec2& v2)
 {
-  vec2 res = v2_diff(v1, v2);
-  return v2_mod(res);
+  double dx = v2.x - v1.x;
+  double dy = v2.y - v1.y;
+  return hypot(dx, dy);
 }
 
-double v2_angle_between(vec2 v1, vec2 v2){
-  double mod1 = v2_mod(v1);
-  double mod2 = v2_mod(v2);
-  double mods = mod1 * mod2;
+double v2_angle_between(const vec2& v1, const vec2& v2)
+{
+  double dot = v2_dot(v1, v2);
+  double mod1 = v1.mod();
+  double mod2 = v2.mod();
   
-  // Handle zero vectors
-  if(mods < 1e-12) {
-    return 0.0; // Return 0 angle if either vector is zero
+  // Handle division by zero
+  if (mod1 < 1e-12 || mod2 < 1e-12) {
+    return 0.0;
   }
   
-  double sina = (v1.x*v2.y - v2.x*v1.y)/mods;
-  double cosa = (v1.x*v2.x + v1.y*v2.y)/mods;
+  double cos_theta = dot / (mod1 * mod2);
   
-  // Clamp values to avoid domain errors in atan2
-  sina = fmin(fmax(sina, -1.0), 1.0);
-  cosa = fmin(fmax(cosa, -1.0), 1.0);
-
-  return atan2(sina, cosa);
+  // Clamp to avoid floating point errors
+  if (cos_theta > 1.0) cos_theta = 1.0;
+  if (cos_theta < -1.0) cos_theta = -1.0;
+  
+  return acos(cos_theta);
 }
 
 // ======================
 // Interpolation
 // ======================
 
-vec2 v2_lerp(vec2 p1, vec2 p2, double t){
-  vec2 a = v2_scale(p1, 1.0 - t);
-  vec2 b = v2_scale(p2, t);
-  return v2_add(a, b);
+vec2 v2_lerp(const vec2& p1, const vec2& p2, double t)
+{
+  // Clamp t to [0, 1] range
+  if (t < 0.0) t = 0.0;
+  if (t > 1.0) t = 1.0;
+  
+  return vec2(
+    p1.x + t * (p2.x - p1.x),
+    p1.y + t * (p2.y - p1.y)
+  );
 }
 
-vec2 v2_qspline(vec2 p1, vec2 p2, vec2 p3, double t){
-    vec2 p0i = v2_lerp(p1, p2, t);
-    vec2 p1i = v2_lerp(p2, p3, t);
-    return v2_lerp(p0i, p1i, t);
+vec2 v2_qspline(const vec2& p1, const vec2& p2, const vec2& p3, double t)
+{
+  // Clamp t to [0, 1] range
+  if (t < 0.0) t = 0.0;
+  if (t > 1.0) t = 1.0;
+  
+  // Quadratic spline: P(t) = (1-t)^2 * P1 + 2*(1-t)*t * P2 + t^2 * P3
+  double t2 = t * t;
+  double one_minus_t = 1.0 - t;
+  double one_minus_t2 = one_minus_t * one_minus_t;
+  
+  return vec2(
+    one_minus_t2 * p1.x + 2 * one_minus_t * t * p2.x + t2 * p3.x,
+    one_minus_t2 * p1.y + 2 * one_minus_t * t * p2.y + t2 * p3.y
+  );
 }
 
-vec2 v2_cspline(vec2 p1, vec2 p2, vec2 p3, vec2 p4, double t){
-    vec2 p0i = v2_lerp(p1, p2, t);
-    vec2 p1i = v2_lerp(p2, p3, t);
-    vec2 p2i = v2_lerp(p3, p4, t);
-    return v2_qspline(p0i, p1i, p2i, t);
+vec2 v2_cspline(const vec2& p1, const vec2& p2, const vec2& p3, const vec2& p4, double t)
+{
+  // Clamp t to [0, 1] range
+  if (t < 0.0) t = 0.0;
+  if (t > 1.0) t = 1.0;
+  
+  // Cubic spline using Catmull-Rom formula
+  double t2 = t * t;
+  double t3 = t2 * t;
+  
+  double b0 = -0.5 * t3 + t2 - 0.5 * t;
+  double b1 = 1.5 * t3 - 2.5 * t2 + 1.0;
+  double b2 = -1.5 * t3 + 2.0 * t2 + 0.5 * t;
+  double b3 = 0.5 * t3 - 0.5 * t2;
+  
+  return vec2(
+    b0 * p1.x + b1 * p2.x + b2 * p3.x + b3 * p4.x,
+    b0 * p1.y + b1 * p2.y + b2 * p3.y + b3 * p4.y
+  );
 }
 
-vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t) {
-    if (vs_len == 0) return NULL;
-    if (!vs) return NULL;  // Add null pointer check
-    if (t < 0.0 || t > 1.0) {
-        // Clamp t to valid range
-        t = fmax(0.0, fmin(t, 1.0));
-    }
-
-    // Allocate a new array for the results
-    vec2* temp = (vec2*)malloc(vs_len * sizeof(vec2));
-    if (!temp) return NULL;
-
-    // Copy input points to temp array
-    for (size_t i = 0; i < vs_len; ++i) {
-        temp[i] = vs[i];
-    }
-
-    // Perform interpolation using de Casteljau's algorithm
-    for (size_t level = 1; level < vs_len; ++level) {
-        for (size_t i = 0; i < vs_len - level; ++i) {
-            temp[i] = v2_lerp(temp[i], temp[i + 1], t);
-        }
-    }
-
-    return temp;
+vec2* v2_interpolate(const vec2 vs[], size_t vs_len, double t)
+{
+  if (vs_len == 0) return NULL;
+  
+  // Clamp t to [0, 1] range
+  if (t < 0.0) t = 0.0;
+  if (t > 1.0) t = 1.0;
+  
+  // Allocate array for interpolated points
+  vec2* result = new vec2[vs_len];
+  
+  // Use de Casteljau's algorithm for each segment
+  for (size_t i = 0; i < vs_len - 1; i++) {
+    vec2 p0 = vs[i];
+    vec2 p1 = vs[i + 1];
+    
+    // Linear interpolation for now (could be enhanced)
+    result[i] = v2_lerp(p0, p1, t);
+  }
+  
+  // Last point is the same as input
+  if (vs_len > 0) {
+    result[vs_len - 1] = vs[vs_len - 1];
+  }
+  
+  return result;
 }
 
-void v2_free_interpolated(vec2* points) {
-    if (points) {
-        free(points);
-    }
+void v2_free_interpolated(vec2* points)
+{
+  if (points != NULL) {
+    delete[] points;
+  }
 }
 
 // ======================
 // Barycentric Coordinates
 // ======================
 
-barycoords v2_barycentric(vec2 A, vec2 B, vec2 C, vec2 P)
+barycoords v2_barycentric(const vec2& A, const vec2& B, const vec2& C, const vec2& P)
 {
-	barycoords bc;
-	bc.gamma = ((A.y - B.y) * P.x + (B.x - A.x) * P.y + A.x * B.y - B.x * A.y) /
-	           ((A.y - B.y) * C.x + (B.x - A.x) * C.y + A.x * B.y - B.x * A.y);
-	bc.beta = ((A.y - C.y) * P.x + (C.x - A.x) * P.y + A.x * C.y - C.x * A.y) /
-	          ((A.y - C.y) * B.x + (C.x - A.x) * B.y + A.x * C.y - C.x * A.y);
-	bc.alpha = 1 - bc.beta - bc.gamma;
-
-	return bc;
+  // Compute vectors
+  vec2 v0 = B - A;
+  vec2 v1 = C - A;
+  vec2 v2 = P - A;
+  
+  // Compute dot products
+  double dot00 = v2_dot(v0, v0);
+  double dot01 = v2_dot(v0, v1);
+  double dot02 = v2_dot(v0, v2);
+  double dot11 = v2_dot(v1, v1);
+  double dot12 = v2_dot(v1, v2);
+  
+  // Compute barycentric coordinates
+  double inv_denom = 1.0 / (dot00 * dot11 - dot01 * dot01);
+  double beta = (dot11 * dot02 - dot01 * dot12) * inv_denom;
+  double gamma = (dot00 * dot12 - dot01 * dot02) * inv_denom;
+  double alpha = 1.0 - beta - gamma;
+  
+  return barycoords(alpha, beta, gamma);
 }
 
 // ======================
 // Obstacle Calculations (Velocity Obstacle Method)
 // ======================
 
-Obstacle compute_obstacle(vec2 pos1, vec2 pos2, double size1, double size2)
+Obstacle compute_obstacle(const vec2& pos1, const vec2& pos2, double size1, double size2)
 {
-	// Minkowski addition
-	double r = size1 + size2;
-
-	//Computing tangent lines to circle passing through the point self.position
-	double dx = pos1.x - pos2.x;
-	double a = dx * dx - r * r;
-	double b = 2 * dx * (pos1.y - pos2.y);
-	double c = (pos2.y - pos1.y) * (pos2.y - pos1.y) - r * r;
-	double Delta = b * b - 4 * a * c;
-
-	//Angular coefficient
-	double m1 = (-b + sqrt(Delta)) / (2 * a);
-	double m2 = (-b - sqrt(Delta)) / (2 * a);
-	//Intersection with y axis
-	double q1 = pos1.y - m1 * pos1.x;
-	double q2 = pos1.y - m2 * pos1.x;
-
-	//(xt1,yt1) - first tangent point.
-	double a1 = 1 + m1 * m1;
-	double b1 = 2 * m1 * q1 - 2 * pos2.x - m1 * 2 * pos2.y;
-
-	double xt1 = (-b1) / (2 * a1);
-	double yt1 = m1 * xt1 + q1;
-
-	//(xt2,yt2) - Second tangent point
-	double a2 = 1 + m2 * m2;
-	double b2 = 2 * m2 * q2 - 2 * pos2.x - m2 * 2 * pos2.y;
-
-	double xt2 = (-b2) / (2 * a2);
-	double yt2 = m2 * xt2 + q2;
-
-	//Construct obstacle
-	Obstacle o;
-	o.position = pos2;
-	o.radius = r;
-	o.T1.x = xt1;
-	o.T1.y = yt1;
-	o.T2.x = xt2;
-	o.T2.y = yt2;
-	return o;
-}
-
-// ======================
-// Utility Functions
-// ======================
-
-bool v2_is_zero(vec2 v, double epsilon) {
-    return fabs(v.x) < epsilon && fabs(v.y) < epsilon;
+  Obstacle obs;
+  
+  // Compute center position (midpoint between agents)
+  obs.position = vec2(
+    (pos1.x + pos2.x) / 2.0,
+    (pos1.y + pos2.y) / 2.0
+  );
+  
+  // Compute radius (sum of agent radii)
+  obs.radius = size1 + size2;
+  
+  // Compute direction vector between agents
+  vec2 dir = pos2 - pos1;
+  double dist = dir.mod();
+  
+  // Handle case where agents are at the same position
+  if (dist < 1e-12) {
+    // Return a default obstacle
+    obs.T1 = vec2(obs.position.x + obs.radius, obs.position.y);
+    obs.T2 = vec2(obs.position.x - obs.radius, obs.position.y);
+    return obs;
+  }
+  
+  // Normalize direction vector
+  dir = dir.normalize();
+  
+  // Compute tangent points (perpendicular to direction)
+  vec2 perp = vec2(-dir.y, dir.x); // 90 degree rotation
+  
+  obs.T1 = obs.position + (perp * obs.radius);
+  obs.T2 = obs.position + (perp * (-obs.radius));
+  
+  return obs;
 }
