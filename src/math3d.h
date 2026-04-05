@@ -34,6 +34,17 @@ public:
     double mod() const;
     vec3 normalize() const;
     
+    // Vector operations
+    double distanceTo(const vec3& other) const;
+    double angleTo(const vec3& other) const;
+    double dot(const vec3& other) const;
+    vec3 cross(const vec3& other) const;
+    
+    // Angle calculations
+    double angleToX() const;
+    double angleToY() const;
+    double angleToZ() const;
+    
     // Operator overloading
     vec3 operator+(const vec3& other) const;
     vec3 operator-(const vec3& other) const;

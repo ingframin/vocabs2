@@ -79,6 +79,64 @@ bool vec2::isZero(double epsilon) const
   return fabs(x) < epsilon && fabs(y) < epsilon;
 }
 
+double vec2::distanceTo(const vec2& other) const
+{
+  double dx = other.x - x;
+  double dy = other.y - y;
+  return hypot(dx, dy);
+}
+
+double vec2::angleTo(const vec2& other) const
+{
+  double dot = this->dot(other);
+  double mod1 = mod();
+  double mod2 = other.mod();
+  
+  // Handle division by zero
+  if (mod1 < 1e-12 || mod2 < 1e-12) {
+    return 0.0;
+  }
+  
+  double cos_theta = dot / (mod1 * mod2);
+  
+  // Clamp to avoid floating point errors
+  if (cos_theta > 1.0) cos_theta = 1.0;
+  if (cos_theta < -1.0) cos_theta = -1.0;
+  
+  return acos(cos_theta);
+}
+
+double vec2::dot(const vec2& other) const
+{
+  return x * other.x + y * other.y;
+}
+
+vec2 vec2::rotate(double angle) const
+{
+  double cos_theta = cos(angle);
+  double sin_theta = sin(angle);
+  
+  return vec2(
+    x * cos_theta - y * sin_theta,
+    x * sin_theta + y * cos_theta
+  );
+}
+
+vec2 vec2::rotateLeftHalfPI() const
+{
+  return vec2(-y, x);
+}
+
+vec2 vec2::rotateRightHalfPI() const
+{
+  return vec2(y, -x);
+}
+
+vec2 vec2::reverse() const
+{
+  return vec2(-x, -y);
+}
+
 // ======================
 // Vector Operations (free functions)
 // ======================

@@ -37,6 +37,17 @@ public:
     double mod() const;
     vec2 normalize() const;
     
+    // Vector operations
+    double distanceTo(const vec2& other) const;
+    double angleTo(const vec2& other) const;
+    double dot(const vec2& other) const;
+    
+    // Transformations
+    vec2 rotate(double angle) const;
+    vec2 rotateLeftHalfPI() const;
+    vec2 rotateRightHalfPI() const;
+    vec2 reverse() const;
+    
     // Operator overloading
     vec2 operator+(const vec2& other) const;
     vec2 operator-(const vec2& other) const;

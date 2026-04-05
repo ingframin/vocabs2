@@ -187,7 +187,7 @@ void Drone::move(double dt)
 	if (dt <= 0 || isnan(dt) || isinf(dt)) return;
 	
 	//This has to become a new function
-	if (v2_distance(position, fp->currentWp()) < size)
+	if (position.distanceTo(fp->currentWp()) < size)
 	{
 		fp->popWaypoint();
 	}
@@ -230,7 +230,7 @@ bool Drone::collision(const Drone* d2) const
 	// Handle zero speed case
 	if (speed < MIN_DRONE_SPEED) {
 		// If drone is not moving, check distance only
-		return v2_distance(position, d2->position) < (size + d2->size);
+		return position.distanceTo(d2->position) < (size + d2->size);
 	}
 	
 	vec2 dif = velocity - d2->velocity;
@@ -306,7 +306,7 @@ void Drone::avoid(const Drone* d2, double error)
 
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_reverse(v2_rotateLeftHalfPI(velocity));
+			vec2 escape = velocity.rotateLeftHalfPI().reverse();
 			// If only C had function composition like Haskell...
 			escape = escape.normalize();
 			if (!isnan(escape.x) && !isnan(escape.y)) {
@@ -336,7 +336,7 @@ void Drone::stopAndWait(const Drone* d2, double error)
 	{
 		vec2 pos_error;
 		pos_error.x = generateGaussian(0, error);
-		pos_error = v2_rotate(pos_error, 2 * M_PI * rand() / RAND_MAX);
+		pos_error = pos_error.rotate(2 * M_PI * rand() / RAND_MAX);
 		
 		// Validate generated error
 		if (isnan(pos_error.x) || isnan(pos_error.y) || isinf(pos_error.x) || isinf(pos_error.y)) {

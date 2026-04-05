@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
 
           //This should be improved for better collision detection
-          if (v2_distance(drone_system[0].getPosition(), drone_system[1].getPosition()) < (drone_system[0].getSize() + drone_system[1].getSize())) 
+          if (drone_system[0].getPosition().distanceTo(drone_system[1].getPosition()) < (drone_system[0].getSize() + drone_system[1].getSize())) 
           {
             omp_set_lock(&writelock);
             collisions[i] += 1;

@@ -63,7 +63,7 @@ bool COM_broadcast(vec2 d1, vec2 d2, RFsystem sys, double loss)
     
     int p = rand() % 1000;
     double lim;
-    double distance = v2_distance(d1, d2);
+    double distance = d1.distanceTo(d2);
     
     // Handle invalid distance (shouldn't happen with valid vec2, but be safe)
     if (distance < 0) distance = 0;

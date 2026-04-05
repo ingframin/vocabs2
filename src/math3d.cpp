@@ -68,6 +68,58 @@ bool vec3::operator!=(const vec3& other) const
     return !(*this == other);
 }
 
+double vec3::distanceTo(const vec3& other) const
+{
+    vec3 dif = *this - other;
+    return dif.mod();
+}
+
+double vec3::angleTo(const vec3& other) const
+{
+    double dot = this->dot(other);
+    double mod1 = mod();
+    double mod2 = other.mod();
+    
+    if (mod1 < 1e-12 || mod2 < 1e-12) {
+        return 0.0;
+    }
+    
+    double cos_theta = dot / (mod1 * mod2);
+    if (cos_theta > 1.0) cos_theta = 1.0;
+    if (cos_theta < -1.0) cos_theta = -1.0;
+    
+    return acos(cos_theta);
+}
+
+double vec3::dot(const vec3& other) const
+{
+    return x * other.x + y * other.y + z * other.z;
+}
+
+vec3 vec3::cross(const vec3& other) const
+{
+    return vec3(
+        y * other.z - z * other.y,
+        z * other.x - x * other.z,
+        x * other.y - y * other.x
+    );
+}
+
+double vec3::angleToX() const
+{
+    return atan2(sqrt(y * y + z * z), x);
+}
+
+double vec3::angleToY() const
+{
+    return atan2(sqrt(x * x + z * z), y);
+}
+
+double vec3::angleToZ() const
+{
+    return atan2(sqrt(x * x + y * y), z);
+}
+
 // ======================
 // mat3x3 Class Methods
 // ======================
@@ -146,7 +198,7 @@ double v3_distance(const vec3& v1, const vec3& v2){
 }
 
 double v3_angle_between(const vec3& v1, const vec3& v2){
-    double dot = v3_dot(v1, v2);
+    double dot = v1.dot(v2);
     double mod1 = v1.mod();
     double mod2 = v2.mod();
     
@@ -334,7 +386,7 @@ vec3 v3_barycentric(const vec3& P, const vec3& A, const vec3& B, const vec3& C){
     double dot01 = v3_dot(v0, v1);
     double dot02 = v3_dot(v0, v2);
     double dot11 = v3_dot(v1, v1);
-    double dot12 = v3_dot(v1, v2);
+    double dot12 = v1.dot(v2);
     
     double inv_denom = 1.0 / (dot00 * dot11 - dot01 * dot01);
     double beta = (dot11 * dot02 - dot01 * dot12) * inv_denom;
