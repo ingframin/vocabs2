@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <time.h>
 #include <stdbool.h>
 #include <omp.h>
+#include <vector>
 #include "math2d.h"
 #include "flightplan.h"
 #include "drone.h"
@@ -62,11 +63,7 @@ int main(int argc, char *argv[])
   // Parse command line arguments (can override config)
   parseArguments(argc,argv);
   
-  double collisions[sim_context.len_rates];
-  for (uint32_t k = 0; k < sim_context.len_rates; k++)
-  {
-    collisions[k] = 0.0;
-  }
+  std::vector<double> collisions(sim_context.len_rates, 0.0);
   omp_init_lock(&writelock);
   t = time(NULL);
   srand(t);
@@ -91,12 +88,12 @@ int main(int argc, char *argv[])
       for (uint32_t it = 0; it < sim_context.iterations; it++)
       {
         // Initialize drone system with 2 drones
-        DroneSystem drone_system = DRS_init_drone_system(2, sim_context.speed);
+        DroneSystem drone_system(2, sim_context.speed);
         
         // Set up waypoints for each drone
-        for (size_t d = 0; d < drone_system.length; d++) {
-            FP_push_waypoint(drone_system.drones[d].fp, p2);
-            FP_push_waypoint(drone_system.drones[d].fp, p1);
+        for (size_t d = 0; d < drone_system.getLength(); d++) {
+            drone_system[d].getFlightPlan()->pushWaypoint(p2);
+            drone_system[d].getFlightPlan()->pushWaypoint(p1);
         }
         
         sim_context.rate = sim_context.rates[i];
@@ -114,25 +111,25 @@ int main(int argc, char *argv[])
             if (COM_broadcast_Pint(0.5,0.5,0.0))
             {
               
-              DR_avoid(&drone_system.drones[1], &drone_system.drones[0], sim_context.error);
-              DR_avoid(&drone_system.drones[0], &drone_system.drones[1], sim_context.error);
+              drone_system[1].avoid(&drone_system[0], sim_context.error);
+              drone_system[0].avoid(&drone_system[1], sim_context.error);
               
             }
             timer = 0;
           }
 
-          DR_move(&drone_system.drones[0], sim_context.dt);
-          DR_move(&drone_system.drones[1], sim_context.dt);
+          drone_system[0].move(sim_context.dt);
+          drone_system[1].move(sim_context.dt);
           
           
-          if (FP_isFlightPlanEmpty(drone_system.drones[0].fp) || FP_isFlightPlanEmpty(drone_system.drones[1].fp))
+          if (drone_system[0].getFlightPlan()->isEmpty() || drone_system[1].getFlightPlan()->isEmpty())
           {
             running = false;
           }
 
 
           //This should be improved for better collision detection
-          if (v2_distance(drone_system.drones[0].position, drone_system.drones[1].position) < (drone_system.drones[0].size + drone_system.drones[1].size)) 
+          if (v2_distance(drone_system[0].getPosition(), drone_system[1].getPosition()) < (drone_system[0].getSize() + drone_system[1].getSize())) 
           {
             omp_set_lock(&writelock);
             collisions[i] += 1;
@@ -143,8 +140,7 @@ int main(int argc, char *argv[])
           timer += 1;
         }//while
         // printf("Iter: %d",it);
-        //Fix for memory leak: flight plan within drones was allocated with malloc and never freed.
-        DRS_free_drone_system(&drone_system);
+        // DroneSystem destructor will automatically clean up memory
       } //iterations
       if (collisions[i] == 0.0)
       {
@@ -156,7 +152,7 @@ int main(int argc, char *argv[])
   } //openmp
 
   
-  save_results("pinterf_0.0.txt", collisions, sim_context.rates, sim_context.len_rates, sim_context.iterations, sim_context.error, sim_context.l, sim_context.speed, sim_context.prob);
+  save_results("pinterf_0.0.txt", collisions.data(), sim_context.rates, sim_context.len_rates, sim_context.iterations, sim_context.error, sim_context.l, sim_context.speed, sim_context.prob);
   return 0;
 }
 #endif

@@ -1,4 +1,3 @@
-
 /* 
 Vocabs2 - velocity obstacle for drones simulator
 Copyright (C) 2023  Franco Minucci
@@ -31,82 +30,72 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define MAX_DRONE_SPEED 100.0      // Maximum drone speed in m/s
 #define DEFAULT_DRONE_SIZE 1.0    // Default drone size in meters
 
-typedef struct
-{
-  uint64_t id;      /**< Unique ID */
-  vec2 position;    /**< Current position */
-  vec2 velocity;    /**< Current velocity */
-  double size;      /**< Physical size of the drone (meters) */
-  FlightPlan* fp;   /**< Stack of subsequent waypoints to be reached */
-  
-} Drone;
+class Drone {
+private:
+    uint64_t id;      /**< Unique ID */
+    vec2 position;    /**< Current position */
+    vec2 velocity;    /**< Current velocity */
+    double size;      /**< Physical size of the drone (meters) */
+    FlightPlan* fp;   /**< Stack of subsequent waypoints to be reached */
+    
+    static uint64_t next_id;
 
-// Drone system structure to manage multiple drones
-typedef struct {
+public:
+    // Default constructor
+    Drone();
+    
+    // Constructor
+    Drone(double x, double y, double vx, double vy, double size);
+    
+    // Destructor
+    ~Drone();
+    
+    // Copy constructor
+    Drone(const Drone& other);
+    
+    // Assignment operator
+    Drone& operator=(const Drone& other);
+    
+    // Getters
+    uint64_t getId() const { return id; }
+    vec2 getPosition() const { return position; }
+    vec2 getVelocity() const { return velocity; }
+    double getSize() const { return size; }
+    FlightPlan* getFlightPlan() const { return fp; }
+    
+    // Setters
+    void setPosition(vec2 pos) { position = pos; }
+    void setVelocity(vec2 vel) { velocity = vel; }
+    void setSize(double s) { size = s; }
+    
+    // Drone operations
+    void move(double dt);
+    void gotoWaypoint(vec2 waypoint);
+    bool collision(const Drone* d2) const;
+    void avoid(const Drone* d2, double error);
+    void stopAndWait(const Drone* d2, double error);
+};
+
+// Drone system class to manage multiple drones
+class DroneSystem {
+private:
     Drone* drones;  // Array of drones
     size_t length;   // Number of drones in the array
-} DroneSystem;
-
-// Initialize a drone system with the specified number of drones
-DroneSystem DRS_init_drone_system(size_t num_drones, double speed);
-
-// Free memory allocated for a drone system
-void DRS_free_drone_system(DroneSystem* system);
-
-/**
- * @brief Initialize a new drone
- * @param x Initial x position
- * @param y Initial y position
- * @param vx Initial x velocity (m/s)
- * @param vy Initial y velocity (m/s)
- * @param size Drone size in meters (must be > 0)
- * @return Initialized Drone structure
- */
-Drone DR_newDrone(double x, double y, double vx, double vy, double size);
-
-/**
- * @brief Free memory used by a drone
- * @param d Pointer to drone to free (can be NULL)
- */
-void DR_freeDrone(Drone *d);
-
-/**
- * @brief Move the drone by velocity x time delta
- * @param d Pointer to drone
- * @param dt Time delta in seconds (must be > 0)
- */
-void DR_move(Drone *d, double dt);
-
-/**
- * @brief Steer towards next waypoint (does not move the drone)
- * @param d Pointer to drone
- * @param waypoint Target waypoint
- */
-void DR_goto(Drone *d, vec2 waypoint);
-
-/**
- * @brief Check if drones are on a collision route
- * @param d1 Pointer to first drone
- * @param d2 Pointer to second drone
- * @return True if collision is imminent, false otherwise
- */
-bool DR_collision(Drone *d1, Drone *d2);
-
-/**
- * @brief Compute avoidance maneuver and add escape waypoint
- * @param d Pointer to drone to maneuver
- * @param d2 Pointer to drone to avoid
- * @param error Positional error magnitude
- */
-void DR_avoid(Drone *d, Drone *d2, double error);
-
-/**
- * @brief Stop and wait avoidance strategy
- * @param d Pointer to drone to maneuver
- * @param d2 Pointer to drone to avoid
- * @param error Positional error magnitude
- */
-void DR_stopAndWait(Drone *d, Drone *d2, double error);
-
+    
+public:
+    // Constructor
+    DroneSystem(size_t num_drones, double speed);
+    
+    // Destructor
+    ~DroneSystem();
+    
+    // Getters
+    Drone* getDrones() const { return drones; }
+    size_t getLength() const { return length; }
+    
+    // Access individual drones
+    Drone& operator[](size_t index) { return drones[index]; }
+    const Drone& operator[](size_t index) const { return drones[index]; }
+};
 
 #endif

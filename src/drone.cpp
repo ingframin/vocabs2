@@ -1,4 +1,3 @@
-
 /* 
 Vocabs2 - velocity obstacle for drones simulator
 Copyright (C) 2023  Franco Minucci
@@ -28,7 +27,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "math2d.h"
 #include "flightplan.h"
 
-static uint64_t ids = 0;
+// Initialize static member
+uint64_t Drone::next_id = 0;
 
 static inline double generateGaussian(double mean, double stdDev)
 {
@@ -59,7 +59,7 @@ static inline double generateGaussian(double mean, double stdDev)
 static inline vec2 generateGaussian2D(double mean, double stdDev)
 {
 	
-	double u, v, s;
+double u, v, s;
 	do
 	{
 		u = (rand()/((double)RAND_MAX)) * 2.0 - 1.0;
@@ -74,7 +74,8 @@ static inline vec2 generateGaussian2D(double mean, double stdDev)
 }
 
 
-Drone DR_newDrone(double x, double y, double vx, double vy, double size)
+// Drone constructor
+Drone::Drone(double x, double y, double vx, double vy, double size)
 {
 	// Validate and clamp input parameters
 	if (isnan(x) || isinf(x)) x = 0.0;
@@ -89,50 +90,117 @@ Drone DR_newDrone(double x, double y, double vx, double vy, double size)
 		size = MIN_DRONE_SIZE;
 	}
 	
-	Drone d;
-	d.id = ids;
-	ids++;
-	d.position.x = x;
-	d.position.y = y;
-	d.velocity.x = vx;
-	d.velocity.y = vy;
-	d.fp = FP_newFlightPlan(4);
-	if (d.fp == NULL) {
+	id = next_id;
+	next_id++;
+	position.x = x;
+	position.y = y;
+	velocity.x = vx;
+	velocity.y = vy;
+	fp = new FlightPlan(4);
+	if (fp == NULL) {
 		// Handle memory allocation failure
-		d.fp = FP_newFlightPlan(2); // Try smaller size
-		if (d.fp == NULL) {
+		fp = new FlightPlan(2); // Try smaller size
+		if (fp == NULL) {
 			// If still fails, create minimal drone
-			d.size = size;
-			return d;
+			this->size = size;
+			return;
 		}
 	}
-	d.size = size;
-	return d;
+	this->size = size;
 }
 
-void DR_move(Drone *d, double dt)
+// Default constructor
+Drone::Drone() : id(0), size(DEFAULT_DRONE_SIZE), fp(NULL) {
+	position.x = 0.0;
+	position.y = 0.0;
+	velocity.x = 0.0;
+	velocity.y = 0.0;
+}
+
+// Drone destructor
+Drone::~Drone()
+{
+	if (fp != NULL) {
+		delete fp;
+		fp = NULL;
+	}
+}
+
+// Copy constructor
+Drone::Drone(const Drone& other)
+{
+	id = next_id;
+	next_id++;
+	position = other.position;
+	velocity = other.velocity;
+	size = other.size;
+	// Create a new flight plan and copy waypoints
+	if (other.fp != NULL) {
+		fp = new FlightPlan(other.fp->getLength());
+		if (fp != NULL) {
+			// Copy waypoints manually
+			for (int64_t i = 0; i < other.fp->getCurrentWp() + 1; i++) {
+				fp->pushWaypoint(other.fp->getWaypoints()[i]);
+			}
+		}
+	} else {
+		fp = NULL;
+	}
+}
+
+// Assignment operator
+Drone& Drone::operator=(const Drone& other)
+{
+	if (this == &other) {
+		return *this;
+	}
+	
+	position = other.position;
+	velocity = other.velocity;
+	size = other.size;
+	
+	// Handle flight plan
+	if (fp != NULL) {
+		delete fp;
+	}
+	
+	// Create a new flight plan and copy waypoints
+	if (other.fp != NULL) {
+		fp = new FlightPlan(other.fp->getLength());
+		if (fp != NULL) {
+			// Copy waypoints manually
+			for (int64_t i = 0; i < other.fp->getCurrentWp() + 1; i++) {
+				fp->pushWaypoint(other.fp->getWaypoints()[i]);
+			}
+		}
+	} else {
+		fp = NULL;
+	}
+	
+	return *this;
+}
+
+void Drone::move(double dt)
 {
 	// Validate inputs
-	if (d == NULL || d->fp == NULL) return;
+	if (fp == NULL) return;
 	if (dt <= 0 || isnan(dt) || isinf(dt)) return;
 	
 	//This has to become a new function
-	if (v2_distance(d->position, FP_current_wp(d->fp)) < d->size)
-	{	
-		FP_pop_waypoint(d->fp);
+	if (v2_distance(position, fp->currentWp()) < size)
+	{
+		fp->popWaypoint();
 	}
 	
-	DR_goto(d,FP_current_wp(d->fp));
+	gotoWaypoint(fp->currentWp());
 
-	vec2 dP = v2_scale(d->velocity, dt);
-	d->position = v2_add(d->position, dP);
+	vec2 dP = v2_scale(velocity, dt);
+	position = v2_add(position, dP);
 }
 
-void DR_goto(Drone *d, vec2 waypoint)
+void Drone::gotoWaypoint(vec2 waypoint)
 {
-	if (d == NULL) return;
-
-	vec2 dirp = v2_diff(waypoint, d->position);
+	vec2 dirp = v2_diff(waypoint, position);
 	
 	// Handle zero vector case
 	if (v2_is_zero(dirp, 1e-12)) {
@@ -141,38 +209,38 @@ void DR_goto(Drone *d, vec2 waypoint)
 	}
 
 	dirp = v2_normalize(dirp);
-	double vmod = v2_mod(d->velocity);
+	double vmod = v2_mod(velocity);
 
-	d->velocity = v2_scale(dirp,vmod);
+	velocity = v2_scale(dirp,vmod);
 }
 
-bool DR_collision(Drone *d1, Drone *d2)
+bool Drone::collision(const Drone* d2) const
 {
 	// Validate inputs
-	if (d1 == NULL || d2 == NULL) return false;
+	if (d2 == NULL) return false;
 	
 	// Handle case where drones have same position
-	if (v2_is_zero(v2_diff(d1->position, d2->position), 1e-12)) {
+	if (v2_is_zero(v2_diff(position, d2->position), 1e-12)) {
 		return true; // Already colliding
 	}
 	
-	Obstacle o = compute_obstacle(d1->position, d2->position,d1->size,d2->size);
-	double speed = v2_mod(d1->velocity);
+	Obstacle o = compute_obstacle(position, d2->position, size, d2->size);
+	double speed = v2_mod(velocity);
 	
 	// Handle zero speed case
 	if (speed < MIN_DRONE_SPEED) {
 		// If drone is not moving, check distance only
-		return v2_distance(d1->position, d2->position) < (d1->size + d2->size);
+		return v2_distance(position, d2->position) < (size + d2->size);
 	}
 	
-	vec2 dif = v2_diff(d1->velocity, d2->velocity);
+	vec2 dif = v2_diff(velocity, d2->velocity);
 	if (v2_mod(dif) > 1.9 * speed)
 	{
 		return true;
 	}
-	vec2 ds = v2_add(dif, d1->position);
+	vec2 ds = v2_add(dif, position);
 
-	barycoords bc = v2_barycentric(d1->position, o.T2, o.T1, ds);
+	barycoords bc = v2_barycentric(position, o.T2, o.T1, ds);
 
 	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
 	{
@@ -182,10 +250,10 @@ bool DR_collision(Drone *d1, Drone *d2)
 	return false;
 }
 
-void DR_avoid(Drone *d, Drone *d2, double error)
+void Drone::avoid(const Drone* d2, double error)
 {
 	// Validate inputs
-	if (d == NULL || d2 == NULL || d->fp == NULL) return;
+	if (d2 == NULL || fp == NULL) return;
 	if (error < 0) error = 0; // Negative error doesn't make sense
 	
 	/*
@@ -203,17 +271,17 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 			pos_error = (vec2){0, 0};
 		}
 		
-		dx.position = v2_add(dx.position, pos_error);
+		dx.setPosition(v2_add(dx.getPosition(), pos_error));
 	}
 
-	if (DR_collision(d, &dx))
+	if (collision(&dx))
 	{
 		/*The goal of this code is to only calculate the maneuver if the incoming drone
 		* is on the leftof the current drone.
 		* This is not actually necessary and both drones can share the rsponsibility of avoiding each other.
 		* This algorithm also does not take into account the presence of other drones.
 		*/
-		vec2 dir = v2_normalize(d->velocity);
+		vec2 dir = v2_normalize(velocity);
 		// This whole mess could just be replaced by a coordinate conversion.
 		// Each drone should place the others in its own frame of reference.
 		// In reality this could be something like East North Up (or Down) coordinates rather than Earth Centered Earth Fixed coordinates.
@@ -222,42 +290,42 @@ void DR_avoid(Drone *d, Drone *d2, double error)
 		// Handle zero velocity case
 		if (v2_is_zero(dir, 1e-12)) {
 			// If not moving, just add a waypoint to stay clear
-			vec2 escape = v2_diff(d->position, dx.position);
+			vec2 escape = v2_diff(position, dx.getPosition());
 			if (!v2_is_zero(escape, 1e-12)) {
 				escape = v2_normalize(escape);
-				escape = v2_scale(escape, 2 * (d->size + dx.size));
-				escape = v2_add(escape, d->position);
-				FP_push_waypoint(d->fp, escape);
+				escape = v2_scale(escape, 2 * (size + dx.getSize()));
+				escape = v2_add(escape, position);
+				fp->pushWaypoint(escape);
 			}
 			return;
 		}
 		
 		double theta = atan2(dir.y, dir.x);
-		vec2 p2rel = v2_diff(dx.position, d->position);
+		vec2 p2rel = v2_diff(dx.getPosition(), position);
 		double thetaP2 = atan2(p2rel.y, p2rel.x);
 
 		if (fabs(thetaP2) > fabs(theta))
 		{
-			vec2 escape = v2_reverse(v2_rotateLeftHalfPI(d->velocity));
+			vec2 escape = v2_reverse(v2_rotateLeftHalfPI(velocity));
 			// If only C had function composition like Haskell...
 			escape = v2_normalize(escape);
 			if (!isnan(escape.x) && !isnan(escape.y)) {
-				escape = v2_scale(escape, 4 * (d->size + dx.size));
-				escape = v2_add(escape, d->position);
-				FP_push_waypoint(d->fp, escape);
+				escape = v2_scale(escape, 4 * (size + dx.getSize()));
+				escape = v2_add(escape, position);
+				fp->pushWaypoint(escape);
 			}
 		}
 	}
 }
 
-void DR_stopAndWait(Drone *d, Drone *d2, double error)
+void Drone::stopAndWait(const Drone* d2, double error)
 {
 	// Validate inputs
-	if (d == NULL || d2 == NULL) return;
+	if (d2 == NULL) return;
 	if (error < 0) error = 0; // Negative error doesn't make sense
 	
 	Drone dx = *d2;
-	double speed = v2_mod(d->velocity);
+	double speed = v2_mod(velocity);
 	
 	// Handle invalid speed
 	if (isnan(speed) || isinf(speed)) {
@@ -275,67 +343,49 @@ void DR_stopAndWait(Drone *d, Drone *d2, double error)
 			pos_error = (vec2){0, 0};
 		}
 		
-		dx.position = v2_add(dx.position, pos_error);
+		dx.setPosition(v2_add(dx.getPosition(), pos_error));
 	}
 
-	if (DR_collision(d, &dx))
+	if (collision(&dx))
 	{
-		if (dx.id > d->id)
+		if (dx.getId() > id)
 		{
-			d->velocity.x = 0;
-			d->velocity.y = 0;
+			velocity.x = 0;
+			velocity.y = 0;
 		}
 	}
 	else
 	{
 		// Only restore speed if it was valid
 		if (!isnan(speed) && !isinf(speed)) {
-			d->velocity.x = speed;
-			d->velocity.y = 0;
+			velocity.x = speed;
+			velocity.y = 0;
 		}
 	}
 }
 
-void DR_freeDrone(Drone *d)
-{
-	if (d == NULL) return;
-	if (d->fp != NULL) {
-		FP_free_FlightPlan(d->fp);
-		d->fp = NULL;
-	}
-}
-
-// Initialize a drone system with the specified number of drones
-DroneSystem DRS_init_drone_system(size_t num_drones, double speed) {
-    DroneSystem system;
-    system.length = num_drones;
-    system.drones = (Drone*)malloc(num_drones * sizeof(Drone));
+// DroneSystem constructor
+DroneSystem::DroneSystem(size_t num_drones, double speed) {
+    length = num_drones;
+    drones = new Drone[num_drones];
     
-    if (system.drones != NULL) {
-        // Initialize drone positions and waypoints
-        vec2 start_positions[] = {{0.0, 0.0}, {1000.0, 0.0}};
-        
-        for (size_t i = 0; i < num_drones; i++) {
-            system.drones[i] = DR_newDrone(
-                start_positions[i % 2].x, 
-                start_positions[i % 2].y, 
-                speed, 0.0, 1
-            );
-        }
-    }
+    // Initialize drone positions and waypoints
+    vec2 start_positions[] = {{0.0, 0.0}, {1000.0, 0.0}};
     
-    return system;
-}
-
-// Free memory allocated for a drone system
-void DRS_free_drone_system(DroneSystem* system) {
-    if (system->drones != NULL) {
-        for (size_t i = 0; i < system->length; i++) {
-            DR_freeDrone(&system->drones[i]);
-        }
-        free(system->drones);
-        system->drones = NULL;
+    for (size_t i = 0; i < num_drones; i++) {
+        drones[i] = Drone(
+            start_positions[i % 2].x, 
+            start_positions[i % 2].y, 
+            speed, 0.0, 1
+        );
     }
-    system->length = 0;
 }
 
+// DroneSystem destructor
+DroneSystem::~DroneSystem() {
+    if (drones != NULL) {
+        delete[] drones;
+        drones = NULL;
+    }
+    length = 0;
+}

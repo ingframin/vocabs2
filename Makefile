@@ -1,20 +1,20 @@
 # Makefile for Vocabs2 - Velocity Obstacle for Drones Simulator
 
 # Compiler and flags
-CC := clang
-CFLAGS := -std=c23 -Wall -Wextra -O3 -finline-functions -fopenmp -msse3
+CC := g++
+CFLAGS := -std=c++23 -Wall -Wextra -O3 -finline-functions -fopenmp -msse3
 LDFLAGS := -lm
 
 # Source files
 SRC_DIR := src
 SRC_FILES := \
-	$(SRC_DIR)/main.c \
-	$(SRC_DIR)/drone.c \
-	$(SRC_DIR)/flightplan.c \
-	$(SRC_DIR)/comms.c \
-	$(SRC_DIR)/math2d.c \
-	$(SRC_DIR)/math3d.c \
-	$(SRC_DIR)/file_system.c
+	$(SRC_DIR)/main.cpp \
+	$(SRC_DIR)/drone.cpp \
+	$(SRC_DIR)/flightplan.cpp \
+	$(SRC_DIR)/comms.cpp \
+	$(SRC_DIR)/math2d.cpp \
+	$(SRC_DIR)/math3d.cpp \
+	$(SRC_DIR)/file_system.cpp
 
 # Build directory
 BUILD_DIR := build
@@ -22,9 +22,9 @@ TARGET := $(BUILD_DIR)/vocabs2
 
 # Test source files
 TEST_SRC_FILES := \
-	$(SRC_DIR)/test.c \
-	$(SRC_DIR)/test_vec2.c \
-	$(SRC_DIR)/test_flightplan.c
+	$(SRC_DIR)/test.cpp \
+	$(SRC_DIR)/test_vec2.cpp \
+	$(SRC_DIR)/test_flightplan.cpp
 
 TEST_TARGET := $(BUILD_DIR)/vocabs2_test
 

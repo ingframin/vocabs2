@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "file_system.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 
 // Global simulation context (defined here, declared in simulation_context.h)
@@ -105,12 +105,12 @@ static void trim_whitespace(char* str) {
 
 // Parse a line in the format "key = value"
 static int parse_key_value(const char* line, char* key, char* value) {
-    char* equals = strchr(line, '=');
+    const char* equals = strchr(line, '=');
     if (equals == NULL) {
         return 0; // No '=' found
     }
 
-    strncpy(key, line, equals - line);
+    strncpy(key, line, static_cast<size_t>(equals - line));
     key[equals - line] = '\0';
     trim_whitespace(key);
 
