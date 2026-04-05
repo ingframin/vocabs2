@@ -24,6 +24,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <omp.h>
 #include <vector>
 #include <cstring>
+#include <iostream>
+#include <iomanip>
 #include "math2d.h"
 #include "flightplan.h"
 #include "drone.h"
@@ -44,7 +46,7 @@ int main(int argc, char** argv){
     test_pop_waypoint()
   };
   for(int i =0; i<6;i++){
-    printf("T%d pass: %s\n",i,tests[i] ? "true" : "false");
+    std::cout << "T" << i << " pass: " << (tests[i] ? "true" : "false") << "\n";
   }
   
 
@@ -86,7 +88,7 @@ int main(int argc, char *argv[])
   vec2 p2 = {1000.0, 1000.0};
   
 
-  printf("Rate:\tPcrash:\n");
+  std::cout << "Rate:\tPcrash:\n";
   omp_set_num_threads(sim_context.num_threads);
 //The simulation code should go into a separate function
 #pragma omp parallel
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
 
     for (uint32_t i = 0; i < sim_context.len_rates; i++)
     {
-      printf("rate: %.2f \n", 1000.0/sim_context.rates[i]);
+      std::cout << "rate: " << std::fixed << std::setprecision(2) << (1000.0/sim_context.rates[i]) << " \n";
 
 #pragma omp for
       for (uint32_t it = 0; it < sim_context.iterations; it++)
@@ -174,12 +176,12 @@ int main(int argc, char *argv[])
 
           timer += 1;
         }//while
-        // printf("Iter: %d",it);
+        // std::cout << "Iter: " << it;
         // DroneSystem destructor will automatically clean up memory
       } //iterations
       if (collisions[i] == 0.0)
       {
-        printf("%.3f\n", 1000.0/sim_context.rate);
+        std::cout << std::fixed << std::setprecision(3) << (1000.0/sim_context.rate) << "\n";
         break;
       }
     } //rates

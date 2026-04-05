@@ -19,10 +19,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef FILE_SYSTEM_H
 #define FILE_SYSTEM_H
-#include <stdio.h>
-#define FILE_SIZE(fp, size)  fseek(fp,0L,SEEK_END);\
-    size = ftell(fp);\
-    fseek(fp,0L,SEEK_SET);
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <vector>
 #include <stdint.h>
 #ifdef __unix
 #define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
@@ -36,10 +36,16 @@ typedef struct content{
     uint32_t size;
 }Text;
 
-//Allocates an array on the heap containing the text file content
-//!!Remember to free the returned array when done!!!
+// Modern C++ version that returns string instead of Text struct
+std::string read_text_file_modern(const std::string& filename);
+// Legacy versions for backward compatibility
 Text read_text_file(const char* filename);
+Text read_text_file_legacy(const std::string& filename);
+void write_text_file(const std::string& filename, const std::string& content);
+void write_text_file_modern(const std::string& filename, const std::string& content);
+// Legacy versions for backward compatibility  
 void write_text_file(const char* filename, const Text* text);
+void write_text_file_legacy(const std::string& filename, const Text* text);
 
 typedef struct config {
     uint32_t iterations;
@@ -59,6 +65,8 @@ typedef struct config {
 } Config;
 
 Config parse_config(const char* filename);
+Config parse_config(const std::string& filename);
+Config parse_config_modern(const std::string& filename);
 void free_config(Config* config);
 
 // Load configuration from file and populate global simulation context
@@ -75,6 +83,9 @@ void load_config();
 // speed: agent speed
 // prob: system type ('A'=No loss, 'E'=Wi-Fi, 'C'=ADS-B)
 void save_results(const char* filename, double collisions[], const double rates[], 
+                  uint32_t len_rates, uint32_t iterations, double error, double loss, 
+                  double speed, char prob);
+void save_results(const std::string& filename, double collisions[], const double rates[], 
                   uint32_t len_rates, uint32_t iterations, double error, double loss, 
                   double speed, char prob);
 #endif

@@ -23,30 +23,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define fopen_s(pFile,filename,mode) ((*(pFile))=fopen((filename),(mode)))==NULL
 #endif
 #include <cstring>
+#include <string>
+#include <iostream>
+#include <iomanip>
 time_t t;
 
 #include "simulation_context.h"  // For SimulationContext
 #include "file_system.h"
 
 void displayHelp() {
-    printf("Vocabs2 - Velocity Obstacle for Drones Simulator\n");
-    printf("Usage: vocabs2 [OPTIONS]\n");
-    printf("\nOptions:\n");
-    printf("  -h, --help          Display this help message\n");
-    printf("  -c, --config FILE   Use configuration from FILE (overrides all other parameters)\n");
-    printf("  -p, --prob CHAR     Set system type: A=No loss, E=Wi-Fi, C=ADS-B (default: A)\n");
-    printf("  -e, --error VALUE    Set positional error in meters (default: 0.0)\n");
-    printf("  -l, --loss VALUE     Set loss probability (0.0 to 1.0, default: 1000.0)\n");
-    printf("  -s, --speed VALUE    Set drone speed in m/s (default: 20.0)\n");
-    printf("  -x, --ptx VALUE      Set transmit power (0.0 to 1.0, default: 0.5)\n");
-    printf("  -r, --prx VALUE      Set receive power (0.0 to 1.0, default: 0.5)\n");
-    printf("  -i, --pint VALUE     Set interference probability (0.0 to 1.0, default: 0.0)\n");
-    printf("\nIf no config file is specified, default config.ini will be used.\n");
-    printf("Command line parameters override config file settings.\n");
+    std::cout << "Vocabs2 - Velocity Obstacle for Drones Simulator\n";
+    std::cout << "Usage: vocabs2 [OPTIONS]\n";
+    std::cout << "\nOptions:\n";
+    std::cout << "  -h, --help          Display this help message\n";
+    std::cout << "  -c, --config FILE   Use configuration from FILE (overrides all other parameters)\n";
+    std::cout << "  -p, --prob CHAR     Set system type: A=No loss, E=Wi-Fi, C=ADS-B (default: A)\n";
+    std::cout << "  -e, --error VALUE    Set positional error in meters (default: 0.0)\n";
+    std::cout << "  -l, --loss VALUE     Set loss probability (0.0 to 1.0, default: 1000.0)\n";
+    std::cout << "  -s, --speed VALUE    Set drone speed in m/s (default: 20.0)\n";
+    std::cout << "  -x, --ptx VALUE      Set transmit power (0.0 to 1.0, default: 0.5)\n";
+    std::cout << "  -r, --prx VALUE      Set receive power (0.0 to 1.0, default: 0.5)\n";
+    std::cout << "  -i, --pint VALUE     Set interference probability (0.0 to 1.0, default: 0.0)\n";
+    std::cout << "\nIf no config file is specified, default config.ini will be used.\n";
+    std::cout << "Command line parameters override config file settings.\n";
 }
 
 void parseArguments(int argc, char *argv[]) {
-    char* config_file = NULL;
+    std::string config_file = "";
     
     // Check for help flag
     for (int i = 1; i < argc; i++) {
@@ -98,7 +101,7 @@ void parseArguments(int argc, char *argv[]) {
     }
     
     // If config file is specified, load it and override all settings
-    if (config_file != NULL) {
+    if (!config_file.empty()) {
         Config config = parse_config(config_file);
         
         sim_context.iterations = config.iterations;
@@ -142,20 +145,20 @@ void parseArguments(int argc, char *argv[]) {
     }
     
     // Display current configuration
-    printf("Error: %.3f\n", sim_context.error);
+    std::cout << "Error: " << std::fixed << std::setprecision(3) << sim_context.error << "\n";
     switch (sim_context.prob)
     {
     case 'E':
-        printf("Wi-Fi beacons\n");
+        std::cout << "Wi-Fi beacons\n";
         break;
     case 'C':
-        printf("ADS-B\n");
+        std::cout << "ADS-B\n";
         break;
     default:
-        printf("No loss\n");
+        std::cout << "No loss\n";
     }
-    printf("Loss: %.3f\n", sim_context.l);
-    printf("Speed: %.3f\n", sim_context.speed);
+    std::cout << "Loss: " << std::fixed << std::setprecision(3) << sim_context.l << "\n";
+    std::cout << "Speed: " << std::fixed << std::setprecision(3) << sim_context.speed << "\n";
 }
 
 /*Maybe I should add some error checking? :-/*/
