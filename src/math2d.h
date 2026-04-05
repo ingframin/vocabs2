@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cstdlib>
 #include <cstdint>
+#include <immintrin.h>
 
 // 2D Vector class
 class vec2 {

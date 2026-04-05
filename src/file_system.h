@@ -52,6 +52,10 @@ typedef struct config {
     char prob;
     double loss;
     int num_drones; // Number of drones
+    // Communication parameters
+    double Ptx;    // Transmit power (0.0 to 1.0)
+    double Prx;    // Receive power (0.0 to 1.0)
+    double Pint;   // Interference probability (0.0 to 1.0)
 } Config;
 
 Config parse_config(const char* filename);

@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <stdbool.h>
 #include <omp.h>
 #include <vector>
+#include <cstring>
 #include "math2d.h"
 #include "flightplan.h"
 #include "drone.h"
@@ -57,11 +58,22 @@ int main(int argc, char *argv[])
 {
 
   
-  // Load configuration from file
-  load_config();
+  // Parse command line arguments first to check for config file override
+  parseArguments(argc, argv);
   
-  // Parse command line arguments (can override config)
-  parseArguments(argc,argv);
+  // Load configuration from file (if not already loaded via -c/--config)
+  // Check if we need to load the default config
+  bool need_default_config = true;
+  for (int i = 1; i < argc; i++) {
+      if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--config") == 0) {
+          need_default_config = false;
+          break;
+      }
+  }
+  
+  if (need_default_config) {
+      load_config();
+  }
   
   std::vector<double> collisions(sim_context.len_rates, 0.0);
   omp_init_lock(&writelock);
@@ -108,33 +120,56 @@ int main(int argc, char *argv[])
           {
 
             // if (COM_broadcast(drone_system.drones[0].position, drone_system.drones[1].position, sys, l))
-            if (COM_broadcast_Pint(0.5,0.5,0.0))
+            if (COM_broadcast_Pint(sim_context.Ptx, sim_context.Prx, sim_context.Pint))
             {
               
-              drone_system[1].avoid(&drone_system[0], sim_context.error);
-              drone_system[0].avoid(&drone_system[1], sim_context.error);
+              // Avoid other drones
+              for (size_t d1 = 0; d1 < drone_system.getLength(); d1++) {
+                for (size_t d2 = 0; d2 < drone_system.getLength(); d2++) {
+                  if (d1 != d2) {
+                    drone_system[d1].avoid(&drone_system[d2], sim_context.error);
+                  }
+                }
+              }
               
             }
             timer = 0;
           }
 
-          drone_system[0].move(sim_context.dt);
-          drone_system[1].move(sim_context.dt);
+          // Move all drones
+          for (size_t d = 0; d < drone_system.getLength(); d++) {
+            drone_system[d].move(sim_context.dt);
+          }
           
           
-          if (drone_system[0].getFlightPlan()->isEmpty() || drone_system[1].getFlightPlan()->isEmpty())
+          // Check if any drone has completed its flight plan
+          bool all_drones_have_waypoints = true;
+          for (size_t d = 0; d < drone_system.getLength(); d++) {
+            if (drone_system[d].getFlightPlan()->isEmpty()) {
+              all_drones_have_waypoints = false;
+              break;
+            }
+          }
+          if (!all_drones_have_waypoints)
           {
             running = false;
           }
 
 
           //This should be improved for better collision detection
-          if (drone_system[0].getPosition().distanceTo(drone_system[1].getPosition()) < (drone_system[0].getSize() + drone_system[1].getSize())) 
-          {
-            omp_set_lock(&writelock);
-            collisions[i] += 1;
-            omp_unset_lock(&writelock);
-            running = false;
+          // Check for collisions between any pair of drones
+          bool collision_detected = false;
+          for (size_t d1 = 0; d1 < drone_system.getLength() && !collision_detected; d1++) {
+            for (size_t d2 = d1 + 1; d2 < drone_system.getLength() && !collision_detected; d2++) {
+              if (drone_system[d1].getPosition().distanceTo(drone_system[d2].getPosition()) < (drone_system[d1].getSize() + drone_system[d2].getSize())) 
+              {
+                omp_set_lock(&writelock);
+                collisions[i] += 1;
+                omp_unset_lock(&writelock);
+                collision_detected = true;
+                running = false;
+              }
+            }
           }
 
           timer += 1;

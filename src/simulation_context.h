@@ -36,6 +36,10 @@ typedef struct {
     RFsystem sys;
     double l; // loss probability x1000
     uint32_t len_rates;
+    // Communication parameters
+    double Ptx;    // Transmit power (0.0 to 1.0)
+    double Prx;    // Receive power (0.0 to 1.0)
+    double Pint;   // Interference probability (0.0 to 1.0)
 } SimulationContext;
 
 // Global simulation context (defined in file_system.c, declared here)

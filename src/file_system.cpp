@@ -220,6 +220,14 @@ Config parse_config(const char* filename) {
                 } else if (strcmp(key, "loss") == 0) {
                     config.loss = atof(value);
                 }
+            } else if (strcmp(current_section, "Communication") == 0) {
+                if (strcmp(key, "Ptx") == 0) {
+                    config.Ptx = atof(value);
+                } else if (strcmp(key, "Prx") == 0) {
+                    config.Prx = atof(value);
+                } else if (strcmp(key, "Pint") == 0) {
+                    config.Pint = atof(value);
+                }
             }
         }
     }
@@ -289,6 +297,10 @@ void load_config() {
     sim_context.speed = config.speed;
     sim_context.prob = config.prob;
     sim_context.l = config.loss;
+    // Set communication parameters
+    sim_context.Ptx = config.Ptx;
+    sim_context.Prx = config.Prx;
+    sim_context.Pint = config.Pint;
     
     // Set system type based on prob
     switch (sim_context.prob)

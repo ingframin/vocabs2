@@ -30,7 +30,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 double vec2::mod() const
 {
-  return hypot(x, y);
+  // Use AVX for better performance (4x parallelism)
+  __m256d v = _mm256_set_pd(0, 0, y, x);
+  __m256d squared = _mm256_mul_pd(v, v);
+  __m128d sum128 = _mm_add_pd(_mm256_extractf128_pd(squared, 0), _mm256_extractf128_pd(squared, 1));
+  return sqrt(_mm_cvtsd_f64(sum128));
 }
 
 vec2 vec2::normalize() const
@@ -46,17 +50,35 @@ vec2 vec2::normalize() const
 
 vec2 vec2::operator+(const vec2& other) const
 {
-  return vec2(x + other.x, y + other.y);
+  // Use AVX for better performance
+  __m256d v1 = _mm256_loadu_pd(&x);  // Load x,y (upper 128 bits unused)
+  __m256d v2 = _mm256_loadu_pd(&other.x);
+  __m256d result = _mm256_add_pd(v1, v2);
+  vec2 r;
+  _mm256_storeu_pd(&r.x, result);
+  return r;
 }
 
 vec2 vec2::operator-(const vec2& other) const
 {
-  return vec2(x - other.x, y - other.y);
+  // Use AVX for better performance
+  __m256d v1 = _mm256_loadu_pd(&x);
+  __m256d v2 = _mm256_loadu_pd(&other.x);
+  __m256d result = _mm256_sub_pd(v1, v2);
+  vec2 r;
+  _mm256_storeu_pd(&r.x, result);
+  return r;
 }
 
 vec2 vec2::operator*(double k) const
 {
-  return vec2(x * k, y * k);
+  // Use AVX for better performance
+  __m256d v = _mm256_loadu_pd(&x);
+  __m256d scale = _mm256_set1_pd(k);
+  __m256d result = _mm256_mul_pd(v, scale);
+  vec2 r;
+  _mm256_storeu_pd(&r.x, result);
+  return r;
 }
 
 vec2 vec2::operator+(double k) const
@@ -81,9 +103,15 @@ bool vec2::isZero(double epsilon) const
 
 double vec2::distanceTo(const vec2& other) const
 {
-  double dx = other.x - x;
-  double dy = other.y - y;
-  return hypot(dx, dy);
+  // Use AVX for better performance
+  __m256d dx = _mm256_set_pd(0, 0, other.y - y, other.x - x);
+  __m256d squared = _mm256_mul_pd(dx, dx);
+  
+  // Horizontal add: dx² + dy²
+  __m128d low = _mm256_castpd256_pd128(squared);
+  __m128d high = _mm256_extractf128_pd(squared, 1);
+  __m128d sum128 = _mm_add_pd(low, high);
+  return sqrt(_mm_cvtsd_f64(sum128));
 }
 
 double vec2::angleTo(const vec2& other) const
@@ -108,7 +136,16 @@ double vec2::angleTo(const vec2& other) const
 
 double vec2::dot(const vec2& other) const
 {
-  return x * other.x + y * other.y;
+  // Use AVX for better performance
+  __m256d v1 = _mm256_loadu_pd(&x);
+  __m256d v2 = _mm256_loadu_pd(&other.x);
+  __m256d product = _mm256_mul_pd(v1, v2);
+  
+  // Horizontal add: (x1*y1 + x2*y2) where x2,y2 are 0
+  __m128d low = _mm256_castpd256_pd128(product);
+  __m128d high = _mm256_extractf128_pd(product, 1);
+  __m128d sum128 = _mm_add_pd(low, high);
+  return _mm_cvtsd_f64(sum128);
 }
 
 vec2 vec2::rotate(double angle) const

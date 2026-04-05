@@ -31,7 +31,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 double vec3::mod() const
 {
-    return sqrt(x * x + y * y + z * z);
+    // AVX-optimized implementation
+    __m256d v = _mm256_loadu_pd(&x);  // Load x,y,z (4th element unused)
+    __m256d squared = _mm256_mul_pd(v, v);
+    
+    // Horizontal sum: x² + y² + z²
+    __m128d low = _mm256_castpd256_pd128(squared);
+    __m128d high = _mm256_extractf128_pd(squared, 1);
+    __m128d sum128 = _mm_add_pd(low, high);
+    __m128d final_sum = _mm_hadd_pd(sum128, sum128);
+    return sqrt(_mm_cvtsd_f64(final_sum));
 }
 
 vec3 vec3::normalize() const
@@ -40,22 +49,51 @@ vec3 vec3::normalize() const
     if (m < 1e-12) {
         return vec3(0.0, 0.0, 0.0);
     }
-    return vec3(x / m, y / m, z / m);
+    
+    // AVX-optimized division
+    __m256d v = _mm256_loadu_pd(&x);
+    __m256d scale = _mm256_set1_pd(1.0 / m);
+    __m256d result = _mm256_mul_pd(v, scale);
+    
+    vec3 r;
+    _mm256_storeu_pd(&r.x, result);
+    return r;
 }
 
 vec3 vec3::operator+(const vec3& other) const
 {
-    return vec3(x + other.x, y + other.y, z + other.z);
+    // AVX-optimized addition
+    __m256d v1 = _mm256_loadu_pd(&x);
+    __m256d v2 = _mm256_loadu_pd(&other.x);
+    __m256d result = _mm256_add_pd(v1, v2);
+    
+    vec3 r;
+    _mm256_storeu_pd(&r.x, result);
+    return r;
 }
 
 vec3 vec3::operator-(const vec3& other) const
 {
-    return vec3(x - other.x, y - other.y, z - other.z);
+    // AVX-optimized subtraction
+    __m256d v1 = _mm256_loadu_pd(&x);
+    __m256d v2 = _mm256_loadu_pd(&other.x);
+    __m256d result = _mm256_sub_pd(v1, v2);
+    
+    vec3 r;
+    _mm256_storeu_pd(&r.x, result);
+    return r;
 }
 
 vec3 vec3::operator*(double k) const
 {
-    return vec3(x * k, y * k, z * k);
+    // AVX-optimized scalar multiplication
+    __m256d v = _mm256_loadu_pd(&x);
+    __m256d scale = _mm256_set1_pd(k);
+    __m256d result = _mm256_mul_pd(v, scale);
+    
+    vec3 r;
+    _mm256_storeu_pd(&r.x, result);
+    return r;
 }
 
 bool vec3::operator==(const vec3& other) const
@@ -70,8 +108,18 @@ bool vec3::operator!=(const vec3& other) const
 
 double vec3::distanceTo(const vec3& other) const
 {
-    vec3 dif = *this - other;
-    return dif.mod();
+    // AVX-optimized distance calculation
+    __m256d v1 = _mm256_loadu_pd(&x);
+    __m256d v2 = _mm256_loadu_pd(&other.x);
+    __m256d dif = _mm256_sub_pd(v1, v2);
+    __m256d squared = _mm256_mul_pd(dif, dif);
+    
+    // Horizontal sum: (x1-x2)² + (y1-y2)² + (z1-z2)²
+    __m128d low = _mm256_castpd256_pd128(squared);
+    __m128d high = _mm256_extractf128_pd(squared, 1);
+    __m128d sum128 = _mm_add_pd(low, high);
+    __m128d final_sum = _mm_hadd_pd(sum128, sum128);
+    return sqrt(_mm_cvtsd_f64(final_sum));
 }
 
 double vec3::angleTo(const vec3& other) const
@@ -93,16 +141,41 @@ double vec3::angleTo(const vec3& other) const
 
 double vec3::dot(const vec3& other) const
 {
-    return x * other.x + y * other.y + z * other.z;
+    // AVX-optimized dot product
+    __m256d v1 = _mm256_loadu_pd(&x);
+    __m256d v2 = _mm256_loadu_pd(&other.x);
+    __m256d product = _mm256_mul_pd(v1, v2);
+    
+    // Horizontal sum: x1*y1 + y1*y2 + z1*z2
+    __m128d low = _mm256_castpd256_pd128(product);
+    __m128d high = _mm256_extractf128_pd(product, 1);
+    __m128d sum128 = _mm_add_pd(low, high);
+    __m128d final_sum = _mm_hadd_pd(sum128, sum128);
+    return _mm_cvtsd_f64(final_sum);
 }
 
 vec3 vec3::cross(const vec3& other) const
 {
-    return vec3(
-        y * other.z - z * other.y,
-        z * other.x - x * other.z,
-        x * other.y - y * other.x
-    );
+    // AVX-optimized cross product
+    __m256d v1 = _mm256_loadu_pd(&x);
+    __m256d v2 = _mm256_loadu_pd(&other.x);
+    
+    // Shuffle for cross product components
+    __m256d shuffle1 = _mm256_permute_pd(v1, 0b0100); // y, x, y, x
+    __m256d shuffle2 = _mm256_permute_pd(v2, 0b1110); // z, y, z, y
+    __m256d shuffle3 = _mm256_permute_pd(v1, 0b1100); // z, z, x, x
+    __m256d shuffle4 = _mm256_permute_pd(v2, 0b0100); // y, y, z, z
+    
+    __m256d part1 = _mm256_mul_pd(shuffle1, shuffle2);
+    __m256d part2 = _mm256_mul_pd(shuffle3, shuffle4);
+    __m256d result = _mm256_sub_pd(part1, part2);
+    
+    // Fix up the components (cross product has specific ordering)
+    __m256d permuted = _mm256_permute4x64_pd(result, 0b1001); // Swap components
+    
+    vec3 r;
+    _mm256_storeu_pd(&r.x, permuted);
+    return r;
 }
 
 double vec3::angleToX() const

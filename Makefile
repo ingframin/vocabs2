@@ -2,7 +2,7 @@
 
 # Compiler and flags
 CC := g++
-CFLAGS := -std=c++23 -Wall -Wextra -O3 -finline-functions -fopenmp -msse3
+CFLAGS := -std=c++23 -Wall -Wextra -O3 -finline-functions -fopenmp -mavx2 -mfma
 LDFLAGS := -lm
 
 # Source files
