@@ -222,29 +222,49 @@ bool Drone::collision(const Drone* d2) const
 		return true; // Already colliding
 	}
 	
-	Obstacle o = compute_obstacle(position, d2->position, size, d2->size);
-	double speed = velocity.mod();
+	// Use proper velocity obstacle for collision detection
+	Obstacle vo = compute_velocity_obstacle(position, velocity, 
+	                                      d2->position, d2->velocity, 
+	                                      size, d2->size);
 	
-	// Handle zero speed case
-	if (speed < MIN_DRONE_SPEED) {
-		// If drone is not moving, check distance only
+	// Check if current velocity is inside the velocity obstacle
+	// A velocity is collision-free if it's outside the VO cone
+	
+	// For simple collision detection, we can use barycentric coordinates
+	// to check if the origin (zero relative velocity) is inside the VO
+	barycoords bc = v2_barycentric(vo.T2, vo.T1, vo.position, vec2(0, 0));
+	
+	// If origin is inside the VO triangle, collision is imminent
+	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
+	{
+		// Origin is inside VO - check distance for immediate collision
 		return position.distanceTo(d2->position) < (size + d2->size);
 	}
 	
-	vec2 dif = velocity - d2->velocity;
-	if (dif.mod() > 1.9 * speed)
+	// Additional check: if relative velocity points directly at obstacle
+	vec2 rel_vel = d2->velocity - velocity;
+	vec2 to_obstacle = vo.position - vec2(0, 0);
+	
+	// Check if relative velocity is in the direction of the obstacle
+	if (rel_vel.dot(to_obstacle) > 0 && 
+	    rel_vel.mod() > 1e-6 && 
+	    to_obstacle.mod() > 1e-6)
 	{
-		return true;
+		// Compute angle between relative velocity and obstacle direction
+		double cos_angle = rel_vel.dot(to_obstacle) / (rel_vel.mod() * to_obstacle.mod());
+		if (cos_angle > 0.95) { // Within ~18 degrees
+			// Check time to collision
+			double distance = position.distanceTo(d2->position);
+			double closing_speed = rel_vel.mod();
+			if (closing_speed > 1e-6) {
+				double time_to_collision = distance / closing_speed;
+				if (time_to_collision < 2.0) { // Collision within 2 seconds
+					return true;
+				}
+			}
+		}
 	}
-	vec2 ds = dif + position;
-
-	barycoords bc = v2_barycentric(position, o.T2, o.T1, ds);
-
-	if (bc.alpha > 0 && bc.beta > 0 && bc.gamma > 0)
-	{
-		return true;
-	}
-
+	
 	return false;
 }
 

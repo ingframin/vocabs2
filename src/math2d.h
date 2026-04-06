@@ -132,5 +132,8 @@ barycoords v2_barycentric(const vec2& A, const vec2& B, const vec2& C, const vec
 // ======================
 
 Obstacle compute_obstacle(const vec2& pos1, const vec2& pos2, double size1, double size2);
+Obstacle compute_velocity_obstacle(const vec2& pos1, const vec2& vel1, 
+                                   const vec2& pos2, const vec2& vel2, 
+                                   double size1, double size2);
 
 #endif

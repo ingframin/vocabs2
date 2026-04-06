@@ -400,3 +400,58 @@ Obstacle compute_obstacle(const vec2& pos1, const vec2& pos2, double size1, doub
   
   return obs;
 }
+
+// Proper Velocity Obstacle implementation
+Obstacle compute_velocity_obstacle(const vec2& pos1, const vec2& vel1, 
+                                   const vec2& pos2, const vec2& vel2, 
+                                   double size1, double size2)
+{
+  Obstacle vo;
+  
+  // Compute relative position and velocity
+  vec2 rel_pos = pos2 - pos1;
+  vec2 rel_vel = vel2 - vel1;
+  
+  // Combined radius (sum of agent radii)
+  vo.radius = size1 + size2;
+  
+  // Distance between agents
+  double dist = rel_pos.mod();
+  
+  // Handle special cases
+  if (dist < 1e-12) {
+    // Agents are at the same position - create a full circle obstacle
+    vo.position = vec2(0, 0); // Centered at origin in velocity space
+    vo.T1 = vec2(vo.radius, 0);
+    vo.T2 = vec2(-vo.radius, 0);
+    return vo;
+  }
+  
+  // Normalize relative position
+  vec2 rel_pos_norm = rel_pos.normalize();
+  
+  // Compute the apex of the velocity obstacle cone
+  // The apex is at (rel_vel • rel_pos_norm) * rel_pos_norm
+  double rel_vel_proj = rel_vel.dot(rel_pos_norm);
+  vo.position = rel_pos_norm * rel_vel_proj;
+  
+  // Compute the tangent points of the velocity obstacle
+  // These are perpendicular to the line connecting the apex to the origin
+  vec2 perp_dir = vec2(-rel_pos_norm.y, rel_pos_norm.x); // 90 degree rotation
+  
+  // The angle of the cone depends on the relative velocity and distance
+  // Using the formula: sin(theta) = (r1 + r2) / ||rel_pos|| * ||rel_vel|| / ||rel_vel_proj||
+  double sin_theta = (vo.radius / dist) * (rel_vel.mod() / std::abs(rel_vel_proj + 1e-12));
+  
+  // Clamp sin_theta to valid range [-1, 1]
+  if (sin_theta > 1.0) sin_theta = 1.0;
+  if (sin_theta < -1.0) sin_theta = -1.0;
+  
+  // Compute the tangent points
+  double tangent_length = vo.radius * std::sqrt(1.0 - sin_theta * sin_theta) / sin_theta;
+  
+  vo.T1 = vo.position + (perp_dir * tangent_length);
+  vo.T2 = vo.position + (perp_dir * (-tangent_length));
+  
+  return vo;
+}

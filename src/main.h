@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <cstring>
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -52,7 +51,8 @@ void parseArguments(int argc, char *argv[], std::string& output_filename) {
     
     // Check for help flag
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
+        std::string arg = argv[i];
+        if (arg == "-h" || arg == "--help") {
             displayHelp();
             exit(0);
         }
@@ -60,27 +60,28 @@ void parseArguments(int argc, char *argv[], std::string& output_filename) {
     
     // Parse arguments
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-o") == 0 || strcmp(argv[i], "--output") == 0) {
+        std::string arg = argv[i];
+        if (arg == "-o" || arg == "--output") {
             if (i + 1 < argc) {
                 output_filename = argv[++i];
             }
-        } else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--config") == 0) {
+        } else if (arg == "-c" || arg == "--config") {
             if (i + 1 < argc) {
                 config_file = argv[++i];
             }
-        } else if (strcmp(argv[i], "-p") == 0 || strcmp(argv[i], "--prob") == 0) {
+        } else if (arg == "-p" || arg == "--prob") {
             if (i + 1 < argc) {
                 sim_context.prob = argv[++i][0];
             }
-        } else if (strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--error") == 0) {
+        } else if (arg == "-e" || arg == "--error") {
             if (i + 1 < argc) {
                 sim_context.error = atof(argv[++i]);
             }
-        } else if (strcmp(argv[i], "-l") == 0 || strcmp(argv[i], "--loss") == 0) {
+        } else if (arg == "-l" || arg == "--loss") {
             if (i + 1 < argc) {
                 sim_context.l = 1000.0 * atof(argv[++i]);
             }
-        } else if (strcmp(argv[i], "-s") == 0 || strcmp(argv[i], "--speed") == 0) {
+        } else if (arg == "-s" || arg == "--speed") {
             if (i + 1 < argc) {
                 sim_context.speed = atof(argv[++i]);
                 if (sim_context.speed > 100.0)
@@ -88,15 +89,15 @@ void parseArguments(int argc, char *argv[], std::string& output_filename) {
                     sim_context.dt = 1e-4;
                 }
             }
-        } else if (strcmp(argv[i], "-x") == 0 || strcmp(argv[i], "--ptx") == 0) {
+        } else if (arg == "-x" || arg == "--ptx") {
             if (i + 1 < argc) {
                 sim_context.Ptx = atof(argv[++i]);
             }
-        } else if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--prx") == 0) {
+        } else if (arg == "-r" || arg == "--prx") {
             if (i + 1 < argc) {
                 sim_context.Prx = atof(argv[++i]);
             }
-        } else if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--pint") == 0) {
+        } else if (arg == "-i" || arg == "--pint") {
             if (i + 1 < argc) {
                 sim_context.Pint = atof(argv[++i]);
             }
