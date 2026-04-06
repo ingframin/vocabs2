@@ -32,27 +32,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "comms.h"
 #include "main.h"
 
-#ifdef TEST
-#include "test_vec2.h"
-#include "test_flightplan.h"
-
-int main(int argc, char** argv){
-  bool tests[] = {
-    test_v2_mod(),
-    // test_v2_rotateHalfPI(),
-    test_v2_rotate(),
-    test_newFlightPlan(),
-    test_push_waypoint(),
-    test_pop_waypoint()
-  };
-  for(int i =0; i<6;i++){
-    std::cout << "T" << i << " pass: " << (tests[i] ? "true" : "false") << "\n";
-  }
-  
-
-  return 0;
-}
-#else
 omp_lock_t writelock;
 /* This function is too big and needs to be split into multiple functions */
 
