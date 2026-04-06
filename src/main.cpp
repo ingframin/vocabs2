@@ -107,8 +107,8 @@ int main(int argc, char *argv[])
 #pragma omp for
       for (uint32_t it = 0; it < sim_context.iterations; it++)
       {
-        // Initialize drone system with 2 drones
-        DroneSystem drone_system(2, sim_context.speed);
+        // Initialize drone system with configured number of drones
+        DroneSystem drone_system(sim_context.num_drones, sim_context.speed);
         
         // Set up waypoints for each drone
         for (size_t d = 0; d < drone_system.getLength(); d++) {

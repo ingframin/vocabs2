@@ -42,6 +42,8 @@ struct SimulationContext{
     double Pint;   // Interference probability (0.0 to 1.0)
     // Output parameters
     std::string filename; // Output filename
+    // Drone system parameters
+    size_t num_drones; // Number of drones in simulation
 };
 
 // Global simulation context (defined in file_system.cpp, declared here)

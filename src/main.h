@@ -42,6 +42,7 @@ void displayHelp() {
     std::cout << "  -x, --ptx VALUE      Set transmit power (0.0 to 1.0, default: 0.5)\n";
     std::cout << "  -r, --prx VALUE      Set receive power (0.0 to 1.0, default: 0.5)\n";
     std::cout << "  -i, --pint VALUE     Set interference probability (0.0 to 1.0, default: 0.0)\n";
+    std::cout << "  -n, --num-drones N   Set number of drones (default: 2)\n";
     std::cout << "\nIf no config file is specified, default config.ini will be used.\n";
     std::cout << "Command line parameters override config file settings.\n";
 }
@@ -101,7 +102,16 @@ void parseArguments(int argc, char *argv[], std::string& output_filename) {
             if (i + 1 < argc) {
                 sim_context.Pint = atof(argv[++i]);
             }
+        } else if (arg == "-n" || arg == "--num-drones") {
+            if (i + 1 < argc) {
+                sim_context.num_drones = static_cast<size_t>(atoi(argv[++i]));
+            }
         }
+    }
+    
+    // Set default number of drones if not specified
+    if (sim_context.num_drones == 0) {
+        sim_context.num_drones = 2; // Default to 2 drones
     }
     
     // If config file is specified, load it and override all settings
@@ -124,7 +134,13 @@ void parseArguments(int argc, char *argv[], std::string& output_filename) {
         sim_context.l = config.loss;
         sim_context.Ptx = config.Ptx;
         sim_context.Prx = config.Prx;
+        sim_context.Prx = config.Prx;
         sim_context.Pint = config.Pint;
+        
+        // Load number of drones from config if available
+        if (config.num_drones > 0) {
+            sim_context.num_drones = config.num_drones;
+        }
         
         // Copy filename if not already set via command line
         if (output_filename.empty() && !config.filename.empty()) {
