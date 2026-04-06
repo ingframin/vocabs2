@@ -179,4 +179,4 @@ int main(int argc, char *argv[])
   save_results(final_filename, collisions.data(), sim_context.rates, sim_context.iterations, sim_context.error, sim_context.l, sim_context.speed, sim_context.prob);
   return 0;
 }
-#endif
+
