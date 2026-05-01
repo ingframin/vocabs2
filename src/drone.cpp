@@ -382,6 +382,150 @@ void Drone::stopAndWait(const Drone* d2, double error)
 	}
 }
 
+void Drone::avoidAll(const std::vector<Drone>& drones, double error)
+{
+	// Validate inputs
+	if (error < 0) error = 0; // Negative error doesn't make sense
+	
+	// If no flight plan, can't avoid
+	if (fp == NULL) return;
+	
+	// Current desired velocity (towards next waypoint)
+	vec2 desired_velocity = velocity;
+	
+	// Check if we have a waypoint to go to
+	if (fp->getCurrentWp() >= 0 && static_cast<size_t>(fp->getCurrentWp()) < fp->getLength()) {
+		vec2 waypoint = fp->currentWp();
+		vec2 dir = waypoint - position;
+		if (!dir.isZero(1e-12)) {
+			dir = dir.normalize();
+			desired_velocity = dir * velocity.mod();
+		}
+	}
+	
+	// Collect all velocity obstacles from other drones
+	std::vector<Obstacle> obstacles;
+	
+	for (const Drone& other : drones) {
+		// Skip self
+		if (other.getId() == id) continue;
+		
+		// Apply position error if specified
+		Drone dx = other;
+		if (error > 0) {
+			vec2 pos_error = generateGaussian2D(0, error);
+			// Validate generated error vector
+			if (isnan(pos_error.x) || isnan(pos_error.y) || isinf(pos_error.x) || isinf(pos_error.y)) {
+				pos_error = (vec2){0, 0};
+			}
+			dx.setPosition(dx.getPosition() + pos_error);
+		}
+		
+		// Compute velocity obstacle
+		Obstacle vo = compute_velocity_obstacle(position, velocity, 
+		                                      dx.getPosition(), dx.getVelocity(), 
+		                                      size, dx.getSize());
+		obstacles.push_back(vo);
+	}
+	
+	// If no obstacles, keep desired velocity
+	if (obstacles.empty()) {
+		velocity = desired_velocity;
+		return;
+	}
+	
+	// Find the best velocity that avoids all obstacles
+	// We'll sample velocities in a circle around the desired velocity
+	const int NUM_SAMPLES = 36; // Number of velocity samples to try
+	const double MAX_DEVIATION = M_PI / 4; // Maximum angle deviation from desired velocity
+	
+	vec2 best_velocity = desired_velocity;
+	bool found_valid = false;
+	
+	// Try the desired velocity first
+	bool desired_valid = true;
+	for (const Obstacle& vo : obstacles) {
+		// Check if desired velocity is inside the VO
+		// Convert velocity to relative space
+		vec2 rel_vel = desired_velocity - vo.position;
+		
+		// Use barycentric coordinates to check if velocity is inside VO
+		barycoords bc = v2_barycentric(vo.T2, vo.T1, vo.position, rel_vel);
+		
+		if (bc.alpha >= 0 && bc.beta >= 0 && bc.gamma >= 0) {
+			desired_valid = false;
+			break;
+		}
+	}
+	
+	if (desired_valid) {
+		velocity = desired_velocity;
+		return;
+	}
+	
+	// Sample velocities around the desired velocity
+	for (int i = 0; i < NUM_SAMPLES; i++) {
+		double angle = -MAX_DEVIATION + (2.0 * MAX_DEVIATION * i) / (NUM_SAMPLES - 1);
+		
+		// Rotate desired velocity by angle
+		vec2 sample_vel = desired_velocity.rotate(angle);
+		
+		// Check if this velocity avoids all obstacles
+		bool valid = true;
+		for (const Obstacle& vo : obstacles) {
+			// Convert velocity to relative space
+			vec2 rel_vel = sample_vel - vo.position;
+			
+			// Use barycentric coordinates to check if velocity is inside VO
+			barycoords bc = v2_barycentric(vo.T2, vo.T1, vo.position, rel_vel);
+			
+			if (bc.alpha >= 0 && bc.beta >= 0 && bc.gamma >= 0) {
+				valid = false;
+				break;
+			}
+		}
+		
+		if (valid) {
+			// Found a valid velocity
+			if (!found_valid || sample_vel.distanceTo(desired_velocity) < best_velocity.distanceTo(desired_velocity)) {
+				best_velocity = sample_vel;
+				found_valid = true;
+			}
+		}
+	}
+	
+	// If we found a valid velocity, use it
+	if (found_valid) {
+		velocity = best_velocity;
+		return;
+	}
+	
+	// If no valid velocity found by sampling, try to find one by moving away from obstacles
+	// Compute repulsion vector from all obstacles
+	vec2 repulsion(0, 0);
+	for (const Obstacle& vo : obstacles) {
+		// The direction to avoid is towards the apex of the VO
+		repulsion = repulsion + vo.position;
+	}
+	
+	// If repulsion is significant, use it to modify velocity
+	if (!repulsion.isZero(1e-6)) {
+		repulsion = repulsion.normalize();
+		// Add repulsion to desired velocity
+		vec2 new_velocity = desired_velocity + repulsion * velocity.mod() * 0.5;
+		
+		// Limit the magnitude to max speed
+		if (new_velocity.mod() > MAX_DRONE_SPEED) {
+			new_velocity = new_velocity.normalize() * MAX_DRONE_SPEED;
+		}
+		
+		velocity = new_velocity;
+	} else {
+		// As last resort, stop
+		velocity = vec2(0, 0);
+	}
+}
+
 // DroneSystem constructor
 DroneSystem::DroneSystem(size_t num_drones, double speed) {
     // Initialize drone positions and waypoints

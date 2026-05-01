@@ -81,6 +81,7 @@ public:
     void gotoWaypoint(vec2 waypoint);
     bool collision(const Drone* d2) const;
     void avoid(const Drone* d2, double error);
+    void avoidAll(const std::vector<Drone>& drones, double error = 0.0);
     void stopAndWait(const Drone* d2, double error);
 };
 
